@@ -526,24 +526,71 @@ function calculate(type, name) {
     result = `${rate}% of ${value} = ${answer}`;
   }
 
-  else if (type === "sip") {
-    const monthly = Number($("sipAmount").value);
-    const annualRate = Number($("sipRate").value);
-    const years = Number($("sipYears").value);
+ else if (type === "sip") {
+  const monthly = Number($("sipAmount").value);
+  const annualRate = Number($("sipRate").value);
+  const years = Number($("sipYears").value);
 
-    const months = years * 12;
-    const monthlyRate = annualRate / 12 / 100;
+  const months = years * 12;
+  const monthlyRate = annualRate / 12 / 100;
 
-    const futureValue =
+  const investedAmount = monthly * months;
+
+  let futureValue;
+
+  if (monthlyRate === 0) {
+    futureValue = investedAmount;
+  } else {
+    futureValue =
       monthly *
-      (((Math.pow(1 + monthlyRate, months) - 1) /
-        monthlyRate) *
-        (1 + monthlyRate));
-
-    result = `Estimated Value: ₹${futureValue.toLocaleString("en-IN", {
-      maximumFractionDigits: 0
-    })}`;
+      (
+        (Math.pow(1 + monthlyRate, months) - 1) /
+        monthlyRate
+      ) *
+      (1 + monthlyRate);
   }
+
+  const estimatedReturns = futureValue - investedAmount;
+
+  result = `
+    <div class="sip-result">
+
+      <div>
+        <strong>Total Future Value</strong>
+        <h2>₹${futureValue.toLocaleString("en-IN", {
+          maximumFractionDigits: 0
+        })}</h2>
+      </div>
+
+      <hr>
+
+      <p>
+        <strong>Monthly Investment:</strong>
+        ₹${monthly.toLocaleString("en-IN")}
+      </p>
+
+      <p>
+        <strong>Invested Amount:</strong>
+        ₹${investedAmount.toLocaleString("en-IN", {
+          maximumFractionDigits: 0
+        })}
+      </p>
+
+      <p>
+        <strong>Estimated Returns:</strong>
+        ₹${estimatedReturns.toLocaleString("en-IN", {
+          maximumFractionDigits: 0
+        })}
+      </p>
+
+      <p>
+        <strong>Investment Period:</strong>
+        ${years} years
+      </p>
+
+    </div>
+  `;
+}
 
   else if (type === "loan") {
     const p = Number($("loanAmount").value);
