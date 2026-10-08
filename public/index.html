@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Calcusite - fast, simple and modern online calculators.">
+  <title>Calcusite — Smart Online Calculator</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="/">Calcusite</a>
+    <nav>
+      <a href="#calculator">Calculator</a>
+      <a href="#features">Features</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="hero-copy">
+        <span class="badge">⚡ Fast & Free</span>
+        <h1>Calculate anything.<br><span>Simply.</span></h1>
+        <p>Calcusite is a clean, fast and mobile-friendly online calculator.</p>
+        <a class="hero-btn" href="#calculator">Open Calculator</a>
+      </div>
+    </section>
+
+    <section id="calculator" class="calculator-section">
+      <div class="calculator-card">
+        <div class="calculator-top">
+          <div>
+            <p class="eyebrow">BASIC CALCULATOR</p>
+            <h2>Quick Calculate</h2>
+          </div>
+          <button class="theme-btn" id="themeBtn" aria-label="Toggle theme">☾</button>
+        </div>
+
+        <div class="display-wrap">
+          <div id="expression" class="expression"></div>
+          <input id="display" class="display" value="0" readonly aria-label="Calculator display">
+        </div>
+
+        <div class="keys">
+          <button class="key action" data-action="clear">AC</button>
+          <button class="key action" data-action="delete">DEL</button>
+          <button class="key action" data-value="%">%</button>
+          <button class="key operator" data-value="/">÷</button>
+
+          <button class="key" data-value="7">7</button>
+          <button class="key" data-value="8">8</button>
+          <button class="key" data-value="9">9</button>
+          <button class="key operator" data-value="*">×</button>
+
+          <button class="key" data-value="4">4</button>
+          <button class="key" data-value="5">5</button>
+          <button class="key" data-value="6">6</button>
+          <button class="key operator" data-value="-">−</button>
+
+          <button class="key" data-value="1">1</button>
+          <button class="key" data-value="2">2</button>
+          <button class="key" data-value="3">3</button>
+          <button class="key operator" data-value="+">+</button>
+
+          <button class="key zero" data-value="0">0</button>
+          <button class="key" data-value=".">.</button>
+          <button class="key equal" data-action="calculate">=</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="features" class="features">
+      <article>
+        <div class="feature-icon">⚡</div>
+        <h3>Fast</h3>
+        <p>Instant calculations with a lightweight interface.</p>
+      </article>
+      <article>
+        <div class="feature-icon">📱</div>
+        <h3>Mobile Friendly</h3>
+        <p>Designed to work smoothly on phones, tablets and PCs.</p>
+      </article>
+      <article>
+        <div class="feature-icon">🔒</div>
+        <h3>Simple & Private</h3>
+        <p>Basic calculations happen directly in your browser.</p>
+      </article>
+    </section>
+  </main>
+
+  <footer>
+    <p>© 2026 Calcusite. Built for simple calculations.</p>
+  </footer>
+
+  <script src="/script.js"></script>
+</body>
+</html>
