@@ -1,0 +1,16 @@
+{
+  "name": "calcusite",
+  "version": "1.0.0",
+  "description": "Calcusite - modern online calculator website",
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy"
+  },
+  "dependencies": {
+    "hono": "^4.7.2"
+  },
+  "devDependencies": {
+    "wrangler": "^4.11.1"
+  }
+}
