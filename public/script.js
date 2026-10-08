@@ -430,21 +430,61 @@ function openCalculator(type, name) {
 function calculate(type, name) {
   let result = "";
 
-  if (type === "emi") {
-    const p = Number($("emiAmount").value);
-    const rate = Number($("emiRate").value) / 12 / 100;
-    const months = Number($("emiYears").value) * 12;
+ if (type === "emi") {
+  const p = Number($("emiAmount").value);
+  const annualRate = Number($("emiRate").value);
+  const years = Number($("emiYears").value);
 
-    const emi =
-      rate === 0
-        ? p / months
-        : p * rate * Math.pow(1 + rate, months) /
-          (Math.pow(1 + rate, months) - 1);
+  const months = years * 12;
+  const monthlyRate = annualRate / 12 / 100;
 
-    result = `Monthly EMI: ₹${emi.toLocaleString("en-IN", {
-      maximumFractionDigits: 0
-    })}`;
+  let emi;
+
+  if (monthlyRate === 0) {
+    emi = p / months;
+  } else {
+    emi =
+      p *
+      monthlyRate *
+      Math.pow(1 + monthlyRate, months) /
+      (Math.pow(1 + monthlyRate, months) - 1);
   }
+
+  const totalPayment = emi * months;
+  const totalInterest = totalPayment - p;
+
+  result = `
+    <div class="emi-result">
+      <div>
+        <strong>Monthly EMI</strong>
+        <h2>₹${emi.toLocaleString("en-IN", {
+          maximumFractionDigits: 0
+        })}</h2>
+      </div>
+
+      <hr>
+
+      <p>
+        <strong>Loan Amount:</strong>
+        ₹${p.toLocaleString("en-IN")}
+      </p>
+
+      <p>
+        <strong>Total Interest:</strong>
+        ₹${totalInterest.toLocaleString("en-IN", {
+          maximumFractionDigits: 0
+        })}
+      </p>
+
+      <p>
+        <strong>Total Payment:</strong>
+        ₹${totalPayment.toLocaleString("en-IN", {
+          maximumFractionDigits: 0
+        })}
+      </p>
+    </div>
+  `;
+}
 
   else if (type === "bmi") {
     const weight = Number($("bmiWeight").value);
