@@ -1,96 +1,127 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Calcusite - fast, simple and modern online calculators.">
-  <title>Calcusite — Smart Online Calculator</title>
+  <meta name="theme-color" content="#071b38">
+  <title>Calcusite AI — Smart Calculations</title>
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
-  <header class="site-header">
-    <a class="brand" href="/">Calcusite</a>
-    <nav>
-      <a href="#calculator">Calculator</a>
-      <a href="#features">Features</a>
-    </nav>
-  </header>
-
-  <main>
-    <section class="hero">
-      <div class="hero-copy">
-        <span class="badge">⚡ Fast & Free</span>
-        <h1>Calculate anything.<br><span>Simply.</span></h1>
-        <p>Calcusite is a clean, fast and mobile-friendly online calculator.</p>
-        <a class="hero-btn" href="#calculator">Open Calculator</a>
+  <div class="app">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">
+        <div class="brand-icon">▣</div>
+        <div>
+          <div class="brand-name">Calc<span>u</span>site <b>AI</b></div>
+          <small>Smart Calculations, Smarter Decisions</small>
+        </div>
       </div>
-    </section>
 
-    <section id="calculator" class="calculator-section">
-      <div class="calculator-card">
-        <div class="calculator-top">
-          <div>
-            <p class="eyebrow">BASIC CALCULATOR</p>
-            <h2>Quick Calculate</h2>
+      <nav class="side-nav">
+        <button class="nav-item active" data-section="dashboard">⌂ <span>Dashboard</span></button>
+        <button class="nav-item" data-section="calculators">▦ <span>All Calculators</span></button>
+        <button class="nav-item" data-section="ai">◉ <span>AI Assistant</span><em>New</em></button>
+        <button class="nav-item" data-section="financial">▤ <span>Financial Calculators</span><i>›</i></button>
+        <button class="nav-item" data-section="loan">◈ <span>Loan & EMI</span><i>›</i></button>
+        <button class="nav-item" data-section="health">♡ <span>Health Calculators</span><i>›</i></button>
+        <button class="nav-item" data-section="education">◇ <span>Education Calculators</span><i>›</i></button>
+        <button class="nav-item" data-section="unit">⇄ <span>Unit & Conversion</span><i>›</i></button>
+        <button class="nav-item" data-section="date">▣ <span>Age & Date Calculators</span><i>›</i></button>
+        <button class="nav-item" data-section="tax">▧ <span>Tax & GST</span><i>›</i></button>
+        <button class="nav-item" data-section="other">⚙ <span>Other Tools</span><i>›</i></button>
+        <button class="nav-item" data-section="history">◴ <span>History</span></button>
+      </nav>
+
+      <div class="side-ai">
+        <div class="robot">🤖</div>
+        <strong>Calcusite AI</strong>
+        <p>Ask anything and get instant calculation help.</p>
+        <button data-section="ai" class="primary-btn">Try AI Assistant →</button>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <button class="mobile-menu" id="mobileMenu">☰</button>
+        <div class="search-wrap">
+          <span>⌕</span>
+          <input id="searchInput" placeholder="Search calculators... (e.g. EMI, BMI, SIP, GST, Age, etc.)">
+        </div>
+        <button class="icon-btn" id="themeBtn" title="Toggle theme">☀</button>
+        <button class="icon-btn notification">♧<sup></sup></button>
+        <div class="profile">
+          <div class="avatar">AK</div>
+          <div><strong>Avdhesh Kumar</strong><small>Premium User</small></div>
+          <span>⌄</span>
+        </div>
+      </header>
+
+      <section class="content" id="content">
+        <div class="hero">
+          <div class="hero-copy">
+            <div class="eyebrow">⚡ Fast & Accurate</div>
+            <h1>Welcome to<br><span>Calcusite AI</span></h1>
+            <h2>Smart Calculations, Smarter Decisions</h2>
+            <p>Powerful calculators with a simple, mobile-friendly experience.</p>
+            <div class="hero-actions">
+              <button class="primary-btn" data-section="calculators">Explore Calculators →</button>
+              <button class="outline-btn" data-section="ai">🤖 Ask AI Anything</button>
+            </div>
           </div>
-          <button class="theme-btn" id="themeBtn" aria-label="Toggle theme">☾</button>
+          <div class="hero-art">
+            <div class="glow"></div>
+            <div class="robot-big">🤖</div>
+            <div class="speech">Your all-in-one<br><b>calculator platform</b></div>
+          </div>
+          <div class="hero-checks">
+            <div>✓ Fast & Accurate</div><div>✓ Free Tools</div><div>✓ AI Support</div><div>✓ Mobile Friendly</div>
+          </div>
         </div>
 
-        <div class="display-wrap">
-          <div id="expression" class="expression"></div>
-          <input id="display" class="display" value="0" readonly aria-label="Calculator display">
+        <div class="stats">
+          <div class="stat-card"><span class="stat-icon blue">▦</span><div><small>Total Calculators</small><strong>20+</strong><p>Growing collection</p></div></div>
+          <div class="stat-card"><span class="stat-icon green">♟</span><div><small>Quick Tools</small><strong>12+</strong><p>Ready to use</p></div></div>
+          <div class="stat-card"><span class="stat-icon purple">▤</span><div><small>Categories</small><strong>8</strong><p>All in one place</p></div></div>
+          <div class="stat-card"><span class="stat-icon orange">★</span><div><small>User Rating</small><strong>4.8 / 5</strong><p>Simple & useful</p></div></div>
         </div>
 
-        <div class="keys">
-          <button class="key action" data-action="clear">AC</button>
-          <button class="key action" data-action="delete">DEL</button>
-          <button class="key action" data-value="%">%</button>
-          <button class="key operator" data-value="/">÷</button>
+        <div class="section-head"><h2>🔥 Popular Calculators</h2><button class="link-btn" data-section="calculators">View All →</button></div>
+        <div class="popular-grid" id="popularGrid"></div>
 
-          <button class="key" data-value="7">7</button>
-          <button class="key" data-value="8">8</button>
-          <button class="key" data-value="9">9</button>
-          <button class="key operator" data-value="*">×</button>
+        <div class="two-col">
+          <section>
+            <div class="section-head"><h2>▦ Calculator Categories</h2></div>
+            <div class="category-grid" id="categoryGrid"></div>
+          </section>
 
-          <button class="key" data-value="4">4</button>
-          <button class="key" data-value="5">5</button>
-          <button class="key" data-value="6">6</button>
-          <button class="key operator" data-value="-">−</button>
-
-          <button class="key" data-value="1">1</button>
-          <button class="key" data-value="2">2</button>
-          <button class="key" data-value="3">3</button>
-          <button class="key operator" data-value="+">+</button>
-
-          <button class="key zero" data-value="0">0</button>
-          <button class="key" data-value=".">.</button>
-          <button class="key equal" data-action="calculate">=</button>
+          <section class="ai-card">
+            <div class="ai-title"><span class="robot-small">🤖</span><div><h2>AI Assistant <em>New</em></h2><p>Ask any calculation or math question</p></div></div>
+            <div class="ai-input"><input id="aiInput" placeholder="Type your question..."><button id="aiSend">➤</button></div>
+            <div class="chips">
+              <button>10 lakh loan EMI for 5 years</button>
+              <button>SIP 5000 per month</button>
+              <button>BMI for 70 kg and 5.8 ft</button>
+              <button>GST on ₹25000</button>
+            </div>
+            <div id="aiReply" class="ai-reply">AI will be connected securely through the backend later.</div>
+          </section>
         </div>
-      </div>
-    </section>
 
-    <section id="features" class="features">
-      <article>
-        <div class="feature-icon">⚡</div>
-        <h3>Fast</h3>
-        <p>Instant calculations with a lightweight interface.</p>
-      </article>
-      <article>
-        <div class="feature-icon">📱</div>
-        <h3>Mobile Friendly</h3>
-        <p>Designed to work smoothly on phones, tablets and PCs.</p>
-      </article>
-      <article>
-        <div class="feature-icon">🔒</div>
-        <h3>Simple & Private</h3>
-        <p>Basic calculations happen directly in your browser.</p>
-      </article>
-    </section>
-  </main>
+        <div class="section-head"><h2>◴ Recently Used</h2><button class="link-btn" data-section="history">View All →</button></div>
+        <div class="recent" id="recentList">
+          <div class="recent-empty">Your recent calculations will appear here.</div>
+        </div>
+      </section>
+    </main>
+  </div>
 
-  <footer>
-    <p>© 2026 Calcusite. Built for simple calculations.</p>
-  </footer>
+  <div class="modal" id="calculatorModal">
+    <div class="modal-box">
+      <button class="modal-close" id="modalClose">×</button>
+      <div id="modalBody"></div>
+    </div>
+  </div>
 
   <script src="/script.js"></script>
 </body>
