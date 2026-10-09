@@ -64,7 +64,21 @@ document.addEventListener('DOMContentLoaded',()=>{
  document.querySelectorAll('[data-section]').forEach(b=>b.addEventListener('click',()=>navigate(b.dataset.section)));
  const search=$('searchInput');if(search)search.addEventListener('input',e=>{const q=e.target.value.toLowerCase().trim();renderPopular(q?calculators.filter(c=>`${c.name} ${c.desc} ${c.cat}`.toLowerCase().includes(q)):calculators.slice(0,9));});
  const modal=$('calculatorModal');const close=$('modalClose');if(close&&modal)close.addEventListener('click',()=>modal.classList.remove('show'));if(modal)modal.addEventListener('click',e=>{if(e.target===modal)modal.classList.remove('show');});
- const menu=$('mobileMenu'),sidebar=$('sidebar');if(menu&&sidebar)menu.addEventListener('click',()=>sidebar.classList.toggle('open'));
+const menu=$('mobileMenu'),sidebar=$('sidebar');
+if(menu&&sidebar)menu.addEventListener('click',e=>{
+  e.stopPropagation();
+  sidebar.classList.toggle('open');
+});
+document.addEventListener('click',e=>{
+  if(window.innerWidth<=800&&sidebar?.classList.contains('open')
+    &&!sidebar.contains(e.target)&&!menu?.contains(e.target)){
+    sidebar.classList.remove('open');
+  }
+});
+document.querySelectorAll('.side-nav [data-section],.side-ai [data-section]')
+.forEach(b=>b.addEventListener('click',()=>{
+  if(window.innerWidth<=800)sidebar?.classList.remove('open');
+}));
  const theme=$('themeBtn');if(theme)theme.addEventListener('click',()=>document.documentElement.classList.toggle('dark'));
  document.querySelectorAll('.chips button').forEach(b=>b.addEventListener('click',()=>{const i=$('aiInput');if(i){i.value=b.textContent.trim();i.focus();}}));
  const aiButton=$('aiSend'),aiInput=$('aiInput');if(aiButton&&aiInput)aiButton.addEventListener('click',()=>{if(!aiInput.value.trim()){aiInput.focus();return}alert('AI Assistant backend next stage mein securely connect kiya jayega.');});
