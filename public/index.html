@@ -1,128 +1,244 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="hi">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#071b38">
-  <title>Calcusite AI — Smart Calculations</title>
-  <link rel="stylesheet" href="/style.css">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Calcusite AI – Smart Calculations, Smarter Decisions</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f2f6fd;--card:#fff;--tx:#0f1b3d;--mut:#64708f;--pri:#1d5de8;--pri2:#0b3fb8;--bd:#e0e8f7;--soft:#eaf1ff;--ok:#10a76b;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0a1127;--card:#111b38;--tx:#e8eeff;--mut:#93a1c6;--bd:#223059;--soft:#18264d}}
+:root[data-theme="dark"]{--bg:#0a1127;--card:#111b38;--tx:#e8eeff;--mut:#93a1c6;--bd:#223059;--soft:#18264d}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*:before,*:after{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:"Plus Jakarta Sans",system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.5}
+a{color:inherit;text-decoration:none}
+button,input,select{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--pri);outline-offset:2px}
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--card);border-bottom:1px solid var(--bd)}
+.hd{max-width:1180px;margin:auto;display:flex;align-items:center;gap:18px;padding:10px 16px;flex-wrap:wrap}
+.logo{display:flex;align-items:center;gap:8px;font-weight:800;font-size:18px}
+.logo i{width:30px;height:30px;border-radius:8px;background:var(--pri);color:#fff;display:grid;place-items:center;font-style:normal;font-size:16px}
+nav{display:flex;gap:18px;font-size:14px;font-weight:600;color:var(--mut)}
+nav a:hover,nav a.on{color:var(--pri)}
+.new{background:#e5309a;color:#fff;font-size:10px;padding:1px 6px;border-radius:9px;margin-left:4px}
+.sw{position:relative;flex:1;max-width:340px;margin-left:auto}
+.sw input{width:100%;padding:8px 12px;border:1px solid var(--bd);border-radius:20px;background:var(--bg)}
+#sug{position:absolute;top:110%;left:0;right:0;background:var(--card);border:1px solid var(--bd);border-radius:12px;overflow:hidden;display:none}
+#sug a{display:block;padding:9px 14px;font-size:14px}#sug a:hover{background:var(--soft)}
+.ib{border:1px solid var(--bd);background:var(--card);border-radius:50%;width:36px;height:36px;cursor:pointer}
+.av{background:var(--pri);color:#fff;font-weight:700;font-size:13px;border:0}
+#burger{display:none}
+main{max-width:1180px;margin:auto;padding:16px}
+.hero{background:linear-gradient(120deg,#0a2e8f,#1d5de8);color:#fff;border-radius:20px;padding:34px;display:flex;align-items:center;justify-content:space-between;gap:20px;overflow:hidden}
+.hero h1{font-size:clamp(28px,5vw,46px);margin:8px 0;line-height:1.1}
+.hero h1 span{color:#5fe0ff}
+.tag{background:rgba(255,255,255,.15);padding:3px 10px;border-radius:12px;font-size:12px}
+.hero p{margin:6px 0;opacity:.9}
+.btn{display:inline-block;border:0;border-radius:24px;padding:10px 20px;font-weight:700;cursor:pointer;background:var(--pri);color:#fff}
+.btn.w{background:#fff;color:var(--pri2)}.btn.o{background:transparent;border:1.5px solid #fff;color:#fff}
+.btn.g{background:var(--soft);color:var(--pri)}
+.bot{font-size:90px;text-align:center;position:relative}
+.bub{position:absolute;top:-24px;right:60px;background:#fff;color:var(--pri2);font-size:12px;font-weight:700;padding:8px 12px;border-radius:12px;white-space:nowrap}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:16px 0}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:14px}
+.st b{font-size:24px;display:block}.st small{color:var(--mut)}
+h2{font-size:18px;margin:22px 0 10px;display:flex;justify-content:space-between;align-items:center}
+h2 a{font-size:13px;color:var(--pri)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
+.it{display:flex;gap:12px;align-items:center;transition:border-color .15s}
+.it:hover{border-color:var(--pri)}
+.ic{font-size:26px;width:44px;height:44px;border-radius:12px;background:var(--soft);display:grid;place-items:center;flex:none}
+.it b{display:block;font-size:14px}.it small{color:var(--mut);font-size:12px}
+.fav{margin-left:auto;background:none;border:0;cursor:pointer;font-size:16px;color:var(--mut)}
+.crumb{font-size:13px;color:var(--mut);margin-bottom:10px}.crumb a{color:var(--pri)}
+.cg{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+label{display:block;font-size:13px;font-weight:600;margin:12px 0 4px}
+input,select{width:100%;padding:10px 12px;border:1px solid var(--bd);border-radius:10px;background:var(--bg)}
+.res .big{font-size:34px;font-weight:800;color:var(--ok)}
+.row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px dashed var(--bd);font-size:14px}
+.row b{font-variant-numeric:tabular-nums}
+.acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.tw{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{text-align:right;padding:7px 8px;border-bottom:1px solid var(--bd)}th:first-child,td:first-child{text-align:left}
+.leg{display:flex;gap:14px;font-size:12px;justify-content:center;margin-top:6px;color:var(--mut)}
+.leg i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:4px}
+.chat{min-height:260px;max-height:420px;overflow:auto;display:flex;flex-direction:column;gap:10px;padding:6px}
+.m{max-width:80%;padding:10px 14px;border-radius:14px;font-size:14px}
+.m.b{background:var(--soft);align-self:flex-start}.m.u{background:var(--pri);color:#fff;align-self:flex-end}
+.ask{display:flex;gap:8px;margin-top:10px}.ask button{width:90px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.chip{border:1px solid var(--bd);background:var(--card);padding:6px 12px;border-radius:16px;font-size:13px;cursor:pointer}
+.chip:hover{border-color:var(--pri);color:var(--pri)}
+footer{background:#0a1a4a;color:#c9d6ff;margin-top:40px;padding:28px 16px;font-size:13px}
+.ft{max-width:1180px;margin:auto;display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}
+footer a{display:block;margin:3px 0;opacity:.85}footer a:hover{opacity:1}
+#ov{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;z-index:30}
+#sb{position:fixed;top:0;bottom:0;left:0;width:290px;max-width:85vw;background:#0a1a4a;color:#fff;z-index:31;transform:translateX(-100%);transition:transform .25s;padding:calc(16px + env(safe-area-inset-top,0px)) 14px 16px;overflow:auto}
+#sb.open{transform:none}#sb.open~#ov,body.so #ov{display:block}
+#sb a{display:flex;justify-content:space-between;padding:12px;border-radius:10px;font-size:14px}
+#sb a.on,#sb a:hover{background:var(--pri)}
+#toast{position:fixed;bottom:calc(20px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);background:#0f1b3d;color:#fff;padding:9px 18px;border-radius:20px;font-size:13px;display:none;z-index:40}
+nav{display:none}.hero{background:linear-gradient(120deg,#07124a,#1448d6 70%,#0ea5e9)}.chk{background:rgba(0,0,30,.45);border-radius:14px;padding:12px 18px;font-size:13px;line-height:2.1;flex:none}.chk div:before{content:"✔";background:#10a76b;border-radius:50%;width:18px;height:18px;display:inline-grid;place-items:center;font-size:10px;margin-right:8px}.st:nth-child(1){background:rgba(29,93,232,.12)}.st:nth-child(2){background:rgba(16,167,107,.12)}.st:nth-child(3){background:rgba(139,92,246,.12)}.st:nth-child(4){background:rgba(245,165,36,.14)}.hg{display:grid;grid-template-columns:2fr 1fr;gap:18px;align-items:start}.hg .grid{grid-template-columns:repeat(auto-fill,minmax(200px,1fr))}.arr{width:26px;height:26px;border-radius:50%;background:var(--pri);color:#fff;display:grid;place-items:center;font-size:13px;flex:none}.fav{margin-left:auto}.try{margin-top:16px;background:#12275f;border-radius:14px;padding:14px;font-size:13px}.try a{margin-top:10px;justify-content:center!important}.un{display:flex;flex-direction:column;font-size:13px;line-height:1.2}.un small{color:var(--mut)}a.row{color:inherit}.it:nth-child(6n+1){--c:29,93,232}.it:nth-child(6n+2){--c:16,167,107}.it:nth-child(6n+3){--c:239,68,68}.it:nth-child(6n+4){--c:236,72,153}.it:nth-child(6n+5){--c:139,92,246}.it:nth-child(6n+6){--c:245,158,11}.it{background:rgba(var(--c,29,93,232),.08)}.it .ic{background:rgba(var(--c,29,93,232),.18)}.arr{background:rgb(var(--c,29,93,232))}
+@media(min-width:821px){body{padding-left:250px}#sb{transform:none;width:250px;background:linear-gradient(180deg,#0a1a4a,#071033)}#cl,#burger,#bn{display:none}.sw{max-width:none;margin-left:0}.ib.th{margin-left:auto}}
+@media(max-width:820px){#burger{display:block}.stats{grid-template-columns:1fr 1fr}.cg,.hg{grid-template-columns:1fr}.bot,.chk,.un{display:none}.hero{padding:22px}.sw{order:5;max-width:none;flex-basis:100%;margin:0}.ib.th{margin-left:auto}body{padding-bottom:calc(76px + env(safe-area-inset-bottom,0px))}#toast{bottom:92px}#bn{position:fixed;left:0;right:0;bottom:0;z-index:25;display:flex;justify-content:space-around;align-items:flex-end;background:var(--card);border-top:1px solid var(--bd);padding:6px 4px calc(6px + env(safe-area-inset-bottom,0px))}#bn a{display:flex;flex-direction:column;align-items:center;font-size:18px;color:var(--mut);min-width:56px}#bn small{font-size:11px}#bn a.on{color:var(--pri)}#bn .mid{width:52px;height:52px;border-radius:50%;background:var(--pri);color:#fff;justify-content:center;margin-top:-22px;border:3px solid var(--card)}}
+@media print{header,footer,.acts,#sb{display:none!important}}
+</style>
 </head>
 <body>
-  <div class="app">
-    <aside class="sidebar" id="sidebar">
-      <div class="brand">
-        <div class="brand-icon">▣</div>
-        <div>
-          <div class="brand-name">Calc<span>u</span>site <b>AI</b></div>
-          <small>Smart Calculations, Smarter Decisions</small>
-        </div>
-      </div>
-
-      <nav class="side-nav">
-        <button class="nav-item active" data-section="dashboard">⌂ <span>Dashboard</span></button>
-        <button class="nav-item" data-section="calculators">▦ <span>All Calculators</span></button>
-        <button class="nav-item" data-section="ai">◉ <span>AI Assistant</span><em>New</em></button>
-        <button class="nav-item" data-section="financial">▤ <span>Financial Calculators</span><i>›</i></button>
-        <button class="nav-item" data-section="loan">◈ <span>Loan & EMI</span><i>›</i></button>
-        <button class="nav-item" data-section="health">♡ <span>Health Calculators</span><i>›</i></button>
-        <button class="nav-item" data-section="education">◇ <span>Education Calculators</span><i>›</i></button>
-        <button class="nav-item" data-section="unit">⇄ <span>Unit & Conversion</span><i>›</i></button>
-        <button class="nav-item" data-section="date">▣ <span>Age & Date Calculators</span><i>›</i></button>
-        <button class="nav-item" data-section="tax">▧ <span>Tax & GST</span><i>›</i></button>
-        <button class="nav-item" data-section="other">⚙ <span>Other Tools</span><i>›</i></button>
-        <button class="nav-item" data-section="history">◴ <span>History</span></button>
-      </nav>
-
-      <div class="side-ai">
-        <div class="robot">🤖</div>
-        <strong>Calcusite AI</strong>
-        <p>Ask anything and get instant calculation help.</p>
-        <button data-section="ai" class="primary-btn">Try AI Assistant →</button>
-      </div>
-    </aside>
-
-    <main class="main">
-      <header class="topbar">
-        <button class="mobile-menu" id="mobileMenu">☰</button>
-        <div class="search-wrap">
-          <span>⌕</span>
-          <input id="searchInput" placeholder="Search calculators... (e.g. EMI, BMI, SIP, GST, Age, etc.)">
-        </div>
-        <button class="icon-btn" id="themeBtn" title="Toggle theme">☀</button>
-        <button class="icon-btn notification">♧<sup></sup></button>
-        <div class="profile">
-          <div class="avatar">AK</div>
-          <div><strong>Avdhesh Kumar</strong><small>Premium User</small></div>
-          <span>⌄</span>
-        </div>
-      </header>
-
-      <section class="content" id="content">
-        <div class="hero">
-          <div class="hero-copy">
-            <div class="eyebrow">⚡ Fast & Accurate</div>
-            <h1>Welcome to<br><span>Calcusite AI</span></h1>
-            <h2>Smart Calculations, Smarter Decisions</h2>
-            <p>Powerful calculators with a simple, mobile-friendly experience.</p>
-            <div class="hero-actions">
-              <button class="primary-btn" data-section="calculators">Explore Calculators →</button>
-              <button class="outline-btn" data-section="ai">🤖 Ask AI Anything</button>
-            </div>
-          </div>
-          <div class="hero-art">
-            <div class="glow"></div>
-            <div class="robot-big">🤖</div>
-            <div class="speech">Your all-in-one<br><b>calculator platform</b></div>
-          </div>
-          <div class="hero-checks">
-            <div>✓ Fast & Accurate</div><div>✓ Free Tools</div><div>✓ AI Support</div><div>✓ Mobile Friendly</div>
-          </div>
-        </div>
-
-        <div class="stats">
-          <div class="stat-card"><span class="stat-icon blue">▦</span><div><small>Total Calculators</small><strong>20+</strong><p>Growing collection</p></div></div>
-          <div class="stat-card"><span class="stat-icon green">♟</span><div><small>Quick Tools</small><strong>12+</strong><p>Ready to use</p></div></div>
-          <div class="stat-card"><span class="stat-icon purple">▤</span><div><small>Categories</small><strong>8</strong><p>All in one place</p></div></div>
-          <div class="stat-card"><span class="stat-icon orange">★</span><div><small>User Rating</small><strong>4.8 / 5</strong><p>Simple & useful</p></div></div>
-        </div>
-
-        <div class="section-head"><h2>🔥 Popular Calculators</h2><button class="link-btn" data-section="calculators">View All →</button></div>
-        <div class="popular-grid" id="popularGrid"></div>
-
-        <div class="two-col">
-          <section>
-            <div class="section-head"><h2>▦ Calculator Categories</h2></div>
-            <div class="category-grid" id="categoryGrid"></div>
-          </section>
-
-          <section class="ai-card">
-            <div class="ai-title"><span class="robot-small">🤖</span><div><h2>AI Assistant <em>New</em></h2><p>Ask any calculation or math question</p></div></div>
-            <div class="ai-input"><input id="aiInput" placeholder="Type your question..."><button id="aiSend">➤</button></div>
-            <div class="chips">
-              <button>10 lakh loan EMI for 5 years</button>
-              <button>SIP 5000 per month</button>
-              <button>BMI for 70 kg and 5.8 ft</button>
-              <button>GST on ₹25000</button>
-            </div>
-            <div id="aiReply" class="ai-reply">AI will be connected securely through the backend later.</div>
-          </section>
-        </div>
-
-        <div class="section-head"><h2>◴ Recently Used</h2><button class="link-btn" data-section="history">View All →</button></div>
-        <div class="recent" id="recentList">
-          <div class="recent-empty">Your recent calculations will appear here.</div>
-        </div>
-      </section>
-    </main>
-  </div>
-
-  <div class="modal" id="calculatorModal">
-    <div class="modal-box">
-      <button class="modal-close" id="modalClose">×</button>
-      <div id="modalBody"></div>
-    </div>
-  </div>
-
-  <script src="/script.js"></script>
+<aside id="sb"></aside><div id="ov"></div>
+<header><div class="hd">
+<button class="ib" id="burger" aria-label="Menu">☰</button>
+<a class="logo" href="#/"><i>∑</i>Calcusite AI</a>
+<nav id="nav"><a href="#/" data-r="home">Home</a><a href="#/calcs" data-r="calcs">All Calculators</a><a href="#/cats" data-r="cats">Categories</a><a href="#/ai" data-r="ai">AI Assistant<span class="new">New</span></a><a href="#/history" data-r="history">History</a></nav>
+<div class="sw"><input id="q" placeholder="Search calculators…  (press / )" autocomplete="off" aria-label="Search"><div id="sug"></div></div>
+<button class="ib th" id="theme" aria-label="Toggle theme">🌓</button><button class="ib" aria-label="Notifications">🔔</button><button class="ib av">AK</button><span class="un"><b>Avdhesh Kumar</b><small>Premium User</small></span>
+</div></header>
+<main id="app"></main>
+<footer><div class="ft"><div><b style="font-size:16px">Calcusite AI</b><br>Smart Calculations, Smarter Decisions</div>
+<div><b>Quick Links</b><a href="#/">Home</a><a href="#/calcs">All Calculators</a><a href="#/cats">Categories</a><a href="#/ai">AI Assistant</a><a href="#/history">History</a></div>
+<div><b>Resources</b><a href="#/">About Us</a><a href="#/">Privacy Policy</a><a href="#/">Terms of Use</a><a href="#/">Contact</a></div></div>
+<div style="text-align:center;margin-top:20px;opacity:.7">© 2026 Calcusite AI. All rights reserved.</div></footer>
+<div id="bn"><a href="#/" data-r="home">🏠<small>Home</small></a><a href="#/calcs" data-r="calcs">▦<small>Calculators</small></a><a href="#/ai" data-r="ai" class="mid" aria-label="AI">🤖</a><a href="#/history" data-r="history">🕘<small>History</small></a><a href="#" id="more">☰<small>More</small></a></div><div id="toast"></div>
+<script>
+const $=s=>document.querySelector(s);
+const fmt=n=>isFinite(n)?Number(n).toLocaleString('en-IN',{maximumFractionDigits:2}):'—';
+const rs=n=>'₹'+fmt(Math.round(n));
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+let mem={};
+const store={get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return mem[k]??d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){mem[k]=v}}};
+function toast(t){const e=$('#toast');e.textContent=t;e.style.display='block';clearTimeout(toast.t);toast.t=setTimeout(()=>e.style.display='none',1800)}
+const emiF=(P,r,m)=>{r/=1200;return r?P*r*Math.pow(1+r,m)/(Math.pow(1+r,m)-1):P/m};
+function loan(P,r,m,x){const e=emiF(P,r,m),tot=e*m,int=tot-P;let bal=P,rows=[],yp=0,yi=0;
+ for(let k=1;k<=m;k++){const i=bal*r/1200,p=e-i;bal=Math.max(0,bal-p);yp+=p;yi+=i;if(k%12==0||k==m){rows.push([Math.ceil(k/12),rs(e),rs(yp),rs(yi),rs(bal)]);yp=yi=0}}
+ return{main:['Monthly EMI',rs(e)],rows:[['Principal',rs(P)],['Total Interest',rs(int)],['Total Payment',rs(tot)],['Interest as % of loan',(int/P*100).toFixed(1)+'%'],...(x||[])],donut:[['Principal',P,'#1d5de8'],['Interest',int,'#f5a524']],table:[['Year','EMI','Principal','Interest','Balance'],rows]}}
+const C=[
+{id:'emi',n:'EMI Calculator',cat:'Financial',d:'Loan EMI, interest & amortization',ic:'🏠',f:[['P','Loan Amount (₹)',1000000],['r','Interest Rate (% p.a.)',8.5],['n','Loan Tenure (Years)',5]],run:v=>loan(v.P,v.r,v.n*12)},
+{id:'sip',n:'SIP Calculator',cat:'Financial',d:'Plan your monthly investments',ic:'🪙',f:[['P','Monthly Investment (₹)',5000],['r','Expected Return (% p.a.)',12],['n','Time Period (Years)',10]],run:v=>{const i=v.r/1200,m=v.n*12,fv=i?v.P*((Math.pow(1+i,m)-1)/i)*(1+i):v.P*m,inv=v.P*m;return{main:['Maturity Value',rs(fv)],rows:[['Invested Amount',rs(inv)],['Wealth Gained',rs(fv-inv)]],donut:[['Invested',inv,'#1d5de8'],['Gains',fv-inv,'#10a76b']]}}},
+{id:'loan',n:'Loan Calculator',cat:'Financial',d:'Home, car & personal loan',ic:'💰',f:[['P','Loan Amount (₹)',500000],['r','Interest Rate (% p.a.)',10],['n','Tenure (Months)',36]],run:v=>loan(v.P,v.r,v.n)},
+{id:'fd',n:'FD Calculator',cat:'Financial',d:'Fixed deposit returns',ic:'🧡',f:[['P','Deposit (₹)',100000],['r','Interest Rate (% p.a.)',7],['n','Years',5]],run:v=>{const a=v.P*Math.pow(1+v.r/400,4*v.n);return{main:['Maturity Amount',rs(a)],rows:[['Deposit',rs(v.P)],['Interest Earned',rs(a-v.P)]],donut:[['Deposit',v.P,'#1d5de8'],['Interest',a-v.P,'#10a76b']]}}},
+{id:'rd',n:'RD Calculator',cat:'Financial',d:'Recurring deposit',ic:'📅',f:[['P','Monthly Deposit (₹)',5000],['r','Interest Rate (% p.a.)',6.5],['n','Years',3]],run:v=>{const m=v.n*12;let a=0;for(let k=1;k<=m;k++)a+=v.P*Math.pow(1+v.r/400,4*(m-k+1)/12);const inv=v.P*m;return{main:['Maturity Amount',rs(a)],rows:[['Total Deposit',rs(inv)],['Interest Earned',rs(a-inv)]],donut:[['Deposit',inv,'#1d5de8'],['Interest',a-inv,'#10a76b']]}}},
+{id:'interest',n:'Interest Calculator',cat:'Financial',d:'Simple & compound',ic:'🔢',f:[['P','Principal (₹)',100000],['r','Rate (% p.a.)',8],['n','Years',3],['t','Type',0,['Simple','Compound']]],run:v=>{const a=v.t==0?v.P*(1+v.r*v.n/100):v.P*Math.pow(1+v.r/100,v.n);return{main:['Total Amount',rs(a)],rows:[['Principal',rs(v.P)],['Interest',rs(a-v.P)]],donut:[['Principal',v.P,'#1d5de8'],['Interest',a-v.P,'#f5a524']]}}},
+{id:'bmi',n:'BMI Calculator',cat:'Health',d:'Check your Body Mass Index',ic:'❤️',f:[['w','Weight (kg)',70],['h','Height (cm)',172]],run:v=>{const b=v.w/Math.pow(v.h/100,2),c=b<18.5?'Underweight':b<25?'Normal':b<30?'Overweight':'Obese',hm=v.h/100;return{main:['Your BMI',b.toFixed(1)+' · '+c],rows:[['Healthy weight range',(18.5*hm*hm).toFixed(1)+' – '+(24.9*hm*hm).toFixed(1)+' kg']]}}},
+{id:'marks',n:'Marks Percentage',cat:'Education',d:'Percentage & CGPA',ic:'🎓',f:[['o','Marks Obtained',432],['t','Total Marks',500],['g','CGPA (10 point)',8.5]],run:v=>({main:['Percentage',(v.o/v.t*100).toFixed(2)+'%'],rows:[['CGPA → % (×9.5)',(v.g*9.5).toFixed(2)+'%']]})},
+{id:'unit',n:'Unit Converter',cat:'Unit & Conversion',d:'Length, weight, temperature',ic:'🔄',f:[['x','Value',10],['t','Convert',0,['km → miles','miles → km','kg → lb','lb → kg','°C → °F','°F → °C']]],run:v=>{const f=[x=>x*.621371,x=>x/.621371,x=>x*2.20462,x=>x/2.20462,x=>x*9/5+32,x=>(x-32)*5/9];return{main:['Result',fmt(f[v.t](v.x))]}}},
+{id:'age',n:'Age Calculator',cat:'Date & Time',d:'Exact age in years, months, days',ic:'🎂',f:[['dob','Date of Birth','2000-01-01',0,'date']],run:v=>{const b=new Date(v.dob),t=new Date();if(isNaN(b))return{main:['Age','—']};let y=t.getFullYear()-b.getFullYear(),m=t.getMonth()-b.getMonth(),d=t.getDate()-b.getDate();if(d<0){m--;d+=new Date(t.getFullYear(),t.getMonth(),0).getDate()}if(m<0){y--;m+=12}return{main:['Your Age',`${y}y ${m}m ${d}d`],rows:[['Total days',fmt(Math.floor((t-b)/864e5))]]}}},
+{id:'gst',n:'GST Calculator',cat:'Tax & GST',d:'Add or remove GST',ic:'🧾',f:[['a','Amount (₹)',25000],['r','GST Rate',2,['5%','12%','18%','28%']],['m','Mode',0,['Add GST','Remove GST']]],run:v=>{const r=[5,12,18,28][v.r],net=v.m==0?v.a:v.a/(1+r/100),g=net*r/100;return{main:[v.m==0?'Total with GST':'Net amount',rs(v.m==0?net+g:net)],rows:[['GST ('+r+'%)',rs(g)],['CGST / SGST',rs(g/2)+' each']]}}},
+{id:'percent',n:'Percentage Calculator',cat:'Math Tools',d:'X% of Y and change',ic:'➗',f:[['p','Percent (%)',15],['x','Of Value',2000]],run:v=>({main:['Result',fmt(v.x*v.p/100)],rows:[[`${v.x} + ${v.p}%`,fmt(v.x*(1+v.p/100))],[`${v.x} − ${v.p}%`,fmt(v.x*(1-v.p/100))]]})},
+{id:'discount',n:'Discount Calculator',cat:'Other Tools',d:'Final price after discount',ic:'🏷️',f:[['p','Original Price (₹)',2999],['d','Discount (%)',25]],run:v=>({main:['You Pay',rs(v.p*(1-v.d/100))],rows:[['You Save',rs(v.p*v.d/100)]]})},
+{id:'lumpsum',n:'Lumpsum Calculator',cat:'Financial',d:'One-time investment growth',ic:'💼',f:[['P','Investment (₹)',100000],['r','Expected Return (% p.a.)',12],['n','Years',10]],run:v=>{const a=v.P*Math.pow(1+v.r/100,v.n);return{main:['Future Value',rs(a)],rows:[['Invested',rs(v.P)],['Gain',rs(a-v.P)]],donut:[['Invested',v.P,'#1d5de8'],['Gain',a-v.P,'#10a76b']]}}},
+{id:'cagr',n:'CAGR Calculator',cat:'Financial',d:'Annual growth rate',ic:'📈',f:[['s','Initial Value (₹)',100000],['e','Final Value (₹)',250000],['n','Years',5]],run:v=>({main:['CAGR',((Math.pow(v.e/v.s,1/v.n)-1)*100).toFixed(2)+'%'],rows:[['Total Growth',((v.e/v.s-1)*100).toFixed(1)+'%']]})},
+{id:'ppf',n:'PPF Calculator',cat:'Financial',d:'Yearly deposit, 15-year plan',ic:'🏦',f:[['P','Yearly Deposit (₹)',150000],['r','Interest Rate (% p.a.)',7.1],['n','Years',15]],run:v=>{let a=0;for(let k=0;k<v.n;k++)a=(a+v.P)*(1+v.r/100);const i=v.P*v.n;return{main:['Maturity Value',rs(a)],rows:[['Total Deposit',rs(i)],['Interest Earned',rs(a-i)]],donut:[['Deposit',i,'#1d5de8'],['Interest',a-i,'#10a76b']]}}},
+{id:'bmr',n:'BMR & Calorie',cat:'Health',d:'Daily calorie needs',ic:'🔥',f:[['w','Weight (kg)',70],['h','Height (cm)',172],['a','Age (years)',28],['s','Gender',0,['Male','Female']]],run:v=>{const b=10*v.w+6.25*v.h-5*v.a+(v.s==0?5:-161);return{main:['BMR',fmt(b)+' kcal/day'],rows:[['Light activity',fmt(b*1.375)+' kcal'],['Moderate activity',fmt(b*1.55)+' kcal']]}}},
+{id:'attend',n:'Attendance Calculator',cat:'Education',d:'Attendance % and 75% target',ic:'📚',f:[['p','Classes Attended',40],['t','Total Classes',50]],run:v=>({main:['Attendance',(v.p/v.t*100).toFixed(1)+'%'],rows:[['Classes needed for 75%',fmt(Math.max(0,Math.ceil((.75*v.t-v.p)/.25)))]]})},
+{id:'datediff',n:'Date Difference',cat:'Date & Time',d:'Days between two dates',ic:'🗓️',f:[['a','From','2026-01-01',0,'date'],['b','To','2026-12-31',0,'date']],run:v=>{const d=Math.abs(Math.round((new Date(v.b)-new Date(v.a))/864e5));return{main:['Difference',isNaN(d)?'—':fmt(d)+' days'],rows:[['Weeks',fmt(d/7)],['Approx. months',fmt(d/30.44)]]}}},
+{id:'pchange',n:'Percentage Change',cat:'Math Tools',d:'Increase or decrease in %',ic:'📊',f:[['o','Old Value',200],['n','New Value',250]],run:v=>{const p=(v.n-v.o)/v.o*100;return{main:[p>=0?'Increase':'Decrease',Math.abs(p).toFixed(2)+'%'],rows:[['Difference',fmt(v.n-v.o)]]}}},
+{id:'speed',n:'Speed Distance Time',cat:'Math Tools',d:'Speed from distance & time',ic:'🚗',f:[['d','Distance (km)',120],['t','Time (hours)',2]],run:v=>({main:['Speed',fmt(v.d/v.t)+' km/h'],rows:[['In m/s',fmt(v.d/v.t/3.6)]]})},
+{id:'pl',n:'Profit & Loss',cat:'Other Tools',d:'Profit or loss percentage',ic:'💹',f:[['c','Cost Price (₹)',800],['s','Selling Price (₹)',1000]],run:v=>{const p=v.s-v.c;return{main:[p>=0?'Profit':'Loss',rs(Math.abs(p))],rows:[['Percentage',(Math.abs(p)/v.c*100).toFixed(2)+'%']]}}},
+{id:'mileage',n:'Mileage & Fuel Cost',cat:'Other Tools',d:'km per litre and trip cost',ic:'⛽',f:[['d','Distance (km)',300],['l','Fuel Used (litres)',20],['p','Price per litre (₹)',100]],run:v=>({main:['Mileage',fmt(v.d/v.l)+' km/l'],rows:[['Fuel Cost',rs(v.l*v.p)],['Cost per km',rs(v.l*v.p/v.d)]]})},
+{id:'hike',n:'Salary Hike',cat:'Other Tools',d:'New salary after increment',ic:'💵',f:[['s','Current Salary (₹)',50000],['h','Hike (%)',10]],run:v=>({main:['New Salary',rs(v.s*(1+v.h/100))],rows:[['Increase',rs(v.s*v.h/100)],['Yearly gain',rs(v.s*v.h/100*12)]]})}
+];
+const cv=(id,n,ic,u)=>({id,n,cat:'Unit & Conversion',d:'Convert '+u.slice(0,3).map(x=>x[0]).join(', ')+'…',ic,f:[['x','Value',1],['a','From',0,u.map(x=>x[0])],['b','To',1,u.map(x=>x[0])]],run:v=>({main:['Result',fmt(v.x*u[v.a][1]/u[v.b][1])+' '+u[v.b][0]]})});
+const gcd=(a,b)=>b?gcd(b,a%b):a;
+C.push(
+{id:'homeloan',n:'Home Loan EMI',cat:'Financial',d:'Home loan EMI, interest & fee',ic:'🏡',f:[['P','Loan Amount (₹)',2500000],['r','Interest Rate (% p.a.)',8.5],['n','Tenure (Years)',20],['f','Processing Fee (%)',0.5]],run:v=>{const m=v.n*12,fe=v.P*v.f/100;return loan(v.P,v.r,m,[['Processing fee',rs(fe)],['Total cost incl. fee',rs(emiF(v.P,v.r,m)*m+fe)]])}},
+{id:'carloan',n:'Car Loan EMI',cat:'Financial',d:'Car loan EMI & interest',ic:'🚘',f:[['c','Car Price (₹)',800000],['d','Down Payment (₹)',160000],['r','Interest Rate (% p.a.)',9],['n','Tenure (Years)',5]],run:v=>{const P=v.c-v.d,m=v.n*12;return loan(P,v.r,m,[['Down payment',rs(v.d)],['Total cost of car',rs(emiF(P,v.r,m)*m+v.d)]])}},
+{id:'personal',n:'Personal Loan EMI',cat:'Financial',d:'Personal loan EMI & interest',ic:'👤',f:[['P','Loan Amount (₹)',300000],['r','Interest Rate (% p.a.)',12],['n','Tenure (Months)',36],['f','Processing Fee (%)',2]],run:v=>{const fe=v.P*v.f/100;return loan(v.P,v.r,v.n,[['Processing fee',rs(fe)],['Total cost incl. fee',rs(emiF(v.P,v.r,v.n)*v.n+fe)]])}},
+{id:'elig',n:'Loan Eligibility',cat:'Financial',d:'How much loan can you get',ic:'✅',f:[['i','Monthly Income (₹)',60000],['e','Existing EMIs (₹)',5000],['r','Interest Rate (% p.a.)',9],['n','Tenure (Years)',20]],run:v=>{const E=Math.max(0,v.i*.5-v.e),i=v.r/1200,m=v.n*12,L=i?E*(Math.pow(1+i,m)-1)/(i*Math.pow(1+i,m)):E*m;return{main:['Eligible Loan',rs(L)],rows:[['Affordable EMI (50% of income)',rs(E)]]}}},
+{id:'inflation',n:'Inflation Calculator',cat:'Financial',d:'Future cost of today’s money',ic:'📉',f:[['a','Amount Today (₹)',100000],['r','Inflation (% p.a.)',6],['n','Years',10]],run:v=>({main:['Future Cost',rs(v.a*Math.pow(1+v.r/100,v.n))],rows:[['Value of money after '+v.n+' yrs',rs(v.a/Math.pow(1+v.r/100,v.n))]]})},
+{id:'ideal',n:'Ideal Weight',cat:'Health',d:'Healthy weight for your height',ic:'⚖️',f:[['h','Height (cm)',172],['s','Gender',0,['Male','Female']]],run:v=>{const w=(v.s?45.5:50)+2.3*(v.h/2.54-60);return{main:['Ideal Weight',w.toFixed(1)+' kg'],rows:[['Healthy range (BMI)',(18.5*(v.h/100)**2).toFixed(1)+' – '+(24.9*(v.h/100)**2).toFixed(1)+' kg']]}}},
+{id:'water',n:'Water Intake',cat:'Health',d:'Daily water you need',ic:'💧',f:[['w','Weight (kg)',70]],run:v=>({main:['Daily Water',(v.w*.035).toFixed(1)+' litres'],rows:[['Glasses (250 ml)',Math.round(v.w*.035*4)]]})},
+cv('length','Length Converter','📏',[['m',1],['km',1000],['cm',.01],['mm',.001],['mile',1609.344],['yard',.9144],['feet',.3048],['inch',.0254]]),
+cv('weight','Weight Converter','🏋️',[['kg',1],['g',.001],['mg',1e-6],['quintal',100],['tonne',1000],['lb',.45359237],['oz',.0283495]]),
+cv('area','Area Converter','🗺️',[['m²',1],['km²',1e6],['hectare',1e4],['acre',4046.856],['ft²',.092903],['yd²',.836127]]),
+cv('volume','Volume Converter','🧪',[['litre',1],['mL',.001],['m³',1000],['US gallon',3.78541],['cup',.24]]),
+cv('speedc','Speed Converter','🏎️',[['m/s',1],['km/h',.277778],['mph',.44704],['knot',.514444]]),
+{id:'dateadd',n:'Date Add / Subtract',cat:'Date & Time',d:'Find a date after N days',ic:'⏳',f:[['d','Start Date','2026-10-09',0,'date'],['n','Days',30],['m','Mode',0,['Add','Subtract']]],run:v=>{const d=new Date(v.d+'T12:00:00');d.setDate(d.getDate()+(v.m?-1:1)*v.n);return{main:['Result Date',isNaN(d)?'—':d.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})],rows:[['Day',isNaN(d)?'—':d.toLocaleDateString('en-IN',{weekday:'long'})]]}}},
+{id:'hra',n:'HRA Exemption',cat:'Tax & GST',d:'Tax-free HRA (yearly)',ic:'🏘️',f:[['b','Basic + DA (₹/yr)',600000],['h','HRA Received (₹/yr)',240000],['r','Rent Paid (₹/yr)',180000],['m','City',0,['Metro','Non-metro']]],run:v=>{const x=Math.max(0,Math.min(v.h,v.r-.1*v.b,(v.m?.4:.5)*v.b));return{main:['Exempt HRA',rs(x)],rows:[['Taxable HRA',rs(v.h-x)]]}}},
+{id:'avg',n:'Average & Sum',cat:'Math Tools',d:'Average of a list of numbers',ic:'🧮',f:[['l','Numbers (comma separated)','10, 20, 30, 45',0,'text']],run:v=>{const n=v.l.split(/[ ,]+/).filter(s=>s!=='').map(Number).filter(x=>!isNaN(x));if(!n.length)return{main:['Average','—']};const s=n.reduce((a,b)=>a+b,0);return{main:['Average',fmt(s/n.length)],rows:[['Sum',fmt(s)],['Count',n.length],['Min / Max',fmt(Math.min(...n))+' / '+fmt(Math.max(...n))]]}}},
+{id:'hcf',n:'HCF & LCM',cat:'Math Tools',d:'Highest common factor, LCM',ic:'🔣',f:[['a','First Number',12],['b','Second Number',18]],run:v=>{const a=Math.round(v.a),b=Math.round(v.b),g=gcd(Math.abs(a),Math.abs(b));return{main:['HCF',fmt(g)],rows:[['LCM',g?fmt(Math.abs(a*b)/g):'—']]}}},
+{id:'power',n:'Power & Root',cat:'Math Tools',d:'Powers, square & cube roots',ic:'√',f:[['x','Number',16],['n','Power',2]],run:v=>({main:['x ^ n',fmt(Math.pow(v.x,v.n))],rows:[['Square root',fmt(Math.sqrt(v.x))],['Cube root',fmt(Math.cbrt(v.x))]]})},
+{id:'split',n:'Bill Split & Tip',cat:'Other Tools',d:'Split a bill between friends',ic:'🍽️',f:[['b','Bill Amount (₹)',2400],['t','Tip (%)',10],['p','People',4]],run:v=>{const T=v.b*(1+v.t/100);return{main:['Per Person',rs(T/v.p)],rows:[['Total with tip',rs(T)],['Tip',rs(T-v.b)]]}}},
+{id:'electric',n:'Electricity Bill',cat:'Other Tools',d:'Estimate your monthly bill',ic:'💡',f:[['u','Units Used (kWh)',250],['r','Rate per Unit (₹)',7],['c','Fixed Charge (₹)',100]],run:v=>({main:['Estimated Bill',rs(v.u*v.r+v.c)],rows:[['Energy charge',rs(v.u*v.r)],['Fixed charge',rs(v.c)]]})}
+);
+const CATS=[['Financial','🏛️'],['Health','❤️'],['Education','🎓'],['Unit & Conversion','🔄'],['Date & Time','📅'],['Tax & GST','🧾'],['Math Tools','🔢'],['Other Tools','⚙️']];
+const byId=id=>C.find(c=>c.id==id);
+let favs=store.get('favs',[]);
+const item=c=>`<a class="card it" href="#/calc/${c.id}"><span class="ic">${c.ic}</span><span><b>${c.n}</b><small>${c.d}</small></span><button class="fav" data-f="${c.id}" aria-label="Favourite">${favs.includes(c.id)?'★':'☆'}</button><span class="arr">→</span></a>`;
+const catCard=([n,i])=>`<a class="card it" href="#/cat/${encodeURIComponent(n)}"><span class="ic">${i}</span><span><b>${n}</b><small>${C.filter(c=>c.cat==n).length} calculators</small></span></a>`;
+const donut=p=>{const t=p.reduce((a,x)=>a+Math.max(0,x[1]),0)||1;let o=0;const R=52,L=2*Math.PI*R;return`<svg viewBox="0 0 140 140" width="150" style="display:block;margin:10px auto"><g transform="rotate(-90 70 70)" fill="none" stroke-width="22">${p.map(x=>{const l=Math.max(0,x[1])/t*L,s=`<circle cx="70" cy="70" r="${R}" stroke="${x[2]}" stroke-dasharray="${l} ${L-l}" stroke-dashoffset="${-o}"/>`;o+=l;return s}).join('')}</g></svg><div class="leg">${p.map(x=>`<span><i style="background:${x[2]}"></i>${x[0]} ${(x[1]/t*100).toFixed(0)}%</span>`).join('')}</div>`};
+const pages={
+home(){const rc=store.get('hist',[]).slice(0,4).map(x=>{const c=byId(x.id);return c?`<a class="row" href="#/calc/${c.id}"><span>${c.ic} ${c.n}</span><b>${esc(x.s.split(': ')[1]||'')}</b></a>`:''}).join('')||'<small style="color:var(--mut)">Use a calculator and it shows up here.</small>';const pop=['emi','sip','loan','bmi','age','gst','fd','rd','percent'].map(byId);return`<section class="hero"><div><span class="tag">⚡ Fast &amp; Accurate</span><h1>Welcome to <span>Calcusite AI</span></h1><b>Smart Calculations, Smarter Decisions</b><p>Powerful calculators with a simple, mobile-friendly experience.</p><div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap"><a class="btn w" href="#/calcs">Explore Calculators →</a><a class="btn o" href="#/ai">🤖 Ask AI Anything</a></div></div><div class="bot"><span class="bub">Your all-in-one calculator platform</span>🤖</div><div class="chk"><div>Fast &amp; Accurate</div><div>100% Free Tools</div><div>AI Powered Support</div><div>Mobile Friendly</div><div>Save &amp; Share Results</div></div></section>
+<div class="stats">${[['Total Calculators',C.length+'+','All in one place'],['Today Visitors','12,548','↑ 18% from yesterday'],['Total Calculations',fmt(234567+store.get('hist',[]).length),'↑ 24% this month'],['User Rating','4.8 / 5','Based on 10K+ reviews']].map(s=>`<div class="card st"><small>${s[0]}</small><b>${s[1]}</b><small>${s[2]}</small></div>`).join('')}</div>
+${favs.length?`<h2>⭐ Your Favourites</h2><div class="grid">${favs.map(byId).filter(Boolean).map(item).join('')}</div>`:''}
+<div class="hg"><div><h2>🔥 Popular Calculators <a href="#/calcs">View All →</a></h2><div class="grid">${pop.map(item).join('')}</div></div><div><h2>🤖 AI Assistant <span class="new">New</span></h2><div class="card"><small style="color:var(--mut)">Ask any calculation or math question</small><div class="ask"><input id="hq" placeholder="e.g. 10 lakh loan EMI for 5 years" aria-label="Ask AI"><button class="btn" id="hgo">Ask</button></div></div><h2>Recent Calculations <a href="#/history">View All →</a></h2><div class="card">${rc}</div></div></div>
+<h2>Calculator Categories</h2><div class="grid">${CATS.map(catCard).join('')}</div>`},
+calcs(){return`<h2>All Calculators</h2><div class="grid">${C.map(item).join('')}</div>`},
+cats(){return`<h2>Categories</h2><div class="grid">${CATS.map(catCard).join('')}</div>`},
+cat(n){n=decodeURIComponent(n);const l=C.filter(c=>c.cat==n);return`<div class="crumb"><a href="#/">Home</a> › ${esc(n)}</div><h2>${esc(n)} Calculators</h2><p style="color:var(--mut);margin:0 0 12px">${l.length} calculators in this category.</p><div class="grid">${l.map(item).join('')||'<div class="card">No calculators here yet.</div>'}</div>`},
+calc(id){const c=byId(id);if(!c)return'<div class="card">Calculator not found. <a href="#/calcs" style="color:var(--pri)">Browse all</a></div>';
+ return`<div class="crumb"><a href="#/">Home</a> › <a href="#/cat/${encodeURIComponent(c.cat)}">${c.cat}</a> › ${c.n}</div>
+<div class="cg"><div class="card"><h2 style="margin-top:0">${c.ic} ${c.n}</h2>${['emi','homeloan','carloan','personal'].includes(c.id)?`<div class="chips" style="margin:0 0 4px">${['emi','homeloan','carloan','personal'].map(i=>`<a class="chip" href="#/calc/${i}">${byId(i).n.replace(' EMI','').replace(' Calculator','')}</a>`).join('')}</div>`:''}<div id="form">${c.f.map(f=>`<label for="f_${f[0]}">${f[1]}</label>${f[3]?`<select id="f_${f[0]}">${f[3].map((o,i)=>`<option value="${i}" ${i==f[2]?'selected':''}>${o}</option>`).join('')}</select>`:`<input id="f_${f[0]}" type="${f[4]||'number'}" step="any" value="${f[2]}">`}`).join('')}</div>
+<div class="acts"><button class="btn" id="calc">Calculate</button><button class="btn g" id="reset">Reset</button></div></div>
+<div class="card res"><h2 style="margin-top:0">Result</h2><div id="res"></div><div class="acts"><button class="btn g" id="copy">Copy</button><button class="btn g" onclick="print()">Print</button><button class="btn g" id="share">Share</button></div></div></div>
+<div class="card" id="tbl" style="margin-top:16px;display:none"></div>
+<h2>Related</h2><div class="grid">${C.filter(x=>x.cat==c.cat&&x.id!=c.id).slice(0,3).map(item).join('')}</div>`},
+ai(){return`<div class="card"><h2 style="margin-top:0">🤖 AI Assistant <span class="new">New</span></h2><p style="color:var(--mut);margin:0">Ask any calculation or math question in plain Hindi/English — try “10 lakh loan EMI for 5 years” or “(250*4)+18%”.</p>
+<div class="chat" id="chat"><div class="m b">Hello! I can help with any calculation. What would you like to calculate?</div></div>
+<div class="ask"><input id="aq" placeholder="Type your question…" aria-label="Question"><button class="btn" id="go">Ask</button></div>
+<div class="chips">${['10 lakh loan EMI for 5 years','SIP 5000 per month','BMI for 70 kg and 5.8 ft','GST on ₹25000','FD 2 lakh 7% 5 years','(1250*12)/4'].map(s=>`<button class="chip">${s}</button>`).join('')}</div></div>`},
+search(q){q=decodeURIComponent(q||'');const l=find(q);return`<h2>Search results for “${esc(q)}”</h2><div class="grid">${l.map(item).join('')||'<div class="card">No match. Try “emi”, “bmi” or ask the <a href="#/ai" style="color:var(--pri)">AI Assistant</a>.</div>'}</div>`},
+history(){const h=store.get('hist',[]);return`<h2>Recently Used Calculators ${h.length?'<a href="#" id="clr">Clear History</a>':''}</h2><div class="grid" style="grid-template-columns:1fr">${h.map(x=>{const c=byId(x.id);return c?`<a class="card it" href="#/calc/${c.id}"><span class="ic">${c.ic}</span><span><b>${c.n}</b><small>${esc(x.s)} · ${x.t}</small></span><span style="margin-left:auto;color:var(--pri);font-size:13px">Open again</span></a>`:''}).join('')||'<div class="card">Nothing here yet. Use a calculator and press Calculate.</div>'}</div>`}
+};
+const find=q=>{q=q.toLowerCase().trim();return q?C.filter(c=>(c.n+c.d+c.cat+c.id).toLowerCase().includes(q)):C};
+function hist(c,res){const h=store.get('hist',[]).filter(x=>!(x.id==c.id&&x.s==res.main[0]+': '+res.main[1]));h.unshift({id:c.id,s:res.main[0]+': '+res.main[1],t:new Date().toLocaleString('en-IN',{dateStyle:'medium',timeStyle:'short'})});store.set('hist',h.slice(0,30))}
+function vals(c){const v={};c.f.forEach(f=>{const e=$('#f_'+f[0]);v[f[0]]=f[4]=='date'||f[4]=='text'?e.value:parseFloat(e.value)||0});return v}
+let cur,curC;
+function update(){const c=curC,r=c.run(vals(c));cur=r;
+ $('#res').innerHTML=`<small style="color:var(--mut)">${r.main[0]}</small><div class="big">${r.main[1]}</div>${(r.rows||[]).map(x=>`<div class="row"><span>${x[0]}</span><b>${x[1]}</b></div>`).join('')}${r.donut?donut(r.donut):''}`;
+ const t=$('#tbl');if(r.table){t.style.display='block';t.innerHTML=`<h2 style="margin-top:0">Amortization Schedule</h2><div class="tw"><table><tr>${r.table[0].map(h=>`<th>${h}</th>`).join('')}</tr>${r.table[1].map(x=>`<tr>${x.map(y=>`<td>${y}</td>`).join('')}</tr>`).join('')}</table></div>`}else t.style.display='none'}
+function initCalc(id){const c=curC=byId(id);if(!c)return;update();
+ $('#form').addEventListener('input',update);
+ $('#calc').onclick=()=>{update();hist(c,cur);toast('Saved to history')};
+ $('#reset').onclick=()=>{c.f.forEach(f=>$('#f_'+f[0]).value=f[2]);update()};
+ $('#copy').onclick=()=>{const s=c.n+' — '+cur.main.join(': ')+'\n'+(cur.rows||[]).map(x=>x.join(': ')).join('\n');try{navigator.clipboard.writeText(s).then(()=>toast('Copied'),()=>toast('Copy not allowed'))}catch(e){toast('Copy not available')}};
+ $('#share').onclick=()=>{const s=c.n+': '+cur.main.join(' ');try{navigator.share?navigator.share({title:c.n,text:s,url:location.href}):navigator.clipboard.writeText(s+' '+location.href).then(()=>toast('Link copied'))}catch(e){toast('Share not available')}}}
+// AI parser
+function ai(q){const t=q.toLowerCase().replace(/₹|,/g,'').trim();
+ if(/^[\d\s+\-*/().%^]+$/.test(t)&&/\d/.test(t)&&!/%$/.test(t)){try{const r=Function('"use strict";return ('+t.replace(/\^/g,'**').replace(/(\d+(?:\.\d+)?)%/g,'($1/100)')+')')();if(isFinite(r))return`Answer: <b>${fmt(r)}</b>`}catch(e){}}
+ const M={lakh:1e5,lac:1e5,crore:1e7,cr:1e7,k:1e3,thousand:1e3},n=[...t.matchAll(/(\d+(?:\.\d+)?)\s*(lakh|lac|crore|cr|k|thousand)?\b/g)].map(m=>+m[1]*(M[m[2]]||1));
+ const yr=+((t.match(/(\d+(?:\.\d+)?)\s*(?:year|yr|saal|sal)/)||[])[1]||0),pc=+((t.match(/(\d+(?:\.\d+)?)\s*%/)||[])[1]||0),A=n[0]||0;
+ const L=(id,txt)=>`${txt}<br><a href="#/calc/${id}" style="color:var(--pri);font-weight:700">Open ${byId(id).n} →</a>`;
+ if(/bmi|weight|vajan/.test(t)){const kg=+((t.match(/(\d+(?:\.\d+)?)\s*kg/)||[])[1]||0);let cm=+((t.match(/(\d+(?:\.\d+)?)\s*cm/)||[])[1]||0);const ft=+((t.match(/(\d+(?:\.\d+)?)\s*(?:ft|feet|foot)/)||[])[1]||0);if(ft){const f=Math.floor(ft);cm=(f*12+Math.round((ft-f)*10))*2.54}
+  if(kg&&cm){const r=byId('bmi').run({w:kg,h:cm});return L('bmi',`BMI = <b>${r.main[1]}</b> (height taken as ${cm.toFixed(0)} cm; 5.8 ft means 5 ft 8 in).`)}return'Please give weight and height, e.g. “BMI for 70 kg and 5.8 ft”.'}
+ if(/gst/.test(t)&&A){const r=pc||18,g=A*r/100;return L('gst',`GST @${r}% on ${rs(A)} = <b>${rs(g)}</b>. Total: <b>${rs(A+g)}</b>.`)}
+ if(/sip/.test(t)&&A){const r=byId('sip').run({P:A,r:pc||12,n:yr||10});return L('sip',`SIP of ${rs(A)}/month for ${yr||10} years at ${pc||12}%: <b>${r.main[1]}</b>. Invested ${r.rows[0][1]}.`)}
+ if(/fd|fixed/.test(t)&&A){const r=byId('fd').run({P:A,r:pc||7,n:yr||5});return L('fd',`FD of ${rs(A)} at ${pc||7}% for ${yr||5} years matures at <b>${r.main[1]}</b>.`)}
+ if(/emi|loan|karz/.test(t)&&A){const r=loan(A,pc||8.5,(yr||5)*12);return L(/home|housing|ghar/.test(t)?'homeloan':/car|gaadi/.test(t)?'carloan':/personal/.test(t)?'personal':'emi',`EMI on ${rs(A)} for ${yr||5} years at ${pc||8.5}%: <b>${r.main[1]}</b>. Total interest ${r.rows[1][1]}.`)}
+ const m=t.match(/(\d+(?:\.\d+)?)\s*(?:%|percent)\s*of\s*(\d+(?:\.\d+)?)/);if(m)return`${m[1]}% of ${m[2]} = <b>${fmt(m[1]*m[2]/100)}</b>`;
+ return'I could not understand that yet. Try an EMI, SIP, FD, GST or BMI question, or a math expression like (250*4)+100.'}
+function bindAI(){const chat=$('#chat'),send=q=>{q=q.trim();if(!q)return;const u=document.createElement('div');u.className='m u';u.textContent=q;chat.append(u);const b=document.createElement('div');b.className='m b';b.innerHTML=ai(q);chat.append(b);chat.scrollTop=1e9;$('#aq').value=''};
+ $('#go').onclick=()=>send($('#aq').value);if(window.pre){send(window.pre);window.pre=''}$('#aq').onkeydown=e=>e.key=='Enter'&&send(e.target.value);document.querySelectorAll('.chip').forEach(c=>c.onclick=()=>send(c.textContent))}
+// router + sidebar
+function sidebar(r){$('#sb').innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px"><span class="logo"><i>∑</i>Calcusite AI</span><button class="ib" id="cl" aria-label="Close" style="background:none;color:#fff;border-color:#35509a">✕</button></div>
+${[['Dashboard','#/','home','🏠'],['All Calculators','#/calcs','calcs','▦'],['AI Assistant','#/ai','ai','🤖'],...CATS.map(c=>[c[0],'#/cat/'+encodeURIComponent(c[0]),'cat:'+c[0],c[1]]),['History','#/history','history','🕘']].map(x=>`<a href="${x[1]}" class="${r==x[2]?'on':''}"><span>${x[3]}&nbsp; ${x[0]}</span>${x[0]=='AI Assistant'?'<span class="new">New</span>':'<span>›</span>'}</a>`).join('')}<div class="try"><b>🤖 Calcusite AI</b><br>Ask anything, get instant calculations &amp; answers!<a class="btn" href="#/ai">Try AI Assistant</a></div>`;$('#cl').onclick=closeSb}
+const closeSb=()=>{$('#sb').classList.remove('open');$('#ov').style.display='none'};
+function route(){const [r,a]=(location.hash.slice(2)||'home').split('/');const k=r||'home',key=pages[k]?k:'home';
+ $('#app').innerHTML=pages[key](a);window.scrollTo(0,0);
+ document.querySelectorAll('#nav a,#bn a').forEach(x=>x.classList.toggle('on',x.dataset.r==key));
+ sidebar(key=='cat'?'cat:'+decodeURIComponent(a):key);closeSb();
+ if(key=='calc')initCalc(a);if(key=='ai')bindAI();if(key=='home')$('#hgo').onclick=()=>{window.pre=$('#hq').value;location.hash='#/ai'};
+ const cl=$('#clr');if(cl)cl.onclick=e=>{e.preventDefault();store.set('hist',[]);route()}}
+document.addEventListener('click',e=>{const f=e.target.closest('[data-f]');if(f){e.preventDefault();e.stopPropagation();const i=f.dataset.f;favs=favs.includes(i)?favs.filter(x=>x!=i):[...favs,i];store.set('favs',favs);f.textContent=favs.includes(i)?'★':'☆';toast(favs.includes(i)?'Added to favourites':'Removed')}},true);
+$('#burger').onclick=()=>{$('#sb').classList.add('open');$('#ov').style.display='block'};$('#ov').onclick=closeSb;$('#more').onclick=e=>{e.preventDefault();$('#burger').click()};
+const q=$('#q'),sug=$('#sug');
+q.oninput=()=>{const l=q.value?find(q.value).slice(0,5):[];sug.style.display=l.length?'block':'none';sug.innerHTML=l.map(c=>`<a href="#/calc/${c.id}">${c.ic} ${c.n}</a>`).join('')};
+q.onkeydown=e=>{if(e.key=='Enter'&&q.value){location.hash='#/search/'+encodeURIComponent(q.value);sug.style.display='none'}};
+sug.onclick=()=>{sug.style.display='none';q.value=''};
+document.addEventListener('keydown',e=>{if(e.key=='/'&&!/INPUT|SELECT/.test(document.activeElement.tagName)){e.preventDefault();q.focus()}});
+$('#theme').onclick=()=>{const d=document.documentElement,dark=d.dataset.theme?d.dataset.theme=='dark':matchMedia('(prefers-color-scheme:dark)').matches;d.dataset.theme=dark?'light':'dark';store.set('theme',d.dataset.theme)};
+const th=store.get('theme',null);if(th)document.documentElement.dataset.theme=th;
+addEventListener('hashchange',route);route();
+</script>
 </body>
 </html>
