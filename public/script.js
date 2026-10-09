@@ -1,71 +1,515 @@
-/* Calcusite Professional Calculator Engine */
-const calculators=[
-{name:'EMI Calculator',desc:'Loan EMI, interest & amortization',icon:'🏠',cat:'loan',type:'emi'},
-{name:'SIP Calculator',desc:'Plan your monthly investments',icon:'🪙',cat:'financial',type:'sip'},
-{name:'Loan Calculator',desc:'Home, car & personal loan',icon:'💰',cat:'loan',type:'loan'},
-{name:'BMI Calculator',desc:'Check your Body Mass Index',icon:'❤️',cat:'health',type:'bmi'},
-{name:'Age Calculator',desc:'Find your exact age',icon:'📅',cat:'date',type:'age'},
-{name:'GST Calculator',desc:'Calculate GST and final price',icon:'🧾',cat:'tax',type:'gst'},
-{name:'FD Calculator',desc:'Fixed deposit maturity & returns',icon:'🏦',cat:'financial',type:'fd'},
-{name:'RD Calculator',desc:'Recurring deposit maturity & returns',icon:'💵',cat:'financial',type:'rd'},
-{name:'Percentage Calculator',desc:'Easy percentage calculations',icon:'%',cat:'other',type:'percentage'}
+"use strict";
+
+/* ==========================================
+   CALCUSITE AI — PROFESSIONAL CALCULATOR ENGINE
+   ========================================== */
+
+const $ = (selector) => document.querySelector(selector);
+const $$ = (selector) => document.querySelectorAll(selector);
+
+const calculators = [
+  {id:"emi",name:"EMI Calculator",desc:"Monthly loan instalment and interest",icon:"🏠",cat:"loan",popular:true},
+  {id:"sip",name:"SIP Calculator",desc:"Estimate investment growth and returns",icon:"📈",cat:"financial",popular:true},
+  {id:"loan",name:"Loan Calculator",desc:"Calculate loan repayment costs",icon:"💳",cat:"loan",popular:true},
+  {id:"bmi",name:"BMI Calculator",desc:"Check your body mass index",icon:"❤️",cat:"health",popular:true},
+  {id:"age",name:"Age Calculator",desc:"Calculate your exact age",icon:"🎂",cat:"date",popular:true},
+  {id:"gst",name:"GST Calculator",desc:"Calculate GST and final price",icon:"🧾",cat:"tax",popular:true},
+  {id:"fd",name:"FD Calculator",desc:"Fixed deposit maturity and interest",icon:"🏦",cat:"financial",popular:true},
+  {id:"rd",name:"RD Calculator",desc:"Recurring deposit maturity estimate",icon:"💰",cat:"financial",popular:true},
+  {id:"percentage",name:"Percentage Calculator",desc:"Find percentages and changes",icon:"％",cat:"other",popular:true},
+  {id:"compound",name:"Compound Interest",desc:"Estimate compound growth over time",icon:"📊",cat:"financial",popular:false}
 ];
-const categories=[['🏦','Financial','25+ calculators','financial'],['❤️','Health','10+ calculators','health'],['🎓','Education','10+ calculators','education'],['🔄','Unit & Conversion','15+ calculators','unit'],['📅','Date & Time','10+ calculators','date'],['%','Tax & GST','8+ calculators','tax'],['🔢','Math Tools','15+ calculators','other'],['⚙️','Other Tools','10+ calculators','other']];
-const $=id=>document.getElementById(id);
-const num=v=>{const n=Number(v);return Number.isFinite(n)?n:0};
-const money=(v,d=0)=>`₹${Number(v).toLocaleString('en-IN',{minimumFractionDigits:d,maximumFractionDigits:d})}`;
-const esc=s=>String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
 
-function renderPopular(list=calculators.slice(0,9)){
- const grid=$('popularGrid');if(!grid)return;
- grid.innerHTML=list.map((c,i)=>`<div class="calc-card" data-type="${c.type}" data-name="${esc(c.name)}"><div class="calc-icon ${['blue','green','orange','purple','pink'][i%5]}">${c.icon}</div><div class="calc-info"><h3>${esc(c.name)}</h3><p>${esc(c.desc)}</p></div><button class="calc-arrow" type="button">→</button></div>`).join('');
- grid.querySelectorAll('.calc-card').forEach(x=>x.onclick=()=>openCalculator(x.dataset.type,x.dataset.name));
-}
-function renderCategories(){
- const grid=$('categoryGrid');if(!grid)return;
- grid.innerHTML=categories.map(c=>`<button class="category" data-section="${c[3]}" type="button"><div class="category-icon">${c[0]}</div><div><h3>${esc(c[1])}</h3><p>${esc(c[2])}</p></div><span>→</span></button>`).join('');
- grid.querySelectorAll('.category').forEach(x=>x.onclick=()=>filterCategory(x.dataset.section));
-}
-function filterCategory(cat){renderPopular(calculators.filter(c=>c.cat===cat));const h=document.querySelector('.section-head h2');if(h)h.textContent='Calculators';window.scrollTo({top:350,behavior:'smooth'});}
-function field(label,id,value,type='number',step=''){return `<label>${label}<input id="${id}" type="${type}" value="${value}" ${step?`step="${step}"`:''}></label>`}
-function form(type,name){
- const f={
- emi:`<h2>${esc(name)}</h2><p>Calculate monthly EMI, total interest and total payment.</p><div class="form-grid">${field('Loan Amount (₹)','emiAmount',1000000)}${field('Annual Interest Rate (%)','emiRate',8.5,'number','.01')}${field('Tenure (Years)','emiYears',20,'number','.1')}</div><button class="primary-btn" id="calculateBtn" type="button">Calculate EMI</button><div id="calculatorResult" class="result"></div>`,
- sip:`<h2>${esc(name)}</h2><p>Estimate your SIP investment value and returns.</p><div class="form-grid">${field('Monthly SIP (₹)','sipAmount',5000)}${field('Expected Annual Return (%)','sipRate',12,'number','.01')}${field('Investment Period (Years)','sipYears',15,'number','.1')}</div><button class="primary-btn" id="calculateBtn" type="button">Calculate SIP</button><div id="calculatorResult" class="result"></div>`,
- loan:`<h2>${esc(name)}</h2><p>Calculate loan EMI, total interest and total payment.</p><div class="form-grid">${field('Loan Amount (₹)','loanAmount',500000)}${field('Annual Interest Rate (%)','loanRate',10,'number','.01')}${field('Tenure (Years)','loanYears',5,'number','.1')}</div><button class="primary-btn" id="calculateBtn" type="button">Calculate Loan</button><div id="calculatorResult" class="result"></div>`,
- bmi:`<h2>${esc(name)}</h2><p>Calculate BMI and weight category.</p><div class="form-grid">${field('Weight (kg)','bmiWeight',70,'number','.1')}${field('Height (cm)','bmiHeight',170,'number','.1')}</div><button class="primary-btn" id="calculateBtn" type="button">Calculate BMI</button><div id="calculatorResult" class="result"></div>`,
- age:`<h2>${esc(name)}</h2><p>Find your exact age from your date of birth.</p><div class="form-grid">${field('Date of Birth','birthDate','','date')}</div><button class="primary-btn" id="calculateBtn" type="button">Calculate Age</button><div id="calculatorResult" class="result"></div>`,
- gst:`<h2>${esc(name)}</h2><p>Calculate GST amount and final price.</p><div class="form-grid">${field('Base Amount (₹)','gstAmount',25000)}${field('GST Rate (%)','gstRate',18,'number','.01')}</div><button class="primary-btn" id="calculateBtn" type="button">Calculate GST</button><div id="calculatorResult" class="result"></div>`,
- fd:`<h2>${esc(name)}</h2><p>Calculate fixed deposit maturity and interest.</p><div class="form-grid">${field('Principal Amount (₹)','fdAmount',100000)}${field('Annual Interest Rate (%)','fdRate',7,'number','.01')}${field('Tenure (Years)','fdYears',5,'number','.1')}</div><button class="primary-btn" id="calculateBtn" type="button">Calculate FD</button><div id="calculatorResult" class="result"></div>`,
- rd:`<h2>${esc(name)}</h2><p>Calculate recurring deposit maturity and interest.</p><div class="form-grid">${field('Monthly Deposit (₹)','rdAmount',5000)}${field('Annual Interest Rate (%)','rdRate',7,'number','.01')}${field('Tenure (Years)','rdYears',5,'number','.1')}</div><button class="primary-btn" id="calculateBtn" type="button">Calculate RD</button><div id="calculatorResult" class="result"></div>`,
- percentage:`<h2>${esc(name)}</h2><p>Calculate a percentage of any value.</p><div class="form-grid">${field('Value','percentValue',500)}${field('Percentage (%)','percentRate',18,'number','.01')}</div><button class="primary-btn" id="calculateBtn" type="button">Calculate</button><div id="calculatorResult" class="result"></div>`
- };return f[type]||`<h2>${esc(name)}</h2><p>This calculator will be added soon.</p>`;
-}
-function openCalculator(type,name){const modal=$('calculatorModal'),body=$('modalBody');if(!modal||!body)return;body.innerHTML=form(type,name);modal.classList.add('show');$('calculateBtn')?.addEventListener('click',()=>calculate(type,name));}
-function loanCalc(p,r,y){if(p<=0||r<0||y<=0)return null;const n=Math.round(y*12),m=r/12/100;const emi=m===0?p/n:p*m*Math.pow(1+m,n)/(Math.pow(1+m,n)-1);return{emi,total:emi*n,interest:emi*n-p,n};}
-function error(t){return `<div class="calc-error">⚠️ ${esc(t)}</div>`}
-function calculate(type,name){let result='';
- if(type==='emi'||type==='loan'){const q=type==='emi'?'emi':'loan',d=loanCalc(num($(q+'Amount')?.value),num($(q+'Rate')?.value),num($(q+'Years')?.value));result=d?`<div class="emi-result"><strong>Monthly EMI</strong><h2>${money(d.emi)}</h2><hr><p><strong>Principal:</strong> ${money(num($(q+'Amount').value))}</p><p><strong>Total Interest:</strong> ${money(d.interest)}</p><p><strong>Total Payment:</strong> ${money(d.total)}</p><p><strong>Tenure:</strong> ${d.n} months</p></div>`:error('Please enter valid loan values.');}
- else if(type==='sip'){const m=num($('sipAmount')?.value),r=num($('sipRate')?.value),y=num($('sipYears')?.value);if(m<=0||r<0||y<=0)result=error('Please enter valid SIP values.');else{const n=Math.round(y*12),mr=r/12/100,invested=m*n,fv=mr===0?invested:m*((Math.pow(1+mr,n)-1)/mr)*(1+mr);result=`<div class="sip-result"><strong>Total Future Value</strong><h2>${money(fv)}</h2><hr><p><strong>Monthly Investment:</strong> ${money(m)}</p><p><strong>Invested Amount:</strong> ${money(invested)}</p><p><strong>Estimated Returns:</strong> ${money(fv-invested)}</p><p><strong>Investment Period:</strong> ${y} years</p></div>`;}}
- else if(type==='bmi'){const w=num($('bmiWeight')?.value),h=num($('bmiHeight')?.value)/100;if(w<=0||h<=0)result=error('Please enter valid height and weight.');else{const bmi=w/(h*h);let s=bmi<18.5?'Underweight':bmi<25?'Normal':bmi<30?'Overweight':'Obesity';result=`<div class="bmi-result"><strong>Your BMI</strong><h2>${bmi.toFixed(1)}</h2><p><strong>Status:</strong> ${s}</p></div>`;}}
- else if(type==='age'){const raw=$('birthDate')?.value,d=raw?new Date(raw+'T00:00:00'):null,t=new Date();if(!d||isNaN(d)||d>t)result=error('Please select a valid date of birth.');else{let y=t.getFullYear()-d.getFullYear(),m=t.getMonth()-d.getMonth(),day=t.getDate()-d.getDate();if(day<0){m--;day+=new Date(t.getFullYear(),t.getMonth(),0).getDate();}if(m<0){y--;m+=12;}result=`<div class="age-result"><strong>Your Exact Age</strong><h2>${y} Years</h2><p>${m} Months and ${day} Days</p></div>`;}}
- else if(type==='gst'){const a=num($('gstAmount')?.value),r=num($('gstRate')?.value),g=a*r/100;result=a<0||r<0?error('Please enter valid GST values.'): `<div class="gst-result"><strong>Final Amount</strong><h2>${money(a+g,2)}</h2><hr><p><strong>Base Amount:</strong> ${money(a,2)}</p><p><strong>GST (${r}%):</strong> ${money(g,2)}</p><p><strong>Final Amount:</strong> ${money(a+g,2)}</p></div>`;}
- else if(type==='fd'){const p=num($('fdAmount')?.value),r=num($('fdRate')?.value),y=num($('fdYears')?.value),mat=p*Math.pow(1+r/100,y);result=p<=0||r<0||y<=0?error('Please enter valid FD values.'): `<div class="fd-result"><strong>Maturity Amount</strong><h2>${money(mat)}</h2><hr><p><strong>Principal:</strong> ${money(p)}</p><p><strong>Interest Earned:</strong> ${money(mat-p)}</p></div>`;}
- else if(type==='rd'){const p=num($('rdAmount')?.value),r=num($('rdRate')?.value),y=num($('rdYears')?.value),n=Math.round(y*12),q=r/400,mat=q===0?p*n:p*((Math.pow(1+q,n/3)-1)/q)*(1+q);result=p<=0||r<0||y<=0?error('Please enter valid RD values.'): `<div class="rd-result"><strong>Maturity Amount</strong><h2>${money(mat)}</h2><hr><p><strong>Total Deposits:</strong> ${money(p*n)}</p><p><strong>Estimated Interest:</strong> ${money(mat-p*n)}</p></div>`;}
- else if(type==='percentage'){const v=num($('percentValue')?.value),r=num($('percentRate')?.value),a=v*r/100;result=`<div class="percentage-result"><strong>Percentage Result</strong><h2>${a.toLocaleString('en-IN',{maximumFractionDigits:2})}</h2><p>${r}% of ${v.toLocaleString('en-IN')} = ${a.toLocaleString('en-IN')}</p></div>`;}
- const out=$('calculatorResult');if(out)out.innerHTML=result;if(result&&!result.includes('calc-error'))saveRecent(name,result);
-}
-function saveRecent(name,value){const rows=JSON.parse(localStorage.getItem('calcRecent')||'[]');rows.unshift({name,value:String(value).replace(/<[^>]*>/g,' ').replace(/\s+/g,' ').trim(),time:new Date().toLocaleString('en-IN',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})});localStorage.setItem('calcRecent',JSON.stringify(rows.slice(0,6)));renderRecent();}
-function renderRecent(){const list=$('recentList');if(!list)return;const rows=JSON.parse(localStorage.getItem('calcRecent')||'[]');list.innerHTML=rows.length?rows.map(r=>`<div class="recent-row"><div class="r-icon">✓</div><div><strong>${esc(r.name)}</strong><p>${esc(r.value)}</p><small>${esc(r.time)}</small></div></div>`).join(''):`<div class="recent-row"><div class="r-icon">◷</div><div><strong>No recent calculations</strong><p>Your recent calculations will appear here.</p></div></div>`;}
-function navigate(s){if(s==='ai'){$('aiInput')?.focus();window.scrollTo({top:700,behavior:'smooth'});return}if(s==='calculators'){renderPopular(calculators);window.scrollTo({top:350,behavior:'smooth'});return}if(s)filterCategory(s);}
+const categories = [
+  {id:"financial",icon:"🏦",name:"Financial",desc:"SIP, FD, RD & interest"},
+  {id:"loan",icon:"🏠",name:"Loan & EMI",desc:"Loan payments and costs"},
+  {id:"health",icon:"❤️",name:"Health",desc:"BMI and body metrics"},
+  {id:"date",icon:"🎂",name:"Age & Date",desc:"Age and date calculations"},
+  {id:"tax",icon:"🧾",name:"Tax & GST",desc:"Tax and price calculations"},
+  {id:"education",icon:"🎓",name:"Education & Math",desc:"Useful maths tools"},
+  {id:"unit",icon:"⇄",name:"Unit & Conversion",desc:"Conversions coming soon"},
+  {id:"other",icon:"⚙️",name:"Other Tools",desc:"Percentage and more"}
+];
 
-document.addEventListener('DOMContentLoaded',()=>{
- renderPopular();renderCategories();renderRecent();
- document.querySelectorAll('[data-section]').forEach(b=>b.addEventListener('click',()=>navigate(b.dataset.section)));
- const search=$('searchInput');if(search)search.addEventListener('input',e=>{const q=e.target.value.toLowerCase().trim();renderPopular(q?calculators.filter(c=>`${c.name} ${c.desc} ${c.cat}`.toLowerCase().includes(q)):calculators.slice(0,9));});
- const modal=$('calculatorModal');const close=$('modalClose');if(close&&modal)close.addEventListener('click',()=>modal.classList.remove('show'));if(modal)modal.addEventListener('click',e=>{if(e.target===modal)modal.classList.remove('show');});
- const menu=$('mobileMenu'),sidebar=$('sidebar');if(menu&&sidebar)menu.addEventListener('click',()=>sidebar.classList.toggle('open'));
- const theme=$('themeBtn');if(theme)theme.addEventListener('click',()=>document.documentElement.classList.toggle('dark'));
- document.querySelectorAll('.chips button').forEach(b=>b.addEventListener('click',()=>{const i=$('aiInput');if(i){i.value=b.textContent.trim();i.focus();}}));
- const aiButton=$('aiSend'),aiInput=$('aiInput');if(aiButton&&aiInput)aiButton.addEventListener('click',()=>{if(!aiInput.value.trim()){aiInput.focus();return}alert('AI Assistant backend next stage mein securely connect kiya jayega.');});
-});
+const money = (value) => "₹" + Math.round(Number(value) || 0).toLocaleString("en-IN");
+const number = (value) => Number(value);
+const safe = (value) => String(value).replace(/[&<>"']/g, ch => ({
+  "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+}[ch]));
+
+function showToast(message) {
+  const toast = $("#toast");
+  if (!toast) return;
+  toast.textContent = message;
+  toast.classList.add("show");
+  clearTimeout(showToast.timer);
+  showToast.timer = setTimeout(() => toast.classList.remove("show"), 2800);
+}
+
+function renderPopular(list = calculators.filter(c => c.popular)) {
+  const grid = $("#popularGrid");
+  if (!grid) return;
+
+  if (!list.length) {
+    grid.innerHTML = '<div class="empty-state">No calculators found. Try another search.</div>';
+    return;
+  }
+
+  grid.innerHTML = list.map(c => `
+    <button class="calc-card" type="button" data-open="${c.id}">
+      <span class="calc-icon ${c.cat === "financial" ? "green" : c.cat === "tax" ? "orange" : c.cat === "health" ? "pink" : c.cat === "date" ? "purple" : ""}">${c.icon}</span>
+      <span class="calc-info"><strong>${safe(c.name)}</strong><p>${safe(c.desc)}</p></span>
+      <span class="calc-arrow">↗</span>
+    </button>
+  `).join("");
+}
+
+function renderCategories() {
+  const grid = $("#categoryGrid");
+  if (!grid) return;
+
+  grid.innerHTML = categories.map(c => `
+    <button class="category-card" type="button" data-category="${c.id}">
+      <span class="category-icon">${c.icon}</span>
+      <strong>${safe(c.name)}</strong>
+      <small>${safe(c.desc)}</small>
+    </button>
+  `).join("");
+}
+
+function readHistory() {
+  try {
+    const data = JSON.parse(localStorage.getItem("calcusiteHistory") || "[]");
+    return Array.isArray(data) ? data : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveHistory(item) {
+  const history = readHistory();
+  history.unshift({...item, time:new Date().toISOString()});
+  try {
+    localStorage.setItem("calcusiteHistory", JSON.stringify(history.slice(0,30)));
+  } catch {}
+  renderHistory();
+}
+
+function renderHistory() {
+  const list = $("#recentList");
+  if (!list) return;
+
+  const history = readHistory();
+  if (!history.length) {
+    list.innerHTML = '<div class="empty-state">Your calculations will appear here after you use a calculator.</div>';
+    return;
+  }
+
+  list.innerHTML = history.slice(0,8).map(item => {
+    const date = new Date(item.time);
+    const dateText = Number.isNaN(date.getTime()) ? "" :
+      date.toLocaleString("en-IN", {day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit"});
+    return `
+      <article class="history-row">
+        <span class="history-symbol">✓</span>
+        <div class="history-content">
+          <strong>${safe(item.name)}</strong>
+          <p>${safe(item.result)}</p>
+        </div>
+        <time>${safe(dateText)}</time>
+      </article>`;
+  }).join("");
+}
+
+function fieldsFor(id) {
+  const field = (name,label,value,type="number",step="any",min="0") => ({
+    name,label,value,type,step,min
+  });
+
+  const definitions = {
+    emi:[
+      field("amount","Loan Amount (₹)",1000000),
+      field("rate","Annual Interest Rate (%)",8.5,"number","0.01"),
+      field("years","Loan Tenure (Years)",20,"number","1","1")
+    ],
+    loan:[
+      field("amount","Loan Amount (₹)",500000),
+      field("rate","Annual Interest Rate (%)",10,"number","0.01"),
+      field("years","Loan Tenure (Years)",5,"number","1","1")
+    ],
+    sip:[
+      field("monthly","Monthly Investment (₹)",5000),
+      field("rate","Expected Annual Return (%)",12,"number","0.1"),
+      field("years","Investment Period (Years)",15,"number","1","1")
+    ],
+    bmi:[
+      field("weight","Weight (kg)",70,"number","0.1","0.1"),
+      field("height","Height (cm)",170,"number","0.1","0.1")
+    ],
+    age:[
+      field("birth","Date of Birth","","date")
+    ],
+    gst:[
+      field("amount","Base Amount (₹)",25000),
+      field("rate","GST Rate (%)",18,"number","0.1")
+    ],
+    fd:[
+      field("amount","Deposit Amount (₹)",100000),
+      field("rate","Annual Interest Rate (%)",7,"number","0.1"),
+      field("years","Deposit Period (Years)",5,"number","1","1"),
+      {name:"frequency",label:"Compounding Frequency",type:"select",value:"4",options:[["1","Yearly"],["2","Half-yearly"],["4","Quarterly"],["12","Monthly"]]}
+    ],
+    rd:[
+      field("monthly","Monthly Deposit (₹)",5000),
+      field("rate","Annual Interest Rate (%)",6.5,"number","0.1"),
+      field("years","Deposit Period (Years)",5,"number","1","1")
+    ],
+    percentage:[
+      field("amount","Value",500),
+      field("rate","Percentage (%)",18,"number","0.1")
+    ],
+    compound:[
+      field("amount","Initial Investment (₹)",100000),
+      field("rate","Annual Interest Rate (%)",8,"number","0.1"),
+      field("years","Investment Period (Years)",10,"number","1","1")
+    ]
+  };
+
+  return definitions[id] || [];
+}
+
+function fieldHTML(f) {
+  if (f.type === "select") {
+    return `<div class="field"><label for="field-${f.name}">${safe(f.label)}</label>
+      <select id="field-${f.name}" name="${f.name}">
+      ${f.options.map(o => `<option value="${o[0]}" ${o[0] === f.value ? "selected" : ""}>${safe(o[1])}</option>`).join("")}
+      </select></div>`;
+  }
+
+  return `<div class="field"><label for="field-${f.name}">${safe(f.label)}</label>
+    <input id="field-${f.name}" name="${f.name}" type="${f.type}" ${f.type === "number" ? `min="${f.min}" step="${f.step}"` : ""} value="${safe(f.value)}" ${f.type === "date" ? `max="${new Date().toISOString().slice(0,10)}"` : ""} required>
+    ${f.name === "rate" ? '<small>Enter the rate applicable to your calculation.</small>' : ""}
+    </div>`;
+}
+
+function openCalculator(id) {
+  const calc = calculators.find(c => c.id === id);
+  if (!calc) return;
+
+  $("#modalTitle").textContent = calc.name;
+  $("#modalDescription").textContent = calc.desc + ". Enter your details to calculate an estimate.";
+  $("#formFields").innerHTML = fieldsFor(id).map(fieldHTML).join("");
+  $("#calculatorResult").innerHTML = "";
+  $("#calculatorForm").dataset.type = id;
+
+  $("#calculatorModal").classList.add("show");
+  $("#calculatorModal").setAttribute("aria-hidden","false");
+  document.body.style.overflow = "hidden";
+  $("#modalClose").focus();
+}
+
+function closeCalculator() {
+  $("#calculatorModal").classList.remove("show");
+  $("#calculatorModal").setAttribute("aria-hidden","true");
+  document.body.style.overflow = "";
+}
+
+function readField(name) {
+  const input = $(`#field-${name}`);
+  return input ? input.value : "";
+}
+
+function numericField(name) {
+  const input = $(`#field-${name}`);
+  const value = input ? Number(input.value) : NaN;
+  if (!input || input.value.trim() === "" || !Number.isFinite(value) || value < 0) {
+    throw new Error("Please enter valid non-negative values in all fields.");
+  }
+  return value;
+}
+
+function resultHTML(title, value, details = [], ratio = null, note = "") {
+  const detailHTML = details.map(d => `
+    <div class="result-detail"><span>${safe(d[0])}</span><strong>${safe(d[1])}</strong></div>
+  `).join("");
+
+  const bar = ratio ? `
+    <div class="result-bar"><span class="principal" style="width:${ratio}%"></span><span class="interest" style="width:${100-ratio}%"></span></div>
+    <div class="result-note">Blue: principal / invested amount · Green: interest / estimated returns</div>
+  ` : "";
+
+  return `<div class="result-label">${safe(title)}</div>
+    <div class="result-value">${safe(value)}</div>
+    ${detailHTML ? `<div class="result-details">${detailHTML}</div>` : ""}
+    ${bar}
+    ${note ? `<p class="result-note">${safe(note)}</p>` : ""}`;
+}
+
+function calculate(id) {
+  let result = "";
+  let summary = "";
+
+  if (id === "emi" || id === "loan") {
+    const p = numericField("amount");
+    const rate = numericField("rate");
+    const years = numericField("years");
+    if (p <= 0 || years <= 0) throw new Error("Loan amount and tenure must be greater than zero.");
+
+    const months = Math.round(years * 12);
+    const r = rate / 1200;
+    const emi = r === 0 ? p / months : p * r * Math.pow(1+r,months) / (Math.pow(1+r,months)-1);
+    const total = emi * months;
+    const interest = total - p;
+    const ratio = total ? Math.min(100,Math.max(0,p/total*100)) : 100;
+
+    result = resultHTML("Estimated Monthly EMI",money(emi),[
+      ["Loan principal",money(p)],
+      ["Total interest",money(interest)],
+      ["Total repayment",money(total)],
+      ["Number of instalments",String(months)]
+    ],ratio,"EMI is estimated using a standard reducing-balance monthly interest calculation.");
+    summary = `Monthly EMI: ${money(emi)} · Total interest: ${money(interest)}`;
+  }
+
+  else if (id === "sip") {
+    const monthly = numericField("monthly");
+    const rate = numericField("rate");
+    const years = numericField("years");
+    if (monthly <= 0 || years <= 0) throw new Error("Investment and period must be greater than zero.");
+
+    const n = Math.round(years*12);
+    const r = Math.pow(1+rate/100,1/12)-1;
+    const invested = monthly*n;
+    const future = r === 0 ? invested : monthly*(Math.pow(1+r,n)-1)/r;
+    const returns = future-invested;
+    result = resultHTML("Estimated Future Value",money(future),[
+      ["Monthly investment",money(monthly)],
+      ["Total invested",money(invested)],
+      ["Estimated returns",money(returns)],
+      ["Investment period",`${years} years`]
+    ],future ? Math.min(100,invested/future*100) : 100,
+    "Market-linked returns are not guaranteed. Actual results may vary.");
+    summary = `Future value: ${money(future)} · Invested: ${money(invested)}`;
+  }
+
+  else if (id === "bmi") {
+    const weight = numericField("weight");
+    const height = numericField("height")/100;
+    if (weight <= 0 || height <= 0) throw new Error("Enter a valid weight and height.");
+
+    const bmi = weight/(height*height);
+    let status = "Normal range";
+    if (bmi < 18.5) status = "Underweight range";
+    else if (bmi >= 25 && bmi < 30) status = "Overweight range";
+    else if (bmi >= 30) status = "Obesity range";
+
+    result = resultHTML("Your BMI",bmi.toFixed(1),[
+      ["Classification",status],
+      ["Weight",`${weight} kg`],
+      ["Height",`${(height*100).toFixed(1)} cm`]
+    ],null,"BMI is a screening measure, not a medical diagnosis.");
+    summary = `BMI: ${bmi.toFixed(1)} · ${status}`;
+  }
+
+  else if (id === "age") {
+    const raw = readField("birth");
+    if (!raw) throw new Error("Please select your date of birth.");
+    const birth = new Date(`${raw}T00:00:00`);
+    const today = new Date();
+    today.setHours(0,0,0,0);
+    if (Number.isNaN(birth.getTime()) || birth > today) throw new Error("Please enter a valid date of birth.");
+
+    let years = today.getFullYear()-birth.getFullYear();
+    let months = today.getMonth()-birth.getMonth();
+    let days = today.getDate()-birth.getDate();
+    if (days < 0) {
+      months--;
+      days += new Date(today.getFullYear(),today.getMonth(),0).getDate();
+    }
+    if (months < 0) { years--; months += 12; }
+
+    const totalDays = Math.floor((today-birth)/86400000);
+    result = resultHTML("Your Exact Age",`${years} years`,[
+      ["Additional months",String(months)],
+      ["Additional days",String(days)],
+      ["Total days lived",totalDays.toLocaleString("en-IN")]
+    ]);
+    summary = `Age: ${years} years, ${months} months, ${days} days`;
+  }
+
+  else if (id === "gst") {
+    const amount = numericField("amount");
+    const rate = numericField("rate");
+    const tax = amount*rate/100;
+    const total = amount+tax;
+    result = resultHTML("Final Amount",money(total),[
+      ["Base amount",money(amount)],
+      [`GST (${rate}%)`,money(tax)],
+      ["Final price",money(total)]
+    ]);
+    summary = `Final amount: ${money(total)} · GST: ${money(tax)}`;
+  }
+
+  else if (id === "fd") {
+    const p = numericField("amount");
+    const rate = numericField("rate");
+    const years = numericField("years");
+    const n = numericField("frequency");
+    if (p <= 0 || years <= 0) throw new Error("Deposit and period must be greater than zero.");
+
+    const maturity = p*Math.pow(1+rate/(100*n),n*years);
+    const interest = maturity-p;
+    result = resultHTML("Estimated Maturity Amount",money(maturity),[
+      ["Principal deposit",money(p)],
+      ["Interest earned",money(interest)],
+      ["Annual rate",`${rate}%`],
+      ["Deposit period",`${years} years`]
+    ],maturity ? Math.min(100,p/maturity*100) : 100,
+    "Actual bank maturity depends on compounding rules, tax and product terms.");
+    summary = `Maturity: ${money(maturity)} · Interest: ${money(interest)}`;
+  }
+
+  else if (id === "rd") {
+    const monthly = numericField("monthly");
+    const rate = numericField("rate");
+    const years = numericField("years");
+    if (monthly <= 0 || years <= 0) throw new Error("Monthly deposit and period must be greater than zero.");
+
+    const n = Math.round(years*12);
+    const r = Math.pow(1+rate/400,1/3)-1;
+    const maturity = r === 0 ? monthly*n : monthly*(Math.pow(1+r,n)-1)/r;
+    const invested = monthly*n;
+    const interest = maturity-invested;
+    result = resultHTML("Estimated Maturity Amount",money(maturity),[
+      ["Monthly deposit",money(monthly)],
+      ["Total deposits",money(invested)],
+      ["Estimated interest",money(interest)],
+      ["Period",`${years} years`]
+    ],maturity ? Math.min(100,invested/maturity*100) : 100,
+    "This is an estimate using a periodic deposit-growth model. Bank calculations may differ.");
+    summary = `Maturity: ${money(maturity)} · Deposits: ${money(invested)}`;
+  }
+
+  else if (id === "percentage") {
+    const amount = numericField("amount");
+    const rate = numericField("rate");
+    const value = amount*rate/100;
+    result = resultHTML("Percentage Result",money(value),[
+      ["Original value",money(amount)],
+      ["Percentage",`${rate}%`],
+      ["Value after addition",money(amount+value)]
+    ]);
+    summary = `${rate}% of ${money(amount)} = ${money(value)}`;
+  }
+
+  else if (id === "compound") {
+    const p = numericField("amount");
+    const rate = numericField("rate");
+    const years = numericField("years");
+    if (p <= 0 || years <= 0) throw new Error("Principal and period must be greater than zero.");
+
+    const total = p*Math.pow(1+rate/100,years);
+    const interest = total-p;
+    result = resultHTML("Future Value",money(total),[
+      ["Initial investment",money(p)],
+      ["Compound interest",money(interest)],
+      ["Annual rate",`${rate}%`],
+      ["Period",`${years} years`]
+    ],total ? Math.min(100,p/total*100) : 100);
+    summary = `Future value: ${money(total)} · Interest: ${money(interest)}`;
+  }
+
+  $("#calculatorResult").innerHTML = result;
+  saveHistory({id,name:calculators.find(c => c.id === id)?.name || id,result:summary});
+}
+
+function showCategory(category) {
+  const matching = category === "all"
+    ? calculators
+    : calculators.filter(c => c.cat === category ||
+      (category === "education" && ["percentage","compound"].includes(c.id)) ||
+      (category === "unit" && c.id === "percentage"));
+
+  $("#welcome").hidden = category !== "all";
+  $("#popularSection").hidden = false;
+
+  const heading = $("#popularSection .section-heading h2");
+  const kicker = $("#popularSection .section-kicker");
+  const desc = $("#popularSection .section-heading p");
+  if (heading) heading.textContent = category === "all" ? "🔥 Popular Calculators" :
+    `${categories.find(c=>c.id===category)?.name || "All"} Calculators`;
+  if (kicker) kicker.textContent = category === "all" ? "GET STARTED" : "BROWSE TOOLS";
+  if (desc) desc.textContent = category === "all" ? "Tools people use most often." : "Choose a calculator to get started.";
+
+  renderPopular(matching);
+  $("#popularSection").scrollIntoView({behavior:"smooth",block:"start"});
+}
+
+function showPage(page) {
+  $$(".nav-item").forEach(btn => btn.classList.toggle("active",btn.dataset.page===page));
+
+  if (page === "dashboard") {
+    $("#welcome").hidden = false;
+    $("#popularSection .section-heading h2").textContent = "🔥 Popular Calculators";
+    $("#popularSection .section-kicker").textContent = "GET STARTED";
+    $("#popularSection .section-heading p").textContent = "Tools people use most often.";
+    renderPopular(calculators.filter(c=>c.popular));
+    $("#welcome").scrollIntoView({behavior:"smooth",block:"start"});
+  } else if (page === "history") {
+    $("#welcome").hidden = true;
+    $("#popularSection .section-heading h2").textContent = "◷ Calculation History";
+    $("#popularSection .section-heading p").textContent = "Your latest calculations on this device.";
+    renderHistory();
+    $("#recentList").scrollIntoView({behavior:"smooth",block:"start"});
+  } else {
+    showCategory(page === "all" ? "all" : page);
+  }
+
+  closeMenu();
+}
+
+function openMenu() {
+  $("#sidebar").classList.add("open");
+  $("#overlay").classList.add("show");
+}
+function closeMenu() {
+  $("#sidebar").classList.remove("open");
+  $("#overlay").classList.remove("show");
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  renderPopular();
+  renderCategories();
+  renderHistory();
+
+  document.addEventListener("click", event => {
+    const calcButton = event.target.closest("[data-open]");
+    if (calcButton) {
+      openCalculator(calcButton.dataset.open);
+      return;
+    }
+
+    const categoryButton = event.target.closest("[data-category]");
+    if (categoryButton) {
+      showCategory(categoryButton.dataset.category);
+      return;
+    }
+
+    const pageButton = event.target.closest("[data-page]");
+    if (pageButton) {
+      showPage(pageButton.dataset.page);
+    }
+  });
+
+  $("#calculatorForm").addEventListener("submit", event => {
+    event.preventDefault();
+    const id = event.currentTarget.dataset.type;
+    try {
+      calculate(id);
+    } catch (error) {
+      $("#calculatorResult").innerHTML =
+        `<div class="result-note" role="alert">${safe(error.message || "Please check your inputs and try again.")}</div>`;
+    }
+  });
+
+  $("#modalClose").addEventListener("click"
