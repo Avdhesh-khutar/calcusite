@@ -72,7 +72,9 @@ async function adminApi(request, env, url) {
   try {
     if (url.pathname === "/api/admin/me" && request.method === "GET") return json({ ok: true });
     if (url.pathname === "/api/admin/articles" && request.method === "GET") {
-      const data = await github(request, env, "/repos/Avdhesh-khutar/calcusite/contents/content/blog?ref=main");
+      let data = [];
+      try { data = await github(request, env, "/repos/Avdhesh-khutar/calcusite/contents/content/blog?ref=main"); }
+      catch (e) { if (e.status !== 404) throw e; }
       const files = Array.isArray(data) ? data.filter(x => x.type === "file" && x.name.endsWith(".md")) : [];
       return json({ articles: files.map(f => ({ name: f.name, slug: f.name.replace(/\.md$/, ""), path: f.path, url: f.html_url, sha: f.sha })) });
     }
