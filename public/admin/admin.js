@@ -40,6 +40,8 @@ function resetEditor() {
   state.slug = "";
   $("#articleForm").reset();
   $("#mode").value = "create";
+  $("#slug").readOnly = false;
+  delete $("#slug").dataset.touched;
   $("#published").checked = true;
   $("#editorTitle").textContent = "Create an article";
   $("#publishBtn").innerHTML = 'Publish to GitHub <span>↗</span>';
