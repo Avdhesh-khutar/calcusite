@@ -48,9 +48,14 @@ async function github(request, env, path, options = {}) {
       ...(options.headers || {})
     }
   });
-  const body = await response.json().catch(() => ({}));
+  const raw = await response.text();
+  let body = {};
+  try { body = raw ? JSON.parse(raw) : {}; } catch {}
   if (!response.ok) {
-    const err = new Error(body.message || "GitHub API request failed.");
+    const detail = typeof body.message === "string" && body.message.trim()
+      ? body.message.trim()
+      : raw.trim().slice(0, 240);
+    const err = new Error("GitHub API HTTP " + response.status + (detail ? ": " + detail : "."));
     err.status = response.status;
     throw err;
   }
