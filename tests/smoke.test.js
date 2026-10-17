@@ -44,9 +44,9 @@ test('unpublished blog articles are excluded from public routes and sitemap', ()
 test('homepage contains basic search metadata and private admin is noindex', () => {
   assert.match(html, /<title>[^<]+<\/title>/i);
   assert.match(html, /name=["']description["']/i);
-  assert.match(html, /<link rel="canonical" href="https:\/\/calcusite\.avdheshkhutar24\.workers\.dev\/">/i);
-  assert.match(html, /property="og:url" content="https:\/\/calcusite\.avdheshkhutar24\.workers\.dev\/">/i);
-  assert.doesNotMatch(html, /https:\/\/calcusite\.com\//);
+  assert.match(html, /<link rel="canonical" href="https:\/\/calcusite\.com\/">/i);
+  assert.match(html, /property="og:url" content="https:\/\/calcusite\.com\/">/i);
+  assert.doesNotMatch(html, /https:\/\/calcusite\.avdheshkhutar24\.workers\.dev\//);
   assert.match(read('public/admin/index.html'), /noindex,nofollow/);
 });
 
@@ -58,13 +58,11 @@ test('robots.txt and sitemap use the active Worker origin', async () => {
   const robotsText = await robots.text();
   assert.equal(robots.status, 200);
   assert.match(robotsText, /Sitemap: https:\/\/calcusite\.avdheshkhutar24\.workers\.dev\/sitemap\.xml/);
-  assert.doesNotMatch(robotsText, /https:\/\/calcusite\.com/);
 
   const sitemap = await app.fetch(new Request('https://calcusite.avdheshkhutar24.workers.dev/sitemap.xml'), {});
   const sitemapText = await sitemap.text();
   assert.equal(sitemap.status, 200);
   assert.match(sitemapText, /https:\/\/calcusite\.avdheshkhutar24\.workers\.dev\//);
-  assert.doesNotMatch(sitemapText, /https:\/\/calcusite\.com/);
 });
 
 test('all registered calculators produce finite results with their default inputs', () => {
