@@ -192,7 +192,8 @@ async function serveSitemap(request, env) {
           const raw = new TextDecoder().decode(Uint8Array.from(dec, ch => ch.charCodeAt(0)));
           const p = blogParse(raw, f.name.replace(/\.md$/, ""));
           if (p.published === false || p.published === "false") continue;
-          const slug = String(p.slug || f.name.replace(/\.md$/, ""));
+          // Blog routes are keyed by the Markdown filename, not frontmatter slug.
+          const slug = f.name.replace(/\.md$/, "");
           if (!validSlug(slug)) continue;
           urls.push({ loc: origin + "/blog/" + encodeURIComponent(slug), lastmod: /^\d{4}-\d{2}-\d{2}$/.test(String(p.updated)) ? p.updated : "", changefreq: "monthly", priority: "0.6" });
         } catch {}
