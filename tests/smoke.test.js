@@ -166,3 +166,64 @@ test('default inputs pass the same validation used by the calculator UI', () => 
   assert.equal(validateInputs(power, { b: -2, e: 3 }), '');
   assert.match(validateInputs(power, { b: -2, e: 0.5 }), /whole-number exponent/);
 });
+
+test('Admin article API validates saves and writes draft/published frontmatter correctly', async () => {
+  const app = new Function(worker.replace('export default {', 'const worker = {') + '; return worker;')();
+  const env = { ADMIN_PASSWORD: 'correct-password', SESSION_SECRET: 'test-session-secret', GITHUB_TOKEN: 'fake-test-token' };
+  const login = await app.fetch(new Request('https://example.workers.dev/api/admin/login', {
+    method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ password: env.ADMIN_PASSWORD })
+  }), env);
+  const token = login.headers.get('set-cookie').match(/calcusite_admin=([^;]+)/)[1];
+  const headers = { 'content-type': 'application/json', Cookie: 'calcusite_admin=' + token };
+  const originalFetch = globalThis.fetch;
+  const calls = [];
+  try {
+    globalThis.fetch = async (url, options = {}) => {
+      calls.push({ url: String(url), method: options.method || 'GET', body: options.body ? JSON.parse(options.body) : null });
+      if ((options.method || 'GET') === 'GET') return new Response(JSON.stringify({ message: 'Not Found' }), { status: 404 });
+      return new Response(JSON.stringify({
+        content: { path: 'content/blog/test-draft.md', html_url: 'https://github.com/Avdhesh-khutar/calcusite/blob/main/content/blog/test-draft.md' },
+        commit: { sha: 'abcdef1234567890' }
+      }), { status: 201, headers: { 'content-type': 'application/json' } });
+    };
+
+    const invalid = await app.fetch(new Request('https://example.workers.dev/api/admin/article', {
+      method: 'POST', headers, body: JSON.stringify({ title: 'Bad save', slug: 'bad-save', content: 'This is enough article content for this test.' })
+    }), env);
+    assert.equal(invalid.status, 400);
+    assert.match((await invalid.json()).error, /save mode/);
+    assert.equal(calls.length, 0, 'invalid payload must not contact GitHub');
+
+    const draft = await app.fetch(new Request('https://example.workers.dev/api/admin/article', {
+      method: 'POST', headers, body: JSON.stringify({ mode: 'create', title: 'Draft Article', slug: 'test-draft', description: 'Draft test', content: 'This is enough article content for the draft test.', published: false })
+    }), env);
+    assert.equal(draft.status, 200);
+    const draftData = await draft.json();
+    assert.equal(draftData.published, false);
+    const draftWrite = calls.find(call => call.method === 'PUT');
+    assert.ok(draftWrite);
+    assert.match(atob(draftWrite.body.content), /published: false/);
+
+    calls.length = 0;
+    globalThis.fetch = async (url, options = {}) => {
+      calls.push({ url: String(url), method: options.method || 'GET', body: options.body ? JSON.parse(options.body) : null });
+      if ((options.method || 'GET') === 'GET') return new Response(JSON.stringify({ sha: 'old-file-sha', content: '', html_url: 'https://github.com/example/article' }), { status: 200, headers: { 'content-type': 'application/json' } });
+      return new Response(JSON.stringify({
+        content: { path: 'content/blog/test-draft.md', html_url: 'https://github.com/example/article' },
+        commit: { sha: 'fedcba9876543210' }
+      }), { status: 200, headers: { 'content-type': 'application/json' } });
+    };
+    const update = await app.fetch(new Request('https://example.workers.dev/api/admin/article', {
+      method: 'POST', headers, body: JSON.stringify({ mode: 'update', title: 'Updated Article', slug: 'test-draft', content: 'Updated article content with enough characters.', published: true })
+    }), env);
+    assert.equal(update.status, 200);
+    const updateData = await update.json();
+    assert.equal(updateData.updated, true);
+    assert.equal(updateData.published, true);
+    const updateWrite = calls.find(call => call.method === 'PUT');
+    assert.equal(updateWrite.body.sha, 'old-file-sha');
+    assert.match(atob(updateWrite.body.content), /published: true/);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
