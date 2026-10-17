@@ -177,6 +177,35 @@ async function serveBlog(request, env, url) {
  catch(e){return blogHtml("Article not found",'<section class="intro"><h1>Article not found</h1><p>This article may not have been published yet.</p><a href="/blog">Browse all articles</a></section>');}
 }
 
+
+function xmlEsc(s) { return String(s || "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&apos;"); }
+async function serveSitemap(request, env) {
+  const origin = "https://calcusite.com";
+  const urls = [{ loc: origin + "/", changefreq: "weekly", priority: "1.0" }, { loc: origin + "/blog", changefreq: "weekly", priority: "0.8" }];
+  try {
+    const files = await github(request, env, "/repos/Avdhesh-khutar/calcusite/contents/content/blog?ref=main");
+    if (Array.isArray(files)) {
+      for (const f of files.filter(x => x.type === "file" && x.name.endsWith(".md"))) {
+        try {
+          const item = await github(request, env, "/repos/Avdhesh-khutar/calcusite/contents/" + f.path.split("/").map(encodeURIComponent).join("/") + "?ref=main");
+          const dec = atob((item.content || "").replace(/\\n/g, ""));
+          const raw = new TextDecoder().decode(Uint8Array.from(dec, ch => ch.charCodeAt(0)));
+          const p = blogParse(raw, f.name.replace(/\\.md$/, ""));
+          if (p.published === false || p.published === "false") continue;
+          const slug = String(p.slug || f.name.replace(/\\.md$/, ""));
+          if (!validSlug(slug)) continue;
+          urls.push({ loc: origin + "/blog/" + encodeURIComponent(slug), lastmod: /^\\d{4}-\\d{2}-\\d{2}$/.test(String(p.updated)) ? p.updated : "", changefreq: "monthly", priority: "0.6" });
+        } catch {}
+      }
+    }
+  } catch {}
+  const xml = '<?xml version="1.0" encoding="UTF-8"?>\n' + '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' + urls.map(u => '<url><loc>' + xmlEsc(u.loc) + '</loc>' + (u.lastmod ? '<lastmod>' + u.lastmod + '</lastmod>' : '') + '<changefreq>' + u.changefreq + '</changefreq><priority>' + u.priority + '</priority></url>').join("") + '</urlset>';
+  return new Response(xml, { headers: { "content-type": "application/xml; charset=utf-8", "cache-control": "public, max-age=3600" } });
+}
+function serveRobots() {
+  return new Response("User-agent: *\\nAllow: /\\nDisallow: /admin/\\nDisallow: /api/\\nSitemap: https://calcusite.com/sitemap.xml\\n", { headers: { "content-type": "text/plain; charset=utf-8", "cache-control": "public, max-age=3600" } });
+}
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
