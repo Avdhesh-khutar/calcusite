@@ -56,6 +56,9 @@ async function openArticle(slug) {
   try {
     const data = await api("/api/admin/article?slug=" + encodeURIComponent(slug));
     state.slug = data.slug; $("#mode").value = "update";
+    // A published article path is its GitHub filename. Keep it stable while editing;
+    // renaming a slug needs a separate create-and-retire workflow.
+    $("#slug").readOnly = true; $("#slug").dataset.touched = "true";
     const parsed = parseMarkdown(data.content);
     $("#title").value = parsed.title || slug.replace(/-/g, " ");
     $("#slug").value = slug; $("#description").value = parsed.description || "";
