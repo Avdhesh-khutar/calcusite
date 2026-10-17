@@ -445,6 +445,8 @@ test('percentage, discount, date difference and car-loan edge cases are handled'
   assert.match(validateInputs(get('discount'), { p: 2999, d: 101 }), /between 0 and 100/);
 
   const dateDifference = get('datediff').run({ a: '2026-01-01', b: '2026-01-11' });
+  assert.match(validateInputs(get('datediff'), { a: '2026-02-31', b: '2026-03-10' }), /valid date/);
+  assert.match(validateInputs(get('age'), { dob: '2024-02-30' }), /valid date/);
   assert.equal(dateDifference.main[1], '10 days');
   assert.equal(get('datediff').run({ a: '2026-01-11', b: '2026-01-01' }).main[1], '10 days');
 
