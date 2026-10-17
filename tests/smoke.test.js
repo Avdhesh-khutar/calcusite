@@ -469,6 +469,20 @@ test('percentage, discount, date difference and car-loan edge cases are handled'
   assert.match(validateInputs(get('pl'), { c: 0, s: 1000 }), /greater than zero/);
 });
 
+test('mobile layout and core calculator controls have responsive rules and handlers', () => {
+  const styles = read('public/style.css');
+  const app = read('public/script.js');
+  assert.match(styles, /@media\s*\(max-width:\s*800px\)/, 'tablet/mobile breakpoint exists');
+  assert.match(styles, /@media\s*\(max-width:\s*480px\)/, 'small-phone breakpoint exists');
+  assert.match(styles, /\.sidebar\.open/, 'mobile navigation has an open state');
+  assert.match(app, /menu\.addEventListener\('click'/, 'mobile menu button is wired');
+  assert.match(app, /sidebar\.classList\.remove\('open'\)/, 'mobile menu can close after navigation/outside click');
+  assert.match(app, /\$\('pCalculate'\)\.onclick=calc/, 'EMI calculate button is wired');
+  assert.match(app, /\$\('pReset'\)\.onclick/, 'EMI reset button is wired');
+  assert.match(app, /\$\('modalClose'\).*addEventListener\('click',close\)/, 'calculator modal close control is wired');
+  assert.match(app, /\$\('searchInput'\).*addEventListener\('input'/, 'calculator search reacts to typing');
+});
+
 test('calculators reject zero divisors and impossible dimensions before calculation', () => {
   const registryStart = html.indexOf('const C=[');
   const registryEnd = html.indexOf('const CATS=', registryStart);
