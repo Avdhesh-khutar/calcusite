@@ -410,3 +410,50 @@ test('EMI, SIP, GST, BMI and age calculators return expected values and reject e
     assert.doesNotMatch(JSON.stringify(result), /\\b(?:NaN|Infinity)\\b/, id + ' must remain finite');
   }
 });
+
+test('percentage, discount, date difference and car-loan edge cases are handled', () => {
+  const registryStart = html.indexOf('const C=[');
+  const registryEnd = html.indexOf('const CATS=', registryStart);
+  const validationStart = html.indexOf('function validateInputs(c,v){');
+  const validationEnd = html.indexOf('let cur,curC;', validationStart);
+  assert.ok(registryStart >= 0 && registryEnd > registryStart);
+  assert.ok(validationStart >= 0 && validationEnd > validationStart);
+  const registry = html.slice(registryStart, registryEnd);
+  const validator = html.slice(validationStart, validationEnd);
+  const harness = `
+    const CURS = { INR: ['₹', 'en-IN'] };
+    const CU = 'INR';
+    const fmt = n => Number.isFinite(Number(n)) ? Number(n).toLocaleString('en-IN', { maximumFractionDigits: 2 }) : '—';
+    const rs = n => '₹' + fmt(Math.round(n));
+    const emiF = (P,r,m) => { r/=1200; return r ? P*r*Math.pow(1+r,m)/(Math.pow(1+r,m)-1) : P/m; };
+    function loan(P,r,m) { const e=emiF(P,r,m),tot=e*m,int=tot-P; return {main:['Monthly EMI',rs(e)],rows:[['Principal',rs(P)],['Total Interest',rs(int)],['Total Payment',rs(tot)]]}; }
+    ${registry}
+    ${validator}
+    return { calculators: C, validateInputs };
+  `;
+  const { calculators, validateInputs } = new Function(harness)();
+  const get = id => calculators.find(c => c.id === id);
+
+  const percentage = get('percent').run({ p: 15, x: 2000 });
+  assert.equal(percentage.main[1], '300');
+  assert.equal(percentage.rows[0][1], '2,300');
+  assert.equal(percentage.rows[1][1], '1,700');
+
+  const discount = get('discount').run({ p: 2999, d: 25 });
+  assert.equal(discount.main[1], '₹2,249');
+  assert.equal(discount.rows[0][1], '₹750');
+  assert.match(validateInputs(get('discount'), { p: 2999, d: 101 }), /between 0 and 100/);
+
+  const dateDifference = get('datediff').run({ a: '2026-01-01', b: '2026-01-11' });
+  assert.equal(dateDifference.main[1], '10 days');
+  assert.equal(get('datediff').run({ a: '2026-01-11', b: '2026-01-01' }).main[1], '10 days');
+
+  const car = get('car');
+  assert.equal(validateInputs(car, { p: 1200000, d: 200000, r: 9, n: 5 }), '');
+  assert.match(validateInputs(car, { p: 1200000, d: 1200000, r: 9, n: 5 }), /less than the car price/);
+  assert.match(validateInputs(car, { p: 1200000, d: 1300000, r: 9, n: 5 }), /less than the car price/);
+
+  assert.match(validateInputs(get('pchange'), { o: 0, n: 250 }), /cannot be zero/);
+  assert.match(validateInputs(get('speed'), { d: 120, t: 0 }), /greater than zero/);
+  assert.match(validateInputs(get('pl'), { c: 0, s: 1000 }), /greater than zero/);
+});
