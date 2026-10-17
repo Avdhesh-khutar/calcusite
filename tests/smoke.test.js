@@ -74,6 +74,7 @@ test('all registered calculators produce finite results with their default input
   const registry = html.slice(start, end);
   const harness = `
     const CURS = { INR: ['₹', 'en-IN'] };
+    const CU = 'INR';
     const fmt = n => Number.isFinite(Number(n)) ? Number(n).toLocaleString('en-IN', { maximumFractionDigits: 2 }) : '—';
     const rs = n => '₹' + fmt(Math.round(n));
     const emiF = (P,r,m) => { r/=1200; return r ? P*r*Math.pow(1+r,m)/(Math.pow(1+r,m)-1) : P/m; };
