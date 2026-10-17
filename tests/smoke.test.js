@@ -375,7 +375,7 @@ test('EMI, SIP, GST, BMI and age calculators return expected values and reject e
   const expectedEmi = 1000000 * (0.085/12) * Math.pow(1+0.085/12,60) / (Math.pow(1+0.085/12,60)-1);
   assert.equal(emi.main[0], 'Monthly EMI');
   assert.equal(emi.main[1], rs(expectedEmi));
-  assert.equal(emi.rows[2][1], rs(Number(emi.main[1].replace(/[^0-9.]/g,'')) * 60));
+  assert.equal(emi.rows[2][1], rs(expectedEmi * 60));
 
   const sip = get('sip').run({ P: 5000, r: 12, n: 10 });
   const monthlyRate = 0.12/12, months = 120;
