@@ -355,9 +355,21 @@ function initCalc(id){const c=curC=byId(id);if(!c)return;update();
  $('#reset').onclick=()=>{c.f.forEach(f=>$('#f_'+f[0]).value=f[2]);update()};
  $('#copy').onclick=()=>{const s=c.n+' — '+cur.main.join(': ')+'\n'+(cur.rows||[]).map(x=>x.join(': ')).join('\n');try{navigator.clipboard.writeText(s).then(()=>toast('Copied'),()=>toast('Copy not allowed'))}catch(e){toast('Copy not available')}};
  $('#share').onclick=()=>{const s=c.n+': '+cur.main.join(' ');try{navigator.share?navigator.share({title:c.n,text:s,url:location.href}):navigator.clipboard.writeText(s+' '+location.href).then(()=>toast('Link copied'))}catch(e){toast('Share not available')}}}
-// AI parser
+// AI parser: evaluate arithmetic with a bounded parser, never JavaScript eval.
+function safeMath(source){
+ if(typeof source!=='string'||source.length>180||!/^[\d\s+\-*/().%^]+$/.test(source)||! /\d/.test(source))return null;
+ const tokens=source.match(/\s*(?:\d+(?:\.\d*)?|\.\d+|[()+\-*/%^])/g);
+ if(!tokens)return null;
+ const list=tokens.map(x=>x.trim()).filter(Boolean);let i=0,ops=0;
+ const primary=()=>{if(++ops>120)throw Error('limit');const t=list[i++];if(t==='('){const v=expr();if(list[i++]!==')')throw Error('paren');return v}if(t===undefined||(!/^\d/.test(t)&&!/^\.\d/.test(t)))throw Error('number');const v=Number(t);if(!Number.isFinite(v)||Math.abs(v)>1e100)throw Error('range');return v};
+ const unary=()=>{if(list[i]==='+'){i++;return unary()}if(list[i]==='-'){i++;return -unary()}return primary()};
+ const power=()=>{let a=unary();if(list[i]==='^'){i++;const b=power();if(Math.abs(b)>100)throw Error('exponent');a=Math.pow(a,b);if(!Number.isFinite(a)||Math.abs(a)>1e100)throw Error('range')}return a};
+ const term=()=>{let a=power();while(['*','/','%'].includes(list[i])){const op=list[i++],b=power();if((op==='/'||op==='%')&&b===0)throw Error('zero');a=op==='*'?a*b:op==='/'?a/b:a%b;if(!Number.isFinite(a)||Math.abs(a)>1e100)throw Error('range')}return a};
+ const expr=()=>{let a=term();while(list[i]==='+'||list[i]==='-'){const op=list[i++],b=term();a=op==='+'?a+b:a-b;if(!Number.isFinite(a)||Math.abs(a)>1e100)throw Error('range')}return a};
+ try{const result=expr();return i===list.length&&Number.isFinite(result)?result:null}catch{return null}
+}
 function ai(q){const t=q.toLowerCase().replace(/₹|,/g,'').trim();
- if(/^[\d\s+\-*/().%^]+$/.test(t)&&/\d/.test(t)&&!/%$/.test(t)){try{const r=Function('"use strict";return ('+t.replace(/\^/g,'**').replace(/(\d+(?:\.\d+)?)%/g,'($1/100)')+')')();if(isFinite(r))return`Answer: <b>${fmt(r)}</b>`}catch(e){}}
+ if(t.length<=180){const r=safeMath(t);if(r!==null)return`Answer: <b>${fmt(r)}</b>`}
  const M={lakh:1e5,lac:1e5,crore:1e7,cr:1e7,k:1e3,thousand:1e3},n=[...t.matchAll(/(\d+(?:\.\d+)?)\s*(lakh|lac|crore|cr|k|thousand)?\b/g)].map(m=>+m[1]*(M[m[2]]||1));
  const yr=+((t.match(/(\d+(?:\.\d+)?)\s*(?:year|yr|saal|sal)/)||[])[1]||0),pm=t.match(/(\d+(?:\.\d+)?)\s*%/),pc=pm?Number(pm[1]):null,A=n[0]||0;
  const L=(id,txt)=>`${txt}<br><a href="#/calc/${id}" style="color:var(--pri);font-weight:700">Open ${byId(id).n} →</a>`;
