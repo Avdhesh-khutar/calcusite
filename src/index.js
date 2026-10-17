@@ -188,13 +188,13 @@ async function serveSitemap(request, env) {
       for (const f of files.filter(x => x.type === "file" && x.name.endsWith(".md"))) {
         try {
           const item = await github(request, env, "/repos/Avdhesh-khutar/calcusite/contents/" + f.path.split("/").map(encodeURIComponent).join("/") + "?ref=main");
-          const dec = atob((item.content || "").replace(/\\n/g, ""));
+          const dec = atob((item.content || "").replace(/\n/g, ""));
           const raw = new TextDecoder().decode(Uint8Array.from(dec, ch => ch.charCodeAt(0)));
-          const p = blogParse(raw, f.name.replace(/\\.md$/, ""));
+          const p = blogParse(raw, f.name.replace(/\.md$/, ""));
           if (p.published === false || p.published === "false") continue;
-          const slug = String(p.slug || f.name.replace(/\\.md$/, ""));
+          const slug = String(p.slug || f.name.replace(/\.md$/, ""));
           if (!validSlug(slug)) continue;
-          urls.push({ loc: origin + "/blog/" + encodeURIComponent(slug), lastmod: /^\\d{4}-\\d{2}-\\d{2}$/.test(String(p.updated)) ? p.updated : "", changefreq: "monthly", priority: "0.6" });
+          urls.push({ loc: origin + "/blog/" + encodeURIComponent(slug), lastmod: /^\d{4}-\d{2}-\d{2}$/.test(String(p.updated)) ? p.updated : "", changefreq: "monthly", priority: "0.6" });
         } catch {}
       }
     }
@@ -203,7 +203,7 @@ async function serveSitemap(request, env) {
   return new Response(xml, { headers: { "content-type": "application/xml; charset=utf-8", "cache-control": "public, max-age=3600" } });
 }
 function serveRobots() {
-  return new Response("User-agent: *\\nAllow: /\\nDisallow: /admin/\\nDisallow: /api/\\nSitemap: https://calcusite.com/sitemap.xml\\n", { headers: { "content-type": "text/plain; charset=utf-8", "cache-control": "public, max-age=3600" } });
+  return new Response("User-agent: *\nAllow: /\nDisallow: /admin/\nDisallow: /api/\nSitemap: https://calcusite.com/sitemap.xml\n", { headers: { "content-type": "text/plain; charset=utf-8", "cache-control": "public, max-age=3600" } });
 }
 
 export default {
