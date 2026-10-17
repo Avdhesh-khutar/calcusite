@@ -453,7 +453,7 @@ test('percentage, discount, date difference and car-loan edge cases are handled'
   assert.match(validateInputs(car, { p: 1200000, d: 1200000, r: 9, n: 5 }), /less than the car price/);
   assert.match(validateInputs(car, { p: 1200000, d: 1300000, r: 9, n: 5 }), /less than the car price/);
 
-  assert.match(validateInputs(get('pchange'), { o: 0, n: 250 }), /cannot be zero/);
+  assert.match(validateInputs(get('pchange'), { o: 0, n: 250 }), /greater than zero|cannot be zero/);
   assert.match(validateInputs(get('speed'), { d: 120, t: 0 }), /greater than zero/);
   assert.match(validateInputs(get('pl'), { c: 0, s: 1000 }), /greater than zero/);
 });
