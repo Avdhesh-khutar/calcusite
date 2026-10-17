@@ -101,3 +101,33 @@ test('all registered calculators produce finite results with their default input
   }
   assert.deepEqual(failures, [], 'calculator failures: ' + failures.join('; '));
 });
+
+test('Admin API rejects unauthenticated access and sets a secure session cookie', async () => {
+  const app = new Function(worker.replace('export default {', 'const worker = {') + '; return worker;')();
+  const missingConfig = await app.fetch(new Request('https://example.workers.dev/api/admin/login', {
+    method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ password: 'anything' })
+  }), {});
+  assert.equal(missingConfig.status, 503);
+
+  const unauthenticated = await app.fetch(new Request('https://example.workers.dev/api/admin/me'), {});
+  assert.equal(unauthenticated.status, 401);
+
+  const wrongPassword = await app.fetch(new Request('https://example.workers.dev/api/admin/login', {
+    method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ password: 'wrong' })
+  }), { ADMIN_PASSWORD: 'correct-password', SESSION_SECRET: 'test-session-secret' });
+  assert.equal(wrongPassword.status, 401);
+
+  const login = await app.fetch(new Request('https://example.workers.dev/api/admin/login', {
+    method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ password: 'correct-password' })
+  }), { ADMIN_PASSWORD: 'correct-password', SESSION_SECRET: 'test-session-secret' });
+  assert.equal(login.status, 200);
+  const cookie = login.headers.get('set-cookie');
+  assert.match(cookie, /HttpOnly/);
+  assert.match(cookie, /Secure/);
+  assert.match(cookie, /SameSite=Strict/);
+  const token = cookie.match(/calcusite_admin=([^;]+)/)[1];
+  const authenticated = await app.fetch(new Request('https://example.workers.dev/api/admin/me', {
+    headers: { Cookie: 'calcusite_admin=' + token }
+  }), { SESSION_SECRET: 'test-session-secret' });
+  assert.equal(authenticated.status, 200);
+});
