@@ -48,6 +48,13 @@ test('blog pages generate canonical and Open Graph metadata from the request ori
   assert.match(worker, /property="og:url" content=/);
 });
 
+test('blog pages include structured data for search engines', () => {
+  assert.match(worker, /"@context":"https:\/\/schema\.org"/);
+  assert.match(worker, /"@type":"CollectionPage"/);
+  assert.match(worker, /"@type":"BlogPosting"/);
+  assert.match(worker, /type="application\/ld\+json"/);
+});
+
 test('homepage contains basic search metadata and private admin is noindex', () => {
   assert.match(html, /<title>[^<]+<\/title>/i);
   assert.match(html, /name=["']description["']/i);
