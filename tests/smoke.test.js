@@ -66,3 +66,37 @@ test('robots.txt and sitemap use the active Worker origin', async () => {
   assert.match(sitemapText, /https:\/\/calcusite\.avdheshkhutar24\.workers\.dev\//);
   assert.doesNotMatch(sitemapText, /https:\/\/calcusite\.com/);
 });
+
+test('all registered calculators produce finite results with their default inputs', () => {
+  const start = html.indexOf('const C=[');
+  const end = html.indexOf('const CATS=', start);
+  assert.ok(start >= 0 && end > start, 'calculator registry exists');
+  const registry = html.slice(start, end);
+  const harness = `
+    const CURS = { INR: ['₹', 'en-IN'] };
+    const fmt = n => Number.isFinite(Number(n)) ? Number(n).toLocaleString('en-IN', { maximumFractionDigits: 2 }) : '—';
+    const rs = n => '₹' + fmt(Math.round(n));
+    const emiF = (P,r,m) => { r/=1200; return r ? P*r*Math.pow(1+r,m)/(Math.pow(1+r,m)-1) : P/m; };
+    function loan(P,r,m) {
+      const e=emiF(P,r,m),tot=e*m,int=tot-P; let bal=P,rows=[],yp=0,yi=0;
+      for(let k=1;k<=m;k++){const i=bal*r/1200,p=e-i;bal=Math.max(0,bal-p);yp+=p;yi+=i;if(k%12===0||k===m){rows.push([Math.ceil(k/12),rs(e),rs(yp),rs(yi),rs(bal)]);yp=yi=0}}
+      return {main:['Monthly EMI',rs(e)],rows:[['Principal',rs(P)],['Total Interest',rs(int)],['Total Payment',rs(tot)]],donut:[['Principal',P,'#1d5de8'],['Interest',int,'#f5a524']],table:[['Year','EMI','Principal','Interest','Balance'],rows]};
+    }
+    ${registry}
+    return C;
+  `;
+  const calculators = new Function(harness)();
+  assert.ok(calculators.length >= 30, 'expected at least 30 registered calculators');
+  const failures = [];
+  for (const calculator of calculators) {
+    const values = Object.fromEntries(calculator.f.map(field => [field[0], field[2]]));
+    try {
+      const result = calculator.run(values);
+      assert.ok(result && Array.isArray(result.main) && result.main.length >= 2, 'main result exists');
+      assert.doesNotMatch(JSON.stringify(result), /\\b(?:NaN|Infinity)\\b/, 'result must be finite');
+    } catch (error) {
+      failures.push(calculator.id + ': ' + error.message);
+    }
+  }
+  assert.deepEqual(failures, [], 'calculator failures: ' + failures.join('; '));
+});
