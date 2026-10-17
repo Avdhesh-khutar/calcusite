@@ -337,6 +337,7 @@ function validateInputs(c,v){
  if(c.id==='stepsip'&&v.s>100)return 'Yearly step-up must be 100% or less.';
  if(c.id==='sgpa'&&[v.g1,v.g2,v.g3,v.g4].some(x=>x>10))return 'Grade points must be between 0 and 10.';
  if(c.id==='wavg'&&[v.a,v.b,v.c].some(x=>x>100))return 'Scores must be between 0 and 100.';
+ if(c.id==='wavg'&&v.x+v.y+v.z<=0)return 'At least one weight must be greater than zero.';
  if(c.id==='pct2cgpa'&&v.p>100)return 'Percentage cannot exceed 100%.';
  if(c.id==='ptile'&&(v.r<=0||v.t<=0||v.r>v.t))return 'Rank must be between 1 and total candidates.';
  if(c.id==='passm'&&(v.p>100||v.t<=0))return 'Total marks must be positive and pass percentage at most 100%.';
