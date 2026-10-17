@@ -46,3 +46,20 @@ test('homepage contains basic search metadata and private admin is noindex', () 
   assert.match(html, /name=["']description["']/i);
   assert.match(read('public/admin/index.html'), /noindex,nofollow/);
 });
+
+test('robots.txt and sitemap use the active Worker origin', async () => {
+  const workerFactory = new Function(worker.replace('export default {', 'const worker = {') + '; return worker;');
+  const app = workerFactory();
+  const request = new Request('https://calcusite.avdheshkhutar24.workers.dev/robots.txt');
+  const robots = await app.fetch(request, {});
+  const robotsText = await robots.text();
+  assert.equal(robots.status, 200);
+  assert.match(robotsText, /Sitemap: https:\/\/calcusite\.avdheshkhutar24\.workers\.dev\/sitemap\.xml/);
+  assert.doesNotMatch(robotsText, /https:\/\/calcusite\.com/);
+
+  const sitemap = await app.fetch(new Request('https://calcusite.avdheshkhutar24.workers.dev/sitemap.xml'), {});
+  const sitemapText = await sitemap.text();
+  assert.equal(sitemap.status, 200);
+  assert.match(sitemapText, /https:\/\/calcusite\.avdheshkhutar24\.workers\.dev\//);
+  assert.doesNotMatch(sitemapText, /https:\/\/calcusite\.com/);
+});
