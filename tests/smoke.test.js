@@ -528,3 +528,34 @@ test('calculators reject zero divisors and impossible dimensions before calculat
     assert.match(validateInputs(get(id), input), /greater than zero/, id + ' should reject zero divisor');
   }
 });
+
+test('weighted average rejects zero total weight and calculates valid weights', () => {
+  const registryStart = html.indexOf('const C=[');
+  const registryEnd = html.indexOf('const CATS=', registryStart);
+  const validationStart = html.indexOf('function validateInputs(c,v){');
+  const validationEnd = html.indexOf('let cur,curC;', validationStart);
+  const dateHelperStart = html.indexOf('function isValidCalendarDate(');
+  const dateHelper = html.slice(dateHelperStart, validationStart);
+  const registry = html.slice(registryStart, registryEnd);
+  const validator = html.slice(validationStart, validationEnd);
+  const harness = `
+    const CURS = { INR: ['₹', 'en-IN'] };
+    const CU = 'INR';
+    const fmt = n => Number.isFinite(Number(n)) ? Number(n).toLocaleString('en-IN', { maximumFractionDigits: 2 }) : '—';
+    const rs = n => '₹' + fmt(Math.round(n));
+    const emiF = (P,r,m) => { r/=1200; return r ? P*r*Math.pow(1+r,m)/(Math.pow(1+r,m)-1) : P/m; };
+    function loan(P,r,m) { const e=emiF(P,r,m),tot=e*m,int=tot-P; return {main:['Monthly EMI',rs(e)],rows:[['Principal',rs(P)],['Total Interest',rs(int)],['Total Payment',rs(tot)]]}; }
+    ${dateHelper}
+    ${registry}
+    ${validator}
+    return { calculators: C, validateInputs };
+  `;
+  const { calculators, validateInputs } = new Function(harness)();
+  const calculator = calculators.find(c => c.id === 'wavg');
+  const zeroWeights = { a: 80, x: 0, b: 70, y: 0, c: 90, z: 0 };
+  assert.match(validateInputs(calculator, zeroWeights), /weight must be greater than zero/);
+  const valid = { a: 80, x: 30, b: 70, y: 30, c: 90, z: 40 };
+  assert.equal(validateInputs(calculator, valid), '');
+  assert.equal(calculator.run(valid).main[1], '81.00');
+});
+
