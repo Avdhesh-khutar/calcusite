@@ -159,4 +159,10 @@ test('default inputs pass the same validation used by the calculator UI', () => 
     if (problem) failures.push(calculator.id + ': ' + problem);
   }
   assert.deepEqual(failures, [], 'default inputs rejected: ' + failures.join('; '));
+  const quadratic = calculators.find(item => item.id === 'quad');
+  assert.equal(validateInputs(quadratic, { a: 1, b: -3, c: 2 }), '');
+  assert.match(validateInputs(quadratic, { a: 0, b: 0, c: 0 }), /non-zero/);
+  const power = calculators.find(item => item.id === 'power');
+  assert.equal(validateInputs(power, { b: -2, e: 3 }), '');
+  assert.match(validateInputs(power, { b: -2, e: 0.5 }), /whole-number exponent/);
 });
