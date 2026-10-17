@@ -69,6 +69,14 @@ test('homepage contains basic search metadata and private admin is noindex', () 
   assert.match(read('public/admin/index.html'), /noindex,nofollow/);
 });
 
+test('Cloudflare sends dynamic SEO routes to the Worker before static asset fallback', () => {
+  const config = JSON.parse(read('wrangler.jsonc'));
+  assert.ok(config.assets.run_worker_first.includes('/robots.txt'), 'robots.txt must reach the Worker route');
+  assert.ok(config.assets.run_worker_first.includes('/sitemap.xml'), 'sitemap.xml must reach the Worker route');
+  assert.ok(config.assets.run_worker_first.includes('/blog'), 'blog index must reach the Worker route');
+  assert.ok(config.assets.run_worker_first.includes('/blog/*'), 'blog articles must reach the Worker route');
+});
+
 test('robots.txt and sitemap use the active Worker origin', async () => {
   const workerFactory = new Function(worker.replace('export default {', 'const worker = {') + '; return worker;');
   const app = workerFactory();
