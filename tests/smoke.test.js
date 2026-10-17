@@ -457,3 +457,38 @@ test('percentage, discount, date difference and car-loan edge cases are handled'
   assert.match(validateInputs(get('speed'), { d: 120, t: 0 }), /greater than zero/);
   assert.match(validateInputs(get('pl'), { c: 0, s: 1000 }), /greater than zero/);
 });
+
+test('calculators reject zero divisors and impossible dimensions before calculation', () => {
+  const registryStart = html.indexOf('const C=[');
+  const registryEnd = html.indexOf('const CATS=', registryStart);
+  const validationStart = html.indexOf('function validateInputs(c,v){');
+  const validationEnd = html.indexOf('let cur,curC;', validationStart);
+  const registry = html.slice(registryStart, registryEnd);
+  const validator = html.slice(validationStart, validationEnd);
+  const harness = `
+    const CURS = { INR: ['₹', 'en-IN'] };
+    const CU = 'INR';
+    const fmt = n => Number.isFinite(Number(n)) ? Number(n).toLocaleString('en-IN', { maximumFractionDigits: 2 }) : '—';
+    const rs = n => '₹' + fmt(Math.round(n));
+    const emiF = (P,r,m) => { r/=1200; return r ? P*r*Math.pow(1+r,m)/(Math.pow(1+r,m)-1) : P/m; };
+    function loan(P,r,m) { const e=emiF(P,r,m),tot=e*m,int=tot-P; return {main:['Monthly EMI',rs(e)],rows:[['Principal',rs(P)],['Total Interest',rs(int)],['Total Payment',rs(tot)]]}; }
+    ${registry}
+    ${validator}
+    return { calculators: C, validateInputs };
+  `;
+  const { calculators, validateInputs } = new Function(harness)();
+  const get = id => calculators.find(c => c.id === id);
+  const rejectsZero = [
+    ['tile', { l: 12, w: 10, t: 0 }],
+    ['paint', { l: 12, w: 10, h: 10, x: 40, c: 2, v: 0 }],
+    ['tip', { b: 2000, t: 10, p: 0 }],
+    ['bmr', { w: 0, h: 172, a: 28, s: 0 }],
+    ['bsa', { w: 70, h: 0 }],
+    ['goal', { t: 1000000, y: 0, r: 7 }],
+    ['stepsip', { P: 5000, s: 10, r: 12, n: 0 }],
+    ['margin', { c: 800, p: 0 }]
+  ];
+  for (const [id, input] of rejectsZero) {
+    assert.match(validateInputs(get(id), input), /greater than zero/, id + ' should reject zero divisor/);
+  }
+});
