@@ -345,3 +345,67 @@ test('Admin article API prevents duplicate creates, missing updates, and oversiz
   }
 });
 
+
+
+test('EMI, SIP, GST, BMI and age calculators return expected values and reject edge cases', () => {
+  const registryStart = html.indexOf('const C=[');
+  const registryEnd = html.indexOf('const CATS=', registryStart);
+  const validationStart = html.indexOf('function validateInputs(c,v){');
+  const validationEnd = html.indexOf('let cur,curC;', validationStart);
+  assert.ok(registryStart >= 0 && registryEnd > registryStart);
+  assert.ok(validationStart >= 0 && validationEnd > validationStart);
+  const registry = html.slice(registryStart, registryEnd);
+  const validator = html.slice(validationStart, validationEnd);
+  const harness = `
+    const CURS = { INR: ['₹', 'en-IN'] };
+    const CU = 'INR';
+    const fmt = n => Number.isFinite(Number(n)) ? Number(n).toLocaleString('en-IN', { maximumFractionDigits: 2 }) : '—';
+    const rs = n => '₹' + fmt(Math.round(n));
+    const emiF = (P,r,m) => { r/=1200; return r ? P*r*Math.pow(1+r,m)/(Math.pow(1+r,m)-1) : P/m; };
+    function loan(P,r,m) { const e=emiF(P,r,m),tot=e*m,int=tot-P; let bal=P,rows=[],yp=0,yi=0; r/=1200; for(let k=1;k<=m;k++){const i=bal*r,p=e-i;bal=Math.max(0,bal-(e-i));yp+=e-i;yi+=i;if(k%12===0||k===m){rows.push([Math.ceil(k/12),rs(e),rs(yp),rs(yi),rs(bal)]);yp=yi=0}} return {main:['Monthly EMI',rs(e)],rows:[['Principal',rs(P)],['Total Interest',rs(int)],['Total Payment',rs(tot)]],donut:[['Principal',P,'#1d5de8'],['Interest',int,'#f5a524']]}; }
+    ${registry}
+    ${validator}
+    return { calculators: C, validateInputs };
+  `;
+  const { calculators, validateInputs } = new Function(harness)();
+  const get = id => calculators.find(c => c.id === id);
+  const values = (id, overrides) => ({ ...Object.fromEntries(get(id).f.map(f => [f[0], f[2]])), ...overrides });
+
+  const emi = get('emi').run({ P: 1000000, r: 8.5, n: 5 });
+  const expectedEmi = 1000000 * (0.085/12) * Math.pow(1+0.085/12,60) / (Math.pow(1+0.085/12,60)-1);
+  assert.equal(emi.main[0], 'Monthly EMI');
+  assert.equal(emi.main[1], rs(expectedEmi));
+  assert.equal(emi.rows[2][1], rs(Number(emi.main[1].replace(/[^0-9.]/g,'')) * 60));
+
+  const sip = get('sip').run({ P: 5000, r: 12, n: 10 });
+  const monthlyRate = 0.12/12, months = 120;
+  const expectedSip = 5000 * ((Math.pow(1+monthlyRate,months)-1)/monthlyRate) * (1+monthlyRate);
+  assert.equal(sip.main[1], rs(expectedSip));
+  assert.equal(sip.rows[0][1], rs(5000*120));
+
+  const gst = get('gst').run({ a: 25000, r: 2, m: 0 });
+  assert.equal(gst.main[1], rs(29500));
+  assert.equal(gst.rows[0][1], rs(4500));
+  const gstRemoved = get('gst').run({ a: 11800, r: 2, m: 1 });
+  assert.equal(gstRemoved.main[1], rs(10000));
+
+  const bmi = get('bmi').run({ w: 70, h: 170 });
+  assert.match(bmi.main[1], /^24\\.2 · Normal$/);
+  assert.match(bmi.rows[0][1], /kg/);
+
+  const problem = validateInputs(get('age'), { dob: '2999-01-01' });
+  assert.match(problem, /future/);
+  assert.match(validateInputs(get('emi'), { P: 0, r: 8.5, n: 5 }), /greater than zero/);
+  assert.match(validateInputs(get('sip'), { P: 5000, r: 12, n: 0 }), /greater than zero/);
+  assert.match(validateInputs(get('bmi'), { w: 70, h: 0 }), /greater than zero/);
+
+  for (const [id, input] of [
+    ['emi', { P: 1000000, r: 8.5, n: 5 }],
+    ['sip', { P: 5000, r: 12, n: 10 }],
+    ['gst', { a: 25000, r: 2, m: 0 }],
+    ['bmi', { w: 70, h: 170 }]
+  ]) {
+    const result = get(id).run(input);
+    assert.doesNotMatch(JSON.stringify(result), /\\b(?:NaN|Infinity)\\b/, id + ' must remain finite');
+  }
+});
