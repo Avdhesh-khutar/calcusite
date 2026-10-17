@@ -286,7 +286,8 @@ const find=q=>{q=q.toLowerCase().trim();return q?C.filter(c=>(c.n+c.d+c.cat+c.id
 function hist(c,res){const h=store.get('hist',[]).filter(x=>!(x.id==c.id&&x.s==res.main[0]+': '+res.main[1]));h.unshift({id:c.id,s:res.main[0]+': '+res.main[1],t:new Date().toLocaleString('en-IN',{dateStyle:'medium',timeStyle:'short'})});store.set('hist',h.slice(0,30))}
 function vals(c){const v={};c.f.forEach(f=>{const e=$('#f_'+f[0]);v[f[0]]=f[4]=='date'?e.value:parseFloat(e.value)||0});return v}
 let cur,curC;
-function update(){const c=curC,r=c.run(vals(c));cur=r;
+function update(){const c=curC;let r;try{r=c.run(vals(c));if(!r||!Array.isArray(r.main)||/\b(?:NaN|Infinity)\b/.test(JSON.stringify(r)))throw new Error('invalid');}catch(e){r={main:['Check your inputs','Enter valid values. Any divisor or required amount must be greater than zero.'],rows:[]};}
+ cur=r;
  $('#res').innerHTML=`<small style="color:var(--mut)">${r.main[0]}</small><div class="big">${r.main[1]}</div>${(r.rows||[]).map(x=>`<div class="row"><span>${x[0]}</span><b>${x[1]}</b></div>`).join('')}${r.donut?donut(r.donut):''}`;
  const t=$('#tbl');if(r.table){t.style.display='block';t.innerHTML=`<h2 style="margin-top:0">Amortization Schedule</h2><div class="tw"><table><tr>${r.table[0].map(h=>`<th>${h}</th>`).join('')}</tr>${r.table[1].map(x=>`<tr>${x.map(y=>`<td>${y}</td>`).join('')}</tr>`).join('')}</table></div>`}else t.style.display='none'}
 function initCalc(id){const c=curC=byId(id);if(!c)return;update();
