@@ -9,7 +9,9 @@ function json(data, status = 200, headers = {}) {
 function cookie(request, name) {
   const raw = request.headers.get("Cookie") || "";
   const item = raw.split(";").map(v => v.trim()).find(v => v.startsWith(name + "="));
-  return item ? decodeURIComponent(item.slice(name.length + 1)) : "";
+  if (!item) return "";
+  try { return decodeURIComponent(item.slice(name.length + 1)); }
+  catch { return ""; }
 }
 function b64url(bytes) {
   let s = "";
