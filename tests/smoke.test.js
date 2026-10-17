@@ -208,6 +208,8 @@ test('default inputs pass the same validation used by the calculator UI', () => 
   assert.ok(registryStart >= 0 && registryEnd > registryStart && validationStart >= 0 && validationEnd > validationStart);
   const registry = html.slice(registryStart, registryEnd);
   const validator = html.slice(validationStart, validationEnd);
+  const dateHelperStart = html.indexOf('function isValidCalendarDate(');
+  const dateHelper = html.slice(dateHelperStart, validationStart);
   const harness = `
     const CURS = { INR: ['₹', 'en-IN'] };
     const CU = 'INR';
@@ -215,6 +217,7 @@ test('default inputs pass the same validation used by the calculator UI', () => 
     const rs = n => '₹' + fmt(Math.round(n));
     const emiF = (P,r,m) => { r/=1200; return r ? P*r*Math.pow(1+r,m)/(Math.pow(1+r,m)-1) : P/m; };
     function loan(P,r,m) { const e=emiF(P,r,m),tot=e*m,int=tot-P; let bal=P,rows=[],yp=0,yi=0; for(let k=1;k<=m;k++){const i=bal*r/1200,p=e-i;bal=Math.max(0,bal-p);yp+=p;yi+=i;if(k%12===0||k===m){rows.push([Math.ceil(k/12),rs(e),rs(yp),rs(yi),rs(bal)]);yp=yi=0}} return {main:['Monthly EMI',rs(e)],rows:[],table:[[],rows]}; }
+    ${dateHelper}
     ${registry}
     ${validator}
     return { calculators: C, validateInputs };
@@ -356,6 +359,8 @@ test('EMI, SIP, GST, BMI and age calculators return expected values and reject e
   assert.ok(validationStart >= 0 && validationEnd > validationStart);
   const registry = html.slice(registryStart, registryEnd);
   const validator = html.slice(validationStart, validationEnd);
+  const dateHelperStart = html.indexOf('function isValidCalendarDate(');
+  const dateHelper = html.slice(dateHelperStart, validationStart);
   const harness = `
     const CURS = { INR: ['₹', 'en-IN'] };
     const CU = 'INR';
@@ -363,6 +368,7 @@ test('EMI, SIP, GST, BMI and age calculators return expected values and reject e
     const rs = n => '₹' + fmt(Math.round(n));
     const emiF = (P,r,m) => { r/=1200; return r ? P*r*Math.pow(1+r,m)/(Math.pow(1+r,m)-1) : P/m; };
     function loan(P,r,m) { const e=emiF(P,r,m),tot=e*m,int=tot-P; let bal=P,rows=[],yp=0,yi=0; r/=1200; for(let k=1;k<=m;k++){const i=bal*r,p=e-i;bal=Math.max(0,bal-(e-i));yp+=e-i;yi+=i;if(k%12===0||k===m){rows.push([Math.ceil(k/12),rs(e),rs(yp),rs(yi),rs(bal)]);yp=yi=0}} return {main:['Monthly EMI',rs(e)],rows:[['Principal',rs(P)],['Total Interest',rs(int)],['Total Payment',rs(tot)]],donut:[['Principal',P,'#1d5de8'],['Interest',int,'#f5a524']]}; }
+    ${dateHelper}
     ${registry}
     ${validator}
     return { calculators: C, validateInputs };
@@ -420,6 +426,8 @@ test('percentage, discount, date difference and car-loan edge cases are handled'
   assert.ok(validationStart >= 0 && validationEnd > validationStart);
   const registry = html.slice(registryStart, registryEnd);
   const validator = html.slice(validationStart, validationEnd);
+  const dateHelperStart = html.indexOf('function isValidCalendarDate(');
+  const dateHelper = html.slice(dateHelperStart, validationStart);
   const harness = `
     const CURS = { INR: ['₹', 'en-IN'] };
     const CU = 'INR';
@@ -427,6 +435,7 @@ test('percentage, discount, date difference and car-loan edge cases are handled'
     const rs = n => '₹' + fmt(Math.round(n));
     const emiF = (P,r,m) => { r/=1200; return r ? P*r*Math.pow(1+r,m)/(Math.pow(1+r,m)-1) : P/m; };
     function loan(P,r,m) { const e=emiF(P,r,m),tot=e*m,int=tot-P; return {main:['Monthly EMI',rs(e)],rows:[['Principal',rs(P)],['Total Interest',rs(int)],['Total Payment',rs(tot)]]}; }
+    ${dateHelper}
     ${registry}
     ${validator}
     return { calculators: C, validateInputs };
@@ -467,6 +476,8 @@ test('calculators reject zero divisors and impossible dimensions before calculat
   const validationEnd = html.indexOf('let cur,curC;', validationStart);
   const registry = html.slice(registryStart, registryEnd);
   const validator = html.slice(validationStart, validationEnd);
+  const dateHelperStart = html.indexOf('function isValidCalendarDate(');
+  const dateHelper = html.slice(dateHelperStart, validationStart);
   const harness = `
     const CURS = { INR: ['₹', 'en-IN'] };
     const CU = 'INR';
@@ -474,6 +485,7 @@ test('calculators reject zero divisors and impossible dimensions before calculat
     const rs = n => '₹' + fmt(Math.round(n));
     const emiF = (P,r,m) => { r/=1200; return r ? P*r*Math.pow(1+r,m)/(Math.pow(1+r,m)-1) : P/m; };
     function loan(P,r,m) { const e=emiF(P,r,m),tot=e*m,int=tot-P; return {main:['Monthly EMI',rs(e)],rows:[['Principal',rs(P)],['Total Interest',rs(int)],['Total Payment',rs(tot)]]}; }
+    ${dateHelper}
     ${registry}
     ${validator}
     return { calculators: C, validateInputs };
