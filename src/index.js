@@ -183,7 +183,7 @@ async function serveBlog(request, env, url) {
 
 function xmlEsc(s) { return String(s || "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&apos;"); }
 async function serveSitemap(request, env) {
-  const origin = "https://calcusite.com";
+  const origin = new URL(request.url).origin;
   const urls = [{ loc: origin + "/", changefreq: "weekly", priority: "1.0" }, { loc: origin + "/blog", changefreq: "weekly", priority: "0.8" }];
   try {
     const files = await github(request, env, "/repos/Avdhesh-khutar/calcusite/contents/content/blog?ref=main");
@@ -206,14 +206,15 @@ async function serveSitemap(request, env) {
   const xml = '<?xml version="1.0" encoding="UTF-8"?>\n' + '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' + urls.map(u => '<url><loc>' + xmlEsc(u.loc) + '</loc>' + (u.lastmod ? '<lastmod>' + u.lastmod + '</lastmod>' : '') + '<changefreq>' + u.changefreq + '</changefreq><priority>' + u.priority + '</priority></url>').join("") + '</urlset>';
   return new Response(xml, { headers: { "content-type": "application/xml; charset=utf-8", "cache-control": "public, max-age=3600" } });
 }
-function serveRobots() {
-  return new Response("User-agent: *\nAllow: /\nDisallow: /admin/\nDisallow: /api/\nSitemap: https://calcusite.com/sitemap.xml\n", { headers: { "content-type": "text/plain; charset=utf-8", "cache-control": "public, max-age=3600" } });
+function serveRobots(request) {
+  const origin = new URL(request.url).origin;
+  return new Response(`User-agent: *\nAllow: /\nDisallow: /admin/\nDisallow: /api/\nSitemap: ${origin}/sitemap.xml\n`, { headers: { "content-type": "text/plain; charset=utf-8", "cache-control": "public, max-age=3600" } });
 }
 
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
-    if (url.pathname === "/robots.txt") return serveRobots();
+    if (url.pathname === "/robots.txt") return serveRobots(request);
     if (url.pathname === "/sitemap.xml") return serveSitemap(request, env);
     if (url.pathname.startsWith("/api/admin/")) return adminApi(request, env, url);
     if (url.pathname === "/blog" || url.pathname === "/blog/" || url.pathname.startsWith("/blog/")) return serveBlog(request, env, url);
