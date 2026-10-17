@@ -295,9 +295,43 @@ history(){const h=store.get('hist',[]);return`<h2>Recently Used Calculators ${h.
 };
 const find=q=>{q=q.toLowerCase().trim();return q?C.filter(c=>(c.n+c.d+c.cat+c.id).toLowerCase().includes(q)):C};
 function hist(c,res){const h=store.get('hist',[]).filter(x=>!(x.id==c.id&&x.s==res.main[0]+': '+res.main[1]));h.unshift({id:c.id,s:res.main[0]+': '+res.main[1],t:new Date().toLocaleString('en-IN',{dateStyle:'medium',timeStyle:'short'})});store.set('hist',h.slice(0,30))}
-function vals(c){const v={};c.f.forEach(f=>{const e=$('#f_'+f[0]);if(f[4]==='date'){v[f[0]]=e.value}else{v[f[0]]=e.value.trim()===''?NaN:parseFloat(e.value)}});return v}
+function vals(c){const v={};c.f.forEach(f=>{const e=$('#f_'+f[0]);if(f[4]==='date'){v[f[0]]=e.value}else{const raw=e.value.trim();v[f[0]]=raw===''?NaN:Number(raw)}});return v}
+function validateInputs(c,v){
+ for(const f of c.f){const value=v[f[0]];
+  if(f[4]==='date'){if(!value||Number.isNaN(new Date(value).getTime()))return 'Enter a valid date.';continue}
+  if(!Number.isFinite(value))return 'Fill every field with a valid number.';
+  if(value<0)return 'Negative values are not allowed for these inputs.';
+  if(f[3]&&(!Number.isInteger(value)||value<0||value>=f[3].length))return 'Choose a valid option from the list.';
+ }
+ const positiveFields={
+  emi:['P','n'],sip:['P','n'],loan:['P','n'],fd:['P','n'],rd:['P','n'],
+  interest:['P','n'],bmi:['w','h'],marks:['t'],cagr:['s','n'],ppf:['P','n'],
+  attend:['t'],pchange:['o'],speed:['t'],pl:['c'],mileage:['d','l'],
+  reqm:['w'],age:['dob'],lirate:[],currency:[],percent:[],discount:['p'],
+  lumpsum:['P','n'],datediff:['a','b']
+ };
+ for(const key of (positiveFields[c.id]||[])){
+  if(c.id==='age'||c.id==='datediff')continue;
+  if(!(v[key]>0))return 'This field must be greater than zero.';
+ }
+ if(c.id==='discount'&&(v.d>100))return 'Discount must be between 0 and 100%.';
+ if(c.id==='hike'&&v.h>1000)return 'Please check the hike percentage.';
+ if(c.id==='marks'&&(v.o>v.t))return 'Obtained marks cannot exceed total marks.';
+ if(c.id==='attend'&&v.p>v.t)return 'Classes attended cannot exceed total classes.';
+ if(c.id==='reqm'&&(v.c>100||v.w>100||v.t>100))return 'Scores and exam weight must be between 0 and 100%.';
+ if(c.id==='bmr'&&v.a<=0)return 'Age must be greater than zero.';
+ if(c.id==='age'){const d=new Date(v.dob+'T00:00:00');const today=new Date();today.setHours(23,59,59,999);if(d>today)return 'Date of birth cannot be in the future.';}
+ if(c.id==='datediff'){if(new Date(v.a+'T00:00:00').toString()==='Invalid Date'||new Date(v.b+'T00:00:00').toString()==='Invalid Date')return 'Enter valid dates.';}
+ if(c.id==='pchange'&&v.o===0)return 'Old value cannot be zero for percentage change.';
+ if(c.id==='pl'&&v.c===0)return 'Cost price must be greater than zero.';
+ if(c.id==='mileage'&&v.d===0)return 'Distance must be greater than zero.';
+ if(c.id==='speed'&&v.t===0)return 'Time must be greater than zero.';
+ if(c.id==='idealw'&&v.h===0)return 'Height must be greater than zero.';
+ if(c.id==='water'&&v.w===0)return 'Weight must be greater than zero.';
+ return '';
+}
 let cur,curC;
-function update(){const c=curC;let r,valid=true;try{const v=vals(c);for(const f of c.f){const value=v[f[0]];if(f[4]==='date'){if(!value||Number.isNaN(new Date(value).getTime()))valid=false}else if(!Number.isFinite(value))valid=false;}if(!valid)throw new Error('invalid input');r=c.run(v);if(!r||!Array.isArray(r.main)||/\b(?:NaN|Infinity)\b/.test(JSON.stringify(r)))throw new Error('invalid result');}catch(e){valid=false;r={main:['Check your inputs','Fill every field with a valid number or date. Use non-zero values where required.'],rows:[]};}
+function update(){const c=curC;let r,valid=true;try{const v=vals(c);const problem=validateInputs(c,v);if(problem)throw new Error(problem);r=c.run(v);if(!r||!Array.isArray(r.main)||/\b(?:NaN|Infinity)\b/.test(JSON.stringify(r))||r.main[0]==='Check date of birth')throw new Error('invalid result');}catch(e){valid=false;r={main:['Check your inputs',e.message&&e.message!=='invalid result'?e.message:'Fill every field with a valid number or date. Use non-zero values where required.'],rows:[]};}
  cur=r;
  $('#res').innerHTML=`<small style="color:var(--mut)">${r.main[0]}</small><div class="big">${r.main[1]}</div>${(r.rows||[]).map(x=>`<div class="row"><span>${x[0]}</span><b>${x[1]}</b></div>`).join('')}${r.donut?donut(r.donut):''}`;
  const t=$('#tbl');if(r.table){t.style.display='block';t.innerHTML=`<h2 style="margin-top:0">Amortization Schedule</h2><div class="tw"><table><tr>${r.table[0].map(h=>`<th>${h}</th>`).join('')}</tr>${r.table[1].map(x=>`<tr>${x.map(y=>`<td>${y}</td>`).join('')}</tr>`).join('')}</table></div>`}else t.style.display='none';return valid}
