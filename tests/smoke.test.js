@@ -55,6 +55,12 @@ test('blog pages include structured data for search engines', () => {
   assert.match(worker, /type="application\/ld\+json"/);
 });
 
+test('homepage hints font connections early and keeps font display swappable', () => {
+  assert.match(html, /rel="preconnect" href="https:\/\/fonts\.googleapis\.com"/);
+  assert.match(html, /rel="preconnect" href="https:\/\/fonts\.gstatic\.com" crossorigin/);
+  assert.match(html, /family=Plus\+Jakarta\+Sans:[^"]*&display=swap/);
+});
+
 test('homepage contains basic search metadata and private admin is noindex', () => {
   assert.match(html, /<title>[^<]+<\/title>/i);
   assert.match(html, /name=["']description["']/i);
@@ -113,6 +119,17 @@ test('sitemap lists published Markdown articles and excludes unpublished ones', 
     assert.match(xml, /https:\/\/calcusite\.avdheshkhutar24\.workers\.dev\/blog\/sip-calculator-guide/);
     assert.doesNotMatch(xml, /draft-guide/);
     assert.match(xml, /<lastmod>2026-10-17<\/lastmod>/);
+
+    const articleResponse = await app.fetch(
+      new Request('https://calcusite.avdheshkhutar24.workers.dev/blog/age-calculator-guide'),
+      { GITHUB_TOKEN: 'test-token' }
+    );
+    const articleHtml = await articleResponse.text();
+    assert.equal(articleResponse.status, 200);
+    assert.match(articleHtml, /<link rel="canonical" href="https:\/\/calcusite\.avdheshkhutar24\.workers\.dev\/blog\/age-calculator-guide">/);
+    assert.match(articleHtml, /property="og:url" content="https:\/\/calcusite\.avdheshkhutar24\.workers\.dev\/blog\/age-calculator-guide"/);
+    assert.match(articleHtml, /"@type":"BlogPosting"/);
+    assert.match(articleHtml, /type="application\/ld\+json"/);
   } finally {
     globalThis.fetch = originalFetch;
   }
