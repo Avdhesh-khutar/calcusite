@@ -321,6 +321,7 @@ function validateInputs(c,v){
   if(!(v[key]>0))return 'This field must be greater than zero.';
  }
  if(c.id==='discount'&&(v.d>100))return 'Discount must be between 0 and 100%.';
+ if(c.id==='car'&&v.d>=v.p)return 'Down payment must be less than the car price.';
  if(c.id==='roi'&&(v.i<=0||v.y<=0))return 'Investment and years must be greater than zero.';
  if(c.id==='rule72'&&v.r===0)return 'Return rate must be greater than zero to calculate doubling time.';
  if(c.id==='nps'&&(v.a>60||v.p>100||v.q>100))return 'Age must be 60 or less; annuity percentages must be at most 100%.';
