@@ -15,7 +15,7 @@ function setSignedIn(on) {
   $("#workspace").classList.toggle("hidden", !on);
   $("#logoutBtn").classList.toggle("hidden", !on);
 }
-function safeText(s) { return String(s || ""); }
+function safeText(s) { return String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;"); }
 function renderArticles() {
   const query = $("#articleSearch").value.trim().toLowerCase();
   const articles = state.articles.filter(a => a.name.toLowerCase().includes(query));
@@ -126,7 +126,7 @@ $("#articleForm").addEventListener("submit", async e => {
   try {
     const result = await api("/api/admin/article", { method: "POST", body: JSON.stringify({ mode, title, slug, description: $("#description").value.trim(), content, published: $("#published").checked }) });
     state.slug = result.slug;
-    showMessage("#editorMessage", (result.updated ? "Article updated" : "Article published") + " successfully. Commit: " + result.commit.slice(0, 7) + ". Cloudflare deployment should start from your GitHub commit workflow.", "success");
+    showMessage("#editorMessage", (result.updated ? "Article updated" : (result.published ? "Article published" : "Draft saved")) + " successfully. Commit: " + result.commit.slice(0, 7) + ". Cloudflare deployment should start from your GitHub commit workflow.", "success");
     $("#mode").value = "update"; $("#editorTitle").textContent = "Edit article";
     $("#publishBtn").innerHTML = 'Save & publish <span>↗</span>';
     $("#saveHint").textContent = "Last committed to content/blog/" + result.slug + ".md";
