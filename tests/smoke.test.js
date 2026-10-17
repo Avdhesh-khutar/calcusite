@@ -489,7 +489,7 @@ test('mobile layout and core calculator controls have responsive rules and handl
   assert.match(app, /\$\('pReset'\)\.onclick/, 'EMI reset button is wired');
   assert.match(app, /\$\('modalClose'\).*addEventListener\('click',close\)/, 'calculator modal close control is wired');
   assert.match(app, /\$\('searchInput'\).*addEventListener\('input'/, 'calculator search reacts to typing');
-  assert.match(html, /@media\\(max-width:820px\\)/, 'the active homepage has its own mobile layout rules');
+  assert.match(html, /@media\\s*\\(max-width:\\s*820px\\)/, 'the active homepage has its own mobile layout rules');
   assert.match(html, /\\$\\('#burger'\\)\\.onclick=/, 'the active homepage menu button is wired');
   assert.match(html, /\\$\\('#ov'\\)\\.onclick=closeSb/, 'the active homepage overlay closes mobile navigation');
   assert.match(html, /\\$\\('#calc'\\)\\.onclick=/, 'the active homepage calculator button is wired');
