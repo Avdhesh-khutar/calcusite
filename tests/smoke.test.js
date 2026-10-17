@@ -489,6 +489,6 @@ test('calculators reject zero divisors and impossible dimensions before calculat
     ['margin', { c: 800, p: 0 }]
   ];
   for (const [id, input] of rejectsZero) {
-    assert.match(validateInputs(get(id), input), /greater than zero/, id + ' should reject zero divisor/);
+    assert.match(validateInputs(get(id), input), /greater than zero/, id + ' should reject zero divisor');
   }
 });
