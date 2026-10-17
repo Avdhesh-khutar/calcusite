@@ -310,7 +310,7 @@ function validateInputs(c,v){
   if(f[4]==='date'){if(!isValidCalendarDate(value))return 'Enter a valid date.';continue}
   if(!Number.isFinite(value))return 'Fill every field with a valid number.';
   const isTemperatureConversion=c.id==='unit'&&(v.t===4||v.t===5);
-  const allowsNegative=c.id==='quad'||(c.id==='power'&&Number.isInteger(v.e));
+  const allowsNegative=c.id==='quad'||(c.id==='power'&&Number.isInteger(v.e))||(c.id==='temp'&&f[0]==='x');
   if(value<0&&!isTemperatureConversion&&!allowsNegative)return 'Negative values are not allowed for these inputs.';
   if(c.id==='quad'&&v.a===0&&v.b===0&&v.c===0)return 'At least one quadratic coefficient must be non-zero.';
   if(f[3]&&(!Number.isInteger(value)||value<0||value>=f[3].length))return 'Choose a valid option from the list.';
@@ -326,6 +326,16 @@ function validateInputs(c,v){
   if(c.id==='age'||c.id==='datediff')continue;
   if(!(v[key]>0))return 'This field must be greater than zero.';
  }
+ if(c.id==='temp'&&((v.a===0&&v.x< -273.15)||(v.a===1&&v.x< -459.67)||(v.a===2&&v.x<0)))return 'Temperature cannot be below absolute zero.';
+ if(c.id==='vat'&&v.r>100)return 'VAT rate must be between 0 and 100%.';
+ if(c.id==='tds'&&v.r>100)return 'TDS rate must be between 0 and 100%.';
+ if(c.id==='duty'&&(v.d>100||v.t>100))return 'Duty and tax rates must be between 0 and 100%.';
+ if(c.id==='cgain'&&v.r>100)return 'Tax rate must be between 0 and 100%.';
+ if(c.id==='stamp'&&(v.s>100||v.r>100))return 'Duty and registration rates must be between 0 and 100%.';
+ if(c.id==='takehome'&&(v.t>100||v.d>v.g))return 'Tax must be at most 100% and deductions cannot exceed gross salary.';
+ if(c.id==='comm'&&v.r>100)return 'Commission rate must be between 0 and 100%.';
+ if(c.id==='eligib'&&v.f>100)return 'Income share must be between 0 and 100%.';
+ if(c.id==='sgpa'&&v.c1+v.c2+v.c3+v.c4<=0)return 'At least one subject credit must be greater than zero.';
  if(c.id==='discount'&&(v.d>100))return 'Discount must be between 0 and 100%.';
  if(c.id==='car'&&v.d>=v.p)return 'Down payment must be less than the car price.';
  if(c.id==='roi'&&(v.i<=0||v.y<=0))return 'Investment and years must be greater than zero.';
