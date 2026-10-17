@@ -330,7 +330,14 @@ function sidebar(r){$('#sb').innerHTML=`<div style="display:flex;justify-content
 ${[['Dashboard','#/','home','🏠'],['All Calculators','#/calcs','calcs','▦'],['AI Assistant','#/ai','ai','🤖'],...CATS.map(c=>[c[0],'#/cat/'+encodeURIComponent(c[0]),'cat:'+c[0],c[1]]),['History','#/history','history','🕘']].map(x=>`<a href="${x[1]}" class="${r==x[2]?'on':''}"><span>${x[3]}&nbsp; ${x[0]}</span>${x[0]=='AI Assistant'?'<span class="new">New</span>':'<span>›</span>'}</a>`).join('')}<div class="try"><b>🤖 Calcusite AI</b><br>Ask anything, get instant calculations &amp; answers!<a class="btn" href="#/ai">Try AI Assistant</a></div>`;$('#cl').onclick=closeSb}
 const closeSb=()=>{$('#sb').classList.remove('open');$('#ov').style.display='none'};
 function route(){const [r,a]=(location.hash.slice(2)||'home').split('/');const k=r||'home',key=pages[k]?k:'home';
- $('#app').innerHTML=pages[key](a);window.scrollTo(0,0);
+ $('#app').innerHTML=pages[key](a);
+ const titleMap={home:'Free Online Calculators',calcs:'All Calculators',cats:'Calculator Categories',ai:'AI Calculation Assistant',history:'Calculation History',about:'About Us',contact:'Contact Us',privacy:'Privacy Policy',terms:'Terms of Use',disclaimer:'Disclaimer'};
+ let pageTitle=titleMap[key]||'Smart Calculations';
+ if(key==='calc'){const item=byId(a);if(item)pageTitle=item.n+' Calculator';}
+ else if(key==='cat')pageTitle=decodeURIComponent(a||'')+' Calculators';
+ else if(key==='search')pageTitle='Search: '+decodeURIComponent(a||'');
+ document.title=pageTitle+' | Calcusite AI';
+ window.scrollTo(0,0);
  document.querySelectorAll('#nav a,#bn a').forEach(x=>x.classList.toggle('on',x.dataset.r==key));
  sidebar(key=='cat'?'cat:'+decodeURIComponent(a):key);closeSb();
  if(key=='calc')initCalc(a);if(key=='ai')bindAI();if(key=='home')$('#hgo').onclick=()=>{window.pre=$('#hq').value;location.hash='#/ai'};if(key=='home')homeInit();if(key=='contact')contactInit();
