@@ -298,10 +298,16 @@ history(){const h=store.get('hist',[]);return`<h2>Recently Used Calculators ${h.
 const find=q=>{q=q.toLowerCase().trim();return q?C.filter(c=>(c.n+c.d+c.cat+c.id).toLowerCase().includes(q)):C};
 function hist(c,res){const h=store.get('hist',[]).filter(x=>!(x.id==c.id&&x.s==res.main[0]+': '+res.main[1]));h.unshift({id:c.id,s:res.main[0]+': '+res.main[1],t:new Date().toLocaleString('en-IN',{dateStyle:'medium',timeStyle:'short'})});store.set('hist',h.slice(0,30))}
 function vals(c){const v={};c.f.forEach(f=>{const e=$('#f_'+f[0]);if(f[4]==='date'){v[f[0]]=e.value}else{const raw=e.value.trim();v[f[0]]=raw===''?NaN:Number(raw)}});return v}
+function isValidCalendarDate(value){
+ if(typeof value!=='string'||!/^\\d{4}-\\d{2}-\\d{2}$/.test(value))return false;
+ const [y,m,d]=value.split('-').map(Number);
+ const date=new Date(Date.UTC(y,m-1,d));
+ return date.getUTCFullYear()===y&&date.getUTCMonth()===m-1&&date.getUTCDate()===d;
+}
 function validateInputs(c,v){
  if(c.id==='power'&&v.b<0&&!Number.isInteger(v.e))return 'A negative base requires a whole-number exponent for a real result.';
  for(const f of c.f){const value=v[f[0]];
-  if(f[4]==='date'){if(!value||Number.isNaN(new Date(value).getTime()))return 'Enter a valid date.';continue}
+  if(f[4]==='date'){if(!isValidCalendarDate(value))return 'Enter a valid date.';continue}
   if(!Number.isFinite(value))return 'Fill every field with a valid number.';
   const isTemperatureConversion=c.id==='unit'&&(v.t===4||v.t===5);
   const allowsNegative=c.id==='quad'||(c.id==='power'&&Number.isInteger(v.e));
