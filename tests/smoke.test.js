@@ -131,3 +131,32 @@ test('Admin API rejects unauthenticated access and sets a secure session cookie'
   }), { SESSION_SECRET: 'test-session-secret' });
   assert.equal(authenticated.status, 200);
 });
+
+test('default inputs pass the same validation used by the calculator UI', () => {
+  const registryStart = html.indexOf('const C=[');
+  const registryEnd = html.indexOf('const CATS=', registryStart);
+  const validationStart = html.indexOf('function validateInputs(c,v){');
+  const validationEnd = html.indexOf('let cur,curC;', validationStart);
+  assert.ok(registryStart >= 0 && registryEnd > registryStart && validationStart >= 0 && validationEnd > validationStart);
+  const registry = html.slice(registryStart, registryEnd);
+  const validator = html.slice(validationStart, validationEnd);
+  const harness = `
+    const CURS = { INR: ['₹', 'en-IN'] };
+    const CU = 'INR';
+    const fmt = n => Number.isFinite(Number(n)) ? Number(n).toLocaleString('en-IN', { maximumFractionDigits: 2 }) : '—';
+    const rs = n => '₹' + fmt(Math.round(n));
+    const emiF = (P,r,m) => { r/=1200; return r ? P*r*Math.pow(1+r,m)/(Math.pow(1+r,m)-1) : P/m; };
+    function loan(P,r,m) { const e=emiF(P,r,m),tot=e*m,int=tot-P; let bal=P,rows=[],yp=0,yi=0; for(let k=1;k<=m;k++){const i=bal*r/1200,p=e-i;bal=Math.max(0,bal-p);yp+=p;yi+=i;if(k%12===0||k===m){rows.push([Math.ceil(k/12),rs(e),rs(yp),rs(yi),rs(bal)]);yp=yi=0}} return {main:['Monthly EMI',rs(e)],rows:[],table:[[],rows]}; }
+    ${registry}
+    ${validator}
+    return { calculators: C, validateInputs };
+  `;
+  const { calculators, validateInputs } = new Function(harness)();
+  const failures = [];
+  for (const calculator of calculators) {
+    const values = Object.fromEntries(calculator.f.map(field => [field[0], field[2]]));
+    const problem = validateInputs(calculator, values);
+    if (problem) failures.push(calculator.id + ': ' + problem);
+  }
+  assert.deepEqual(failures, [], 'default inputs rejected: ' + failures.join('; '));
+});
