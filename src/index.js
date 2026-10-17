@@ -210,7 +210,8 @@ export default {
   async fetch(request, env) {
     const url = new URL(request.url);
     if (url.pathname === "/robots.txt") return serveRobots();
-    if (url.pathname === "/sitemap.xml") return serveSitemap(request, env);\n    if (url.pathname.startsWith("/api/admin/")) return adminApi(request, env, url);
+    if (url.pathname === "/sitemap.xml") return serveSitemap(request, env);
+    if (url.pathname.startsWith("/api/admin/")) return adminApi(request, env, url);
     if (url.pathname === "/blog" || url.pathname === "/blog/" || url.pathname.startsWith("/blog/")) return serveBlog(request, env, url);
     return env.ASSETS.fetch(request);
   }
