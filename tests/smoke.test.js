@@ -227,3 +227,53 @@ test('Admin article API validates saves and writes draft/published frontmatter c
     globalThis.fetch = originalFetch;
   }
 });
+
+test('Admin article API prevents duplicate creates, missing updates, and oversized article writes', async () => {
+  const app = new Function(worker.replace('export default {', 'const worker = {') + '; return worker;')();
+  const env = { ADMIN_PASSWORD: 'correct-password', SESSION_SECRET: 'test-session-secret', GITHUB_TOKEN: 'fake-test-token' };
+  const login = await app.fetch(new Request('https://example.workers.dev/api/admin/login', {
+    method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ password: env.ADMIN_PASSWORD })
+  }), env);
+  const token = login.headers.get('set-cookie').match(/calcusite_admin=([^;]+)/)[1];
+  const headers = { 'content-type': 'application/json', Cookie: 'calcusite_admin=' + token };
+  const originalFetch = globalThis.fetch;
+  const calls = [];
+  try {
+    globalThis.fetch = async (url, options = {}) => {
+      const method = options.method || 'GET';
+      calls.push({ url: String(url), method, body: options.body ? JSON.parse(options.body) : null });
+      if (method === 'GET') return new Response(JSON.stringify({ sha: 'existing-sha', content: '', html_url: 'https://github.com/example/article' }), { status: 200, headers: { 'content-type': 'application/json' } });
+      return new Response(JSON.stringify({}), { status: 200, headers: { 'content-type': 'application/json' } });
+    };
+
+    const duplicate = await app.fetch(new Request('https://example.workers.dev/api/admin/article', {
+      method: 'POST', headers, body: JSON.stringify({ mode: 'create', title: 'Existing Article', slug: 'existing-article', content: 'This article has enough content for validation.' })
+    }), env);
+    assert.equal(duplicate.status, 409);
+    assert.match((await duplicate.json()).error, /already exists/);
+    assert.equal(calls.filter(call => call.method === 'PUT').length, 0, 'duplicate create must not overwrite the existing article');
+
+    calls.length = 0;
+    globalThis.fetch = async (url, options = {}) => {
+      calls.push({ url: String(url), method: options.method || 'GET' });
+      return new Response(JSON.stringify({ message: 'Not Found' }), { status: 404, headers: { 'content-type': 'application/json' } });
+    };
+    const missing = await app.fetch(new Request('https://example.workers.dev/api/admin/article', {
+      method: 'POST', headers, body: JSON.stringify({ mode: 'update', title: 'Missing Article', slug: 'missing-article', content: 'This article has enough content for validation.' })
+    }), env);
+    assert.equal(missing.status, 404);
+    assert.match((await missing.json()).error, /no longer exists/);
+    assert.equal(calls.filter(call => call.method === 'PUT').length, 0, 'missing update must not create a new article');
+
+    calls.length = 0;
+    const oversized = await app.fetch(new Request('https://example.workers.dev/api/admin/article', {
+      method: 'POST', headers, body: JSON.stringify({ mode: 'create', title: 'Oversized Article', slug: 'oversized-article', content: 'x'.repeat(100001) })
+    }), env);
+    assert.equal(oversized.status, 413);
+    assert.match((await oversized.json()).error, /100,000 character limit/);
+    assert.equal(calls.length, 0, 'oversized payload must be rejected before contacting GitHub');
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
