@@ -564,3 +564,39 @@ test('weighted average rejects zero total weight and calculates valid weights', 
   assert.equal(calculator.run(valid).main[1], '81.00');
 });
 
+
+test('temperature, tax rates and weighted grade inputs respect realistic boundaries', () => {
+  const registryStart = html.indexOf('const C=[');
+  const registryEnd = html.indexOf('const CATS=', registryStart);
+  const validationStart = html.indexOf('function validateInputs(c,v){');
+  const validationEnd = html.indexOf('let cur,curC;', validationStart);
+  const dateHelperStart = html.indexOf('function isValidCalendarDate(');
+  const dateHelper = html.slice(dateHelperStart, validationStart);
+  const registry = html.slice(registryStart, registryEnd);
+  const validator = html.slice(validationStart, validationEnd);
+  const harness = `
+    const CURS = { INR: ['₹', 'en-IN'] };
+    const CU = 'INR';
+    const fmt = n => Number.isFinite(Number(n)) ? Number(n).toLocaleString('en-IN', { maximumFractionDigits: 2 }) : '—';
+    const rs = n => '₹' + fmt(Math.round(n));
+    const emiF = (P,r,m) => { r/=1200; return r ? P*r*Math.pow(1+r,m)/(Math.pow(1+r,m)-1) : P/m; };
+    function loan(P,r,m) { const e=emiF(P,r,m),tot=e*m,int=tot-P; return {main:['Monthly EMI',rs(e)],rows:[['Principal',rs(P)],['Total Interest',rs(int)],['Total Payment',rs(tot)]]}; }
+    ${dateHelper}
+    ${registry}
+    ${validator}
+    return { calculators: C, validateInputs };
+  `;
+  const { calculators, validateInputs } = new Function(harness)();
+  const get = id => calculators.find(c => c.id === id);
+  assert.equal(validateInputs(get('temp'), { x: -10, a: 0, b: 1 }), '', 'negative Celsius is valid');
+  assert.match(validateInputs(get('temp'), { x: -300, a: 0, b: 1 }), /absolute zero/);
+  assert.match(validateInputs(get('temp'), { x: -1, a: 2, b: 0 }), /absolute zero/, 'Kelvin cannot be negative');
+  assert.match(validateInputs(get('vat'), { a: 1000, r: 101, m: 0 }), /between 0 and 100/);
+  assert.match(validateInputs(get('tds'), { a: 1000, r: 101 }), /between 0 and 100/);
+  assert.match(validateInputs(get('takehome'), { g: 50000, t: 10, d: 60000 }), /deductions cannot exceed gross/);
+  assert.match(validateInputs(get('sgpa'), { g1: 8, c1: 0, g2: 9, c2: 0, g3: 7, c3: 0, g4: 8, c4: 0 }), /credit must be greater than zero/);
+  const sgpaValid = { g1: 8, c1: 4, g2: 9, c2: 3, g3: 7, c3: 3, g4: 8, c4: 2 };
+  assert.equal(validateInputs(get('sgpa'), sgpaValid), '');
+  assert.equal(get('sgpa').run(sgpaValid).main[1], '8.00');
+});
+
