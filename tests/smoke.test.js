@@ -162,7 +162,7 @@ test('all registered calculators produce finite results with their default input
     try {
       const result = calculator.run(values);
       assert.ok(result && Array.isArray(result.main) && result.main.length >= 2, 'main result exists');
-      assert.doesNotMatch(JSON.stringify(result), /\\b(?:NaN|Infinity)\\b/, 'result must be finite');
+      assert.doesNotMatch(JSON.stringify(result), /\b(?:NaN|Infinity)\b/, 'result must be finite');
     } catch (error) {
       failures.push(calculator.id + ': ' + error.message);
     }
@@ -390,7 +390,7 @@ test('EMI, SIP, GST, BMI and age calculators return expected values and reject e
   assert.equal(gstRemoved.main[1], rs(10000));
 
   const bmi = get('bmi').run({ w: 70, h: 170 });
-  assert.match(bmi.main[1], /^24\\.2 · Normal$/);
+  assert.match(bmi.main[1], /^24\.2 · Normal$/);
   assert.match(bmi.rows[0][1], /kg/);
 
   const problem = validateInputs(get('age'), { dob: '2999-01-01' });
