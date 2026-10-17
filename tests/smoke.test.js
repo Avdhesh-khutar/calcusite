@@ -78,6 +78,46 @@ test('robots.txt and sitemap use the active Worker origin', async () => {
   assert.match(sitemapText, /https:\/\/calcusite\.avdheshkhutar24\.workers\.dev\//);
 });
 
+test('sitemap lists published Markdown articles and excludes unpublished ones', async () => {
+  const workerFactory = new Function(worker.replace('export default {', 'const worker = {') + '; return worker;');
+  const app = workerFactory();
+  const originalFetch = globalThis.fetch;
+  const markdown = {
+    'age-calculator-guide.md': '---\ntitle: "Age Calculator Guide"\ndescription: "Age calculator help"\npublished: true\nupdated: "2026-10-17"\n---\n# Age Calculator Guide\nLearn how age is calculated.',
+    'sip-calculator-guide.md': '---\ntitle: "SIP Calculator Guide"\ndescription: "SIP calculator help"\npublished: true\nupdated: "2026-10-16"\n---\n# SIP Calculator Guide\nLearn how SIP works.',
+    'draft-guide.md': '---\ntitle: "Draft Guide"\ndescription: "Not public"\npublished: false\nupdated: "2026-10-17"\n---\n# Draft Guide\nThis must stay private.'
+  };
+  globalThis.fetch = async (input) => {
+    const url = new URL(typeof input === 'string' ? input : input.url);
+    if (url.pathname.endsWith('/contents/content/blog')) {
+      return new Response(JSON.stringify(Object.keys(markdown).map(name => ({
+        type: 'file', name, path: 'content/blog/' + name
+      }))), { status: 200, headers: { 'content-type': 'application/json' } });
+    }
+    const name = decodeURIComponent(url.pathname.split('/').pop());
+    if (markdown[name]) {
+      return new Response(JSON.stringify({
+        content: Buffer.from(markdown[name], 'utf8').toString('base64')
+      }), { status: 200, headers: { 'content-type': 'application/json' } });
+    }
+    return new Response(JSON.stringify({ message: 'Not found' }), { status: 404 });
+  };
+  try {
+    const response = await app.fetch(
+      new Request('https://calcusite.avdheshkhutar24.workers.dev/sitemap.xml'),
+      { GITHUB_TOKEN: 'test-token' }
+    );
+    const xml = await response.text();
+    assert.equal(response.status, 200);
+    assert.match(xml, /https:\/\/calcusite\.avdheshkhutar24\.workers\.dev\/blog\/age-calculator-guide/);
+    assert.match(xml, /https:\/\/calcusite\.avdheshkhutar24\.workers\.dev\/blog\/sip-calculator-guide/);
+    assert.doesNotMatch(xml, /draft-guide/);
+    assert.match(xml, /<lastmod>2026-10-17<\/lastmod>/);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
 test('all registered calculators produce finite results with their default inputs', () => {
   const start = html.indexOf('const C=[');
   const end = html.indexOf('const CATS=', start);
