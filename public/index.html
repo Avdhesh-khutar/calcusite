@@ -301,7 +301,10 @@ function validateInputs(c,v){
   if(f[4]==='date'){if(!value||Number.isNaN(new Date(value).getTime()))return 'Enter a valid date.';continue}
   if(!Number.isFinite(value))return 'Fill every field with a valid number.';
   const isTemperatureConversion=c.id==='unit'&&(v.t===4||v.t===5);
-  if(value<0&&!isTemperatureConversion)return 'Negative values are not allowed for these inputs.';
+  const allowsNegative=c.id==='quad'||(c.id==='power'&&Number.isInteger(v.e));
+  if(value<0&&!isTemperatureConversion&&!allowsNegative)return 'Negative values are not allowed for these inputs.';
+  if(c.id==='power'&&v.b<0&&!Number.isInteger(v.e))return 'A negative base requires a whole-number exponent for a real result.';
+  if(c.id==='quad'&&v.a===0&&v.b===0&&v.c===0)return 'At least one quadratic coefficient must be non-zero.';
   if(f[3]&&(!Number.isInteger(value)||value<0||value>=f[3].length))return 'Choose a valid option from the list.';
  }
  const positiveFields={
