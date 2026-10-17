@@ -369,6 +369,7 @@ test('EMI, SIP, GST, BMI and age calculators return expected values and reject e
   `;
   const { calculators, validateInputs } = new Function(harness)();
   const get = id => calculators.find(c => c.id === id);
+  const rs = n => '₹' + Number(Math.round(n)).toLocaleString('en-IN');
   const values = (id, overrides) => ({ ...Object.fromEntries(get(id).f.map(f => [f[0], f[2]])), ...overrides });
 
   const emi = get('emi').run({ P: 1000000, r: 8.5, n: 5 });
