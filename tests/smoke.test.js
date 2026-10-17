@@ -41,6 +41,13 @@ test('unpublished blog articles are excluded from public routes and sitemap', ()
   assert.match(worker, /function serveSitemap/);
   assert.match(worker, /Disallow: \/admin\//);
 });
+test('blog pages generate canonical and Open Graph metadata from the request origin', () => {
+  assert.match(worker, /function blogHtml\(title, content, description="Calcusite guides and resources", canonicalUrl=""\)/);
+  assert.match(worker, /new URL\("\/blog",url\.origin\)\.href/);
+  assert.match(worker, /new URL\("\/blog\/"\+encodeURIComponent\(slug\),url\.origin\)\.href/);
+  assert.match(worker, /property="og:url" content=/);
+});
+
 test('homepage contains basic search metadata and private admin is noindex', () => {
   assert.match(html, /<title>[^<]+<\/title>/i);
   assert.match(html, /name=["']description["']/i);
