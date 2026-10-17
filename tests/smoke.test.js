@@ -46,7 +46,6 @@ test('homepage contains basic search metadata and private admin is noindex', () 
   assert.match(html, /name=["']description["']/i);
   assert.match(html, /<link rel="canonical" href="https:\/\/calcusite\.avdheshkhutar24\.workers\.dev\/">/i);
   assert.match(html, /property="og:url" content="https:\/\/calcusite\.avdheshkhutar24\.workers\.dev\/">/i);
-  assert.doesNotMatch(html, /https:\/\/calcusite\.avdheshkhutar24\.workers\.dev\//);
   assert.match(read('public/admin/index.html'), /noindex,nofollow/);
 });
 
