@@ -235,7 +235,7 @@ async function serveSitemap(request, env) {
           if (p.published === false || p.published === "false") return null;
           const slug = f.name.replace(/\.md$/, "");
           if (!validSlug(slug)) return null;
-          return { loc: origin + "/blog/" + encodeURIComponent(slug), changefreq: "monthly", priority: "0.6" };
+          return { loc: origin + "/blog/" + encodeURIComponent(slug), lastmod: /^\\d{4}-\\d{2}-\\d{2}$/.test(String(p.updated)) ? p.updated : "", changefreq: "monthly", priority: "0.6" };
         } catch { return null; }
       }));
       urls.push(...entries.filter(Boolean));
@@ -245,7 +245,7 @@ async function serveSitemap(request, env) {
   }
   const xml = '<?xml version="1.0" encoding="UTF-8"?>\n' +
     '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' +
-    urls.map(u => '<url><loc>' + xmlEsc(u.loc) + '</loc>' +
+    urls.map(u => '<url><loc>' + xmlEsc(u.loc) + '</loc>' + (u.lastmod ? '<lastmod>' + u.lastmod + '</lastmod>' : '') +
       '<changefreq>' + u.changefreq + '</changefreq><priority>' + u.priority + '</priority></url>').join("") +
     '</urlset>';
   sitemapMemoryCache = { expiresAt: Date.now() + 60 * 60 * 1000, xml };
