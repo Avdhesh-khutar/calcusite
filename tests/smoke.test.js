@@ -60,6 +60,18 @@ test('homepage uses a fast system font stack without blocking external font requ
   assert.doesNotMatch(html, /fonts\.googleapis\.com|fonts\.gstatic\.com/);
 });
 
+test('homepage advertises Calcusite as a free WebApplication with structured data', () => {
+  assert.match(html, /type="application\/ld\+json"/);
+  const match = html.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/);
+  assert.ok(match, 'homepage WebApplication JSON-LD exists');
+  const data = JSON.parse(match[1]);
+  assert.equal(data['@type'], 'WebApplication');
+  assert.equal(data.name, 'Calcusite AI');
+  assert.equal(data.isAccessibleForFree, true);
+  assert.equal(data.offers.price, '0');
+  assert.ok(data.featureList.includes('EMI and loan calculators'));
+});
+
 test('homepage contains basic search metadata and private admin is noindex', () => {
   assert.match(html, /<title>[^<]+<\/title>/i);
   assert.match(html, /name=["']description["']/i);
