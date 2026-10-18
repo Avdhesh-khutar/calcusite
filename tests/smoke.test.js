@@ -39,6 +39,8 @@ test('Admin output escapes untrusted article names and errors', () => {
 test('unpublished blog articles are excluded from public routes and sitemap', () => {
   assert.match(worker, /p\.published===false\|\|p\.published==="false"/);
   assert.match(worker, /function serveSitemap/);
+  assert.match(worker, /Promise\.all\(files\.filter/);
+  assert.match(worker, /sitemapMemoryCache\.expiresAt > Date\.now\(\)/);
   assert.match(worker, /Disallow: \/admin\//);
 });
 test('blog pages generate canonical and Open Graph metadata from the request origin', () => {
