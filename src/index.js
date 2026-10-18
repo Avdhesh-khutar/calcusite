@@ -166,6 +166,7 @@ function blogHtml(title, content, description="Calcusite guides and resources", 
  return new Response('<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+blogEsc(title)+' | Calcusite</title><meta name="description" content="'+blogEsc(description)+'"><meta name="robots" content="index,follow">'+(canonicalUrl?'<link rel="canonical" href="'+blogEsc(canonicalUrl)+'"><meta property="og:type" content="'+(canonicalUrl.endsWith("/blog")?"website":"article")+'"><meta property="og:site_name" content="Calcusite"><meta property="og:title" content="'+blogEsc(title)+'"><meta property="og:description" content="'+blogEsc(description)+'"><meta property="og:url" content="'+blogEsc(canonicalUrl)+'">' : '')+structuredData+'<style>*{box-sizing:border-box}body{margin:0;background:#f3f6fc;color:#14213d;font:16px/1.75 system-ui,sans-serif}header{background:white;border-bottom:1px solid #e0e8f7}.bar{max-width:900px;margin:auto;padding:16px 20px;display:flex;justify-content:space-between;gap:12px}.brand,a{color:#1d5de8}.brand{font-size:21px;font-weight:800;text-decoration:none}.wrap{max-width:820px;margin:32px auto;padding:0 18px}.intro,.article,.post{background:white;border:1px solid #e0e8f7;border-radius:18px;padding:clamp(22px,5vw,38px);margin-bottom:16px}.eyebrow,.date{color:#64708f;font-size:13px}h1{font-size:clamp(30px,5vw,44px);line-height:1.2;margin:8px 0 14px}h2{line-height:1.3;margin-top:28px}p,li{color:#34415d}.post{text-decoration:none;display:block}.post h2{margin:0 0 8px;color:#14213d}.post p{margin:0}.article ul,.article ol{padding-left:24px}.language-tools{display:flex;align-items:center;gap:9px;flex-wrap:wrap;background:#eaf1ff;border:1px solid #cfddfb;border-radius:14px;padding:12px 14px;margin:0 0 16px}.language-tools strong{font-size:14px}.language-tools button{border:0;border-radius:999px;padding:9px 13px;background:#1d5de8;color:white;font:inherit;font-weight:750;cursor:pointer}.language-tools button:last-of-type{background:white;color:#1d5de8;border:1px solid #b9ccfa}.language-tools #translate-status{font-size:12px;color:#52617d}iframe.goog-te-banner-frame,.goog-te-banner-frame{display:none!important;visibility:hidden!important;height:0!important;max-height:0!important;pointer-events:none!important}body{top:0!important}.language-tools #google_translate_element{flex-basis:100%;font-size:12px}.language-tools #google_translate_element .goog-te-gadget{font-size:12px!important}.language-tools #google_translate_element select{max-width:100%;border:1px solid #cbd8ef;border-radius:8px;padding:5px;background:#fff;color:#14213d}.language-tools button:focus-visible{outline:3px solid #8bb4ff;outline-offset:2px}footer{text-align:center;color:#64708f;padding:24px;font-size:13px}.wrap{max-width:1120px;margin:28px auto;padding:0 18px}.intro{padding:clamp(24px,5vw,48px);overflow:hidden;background:linear-gradient(120deg,#e1f4ff 0%,#d7f7f0 46%,#e4e8ff 100%);position:relative;border:0}.intro:after{content:"📚";position:absolute;right:5%;bottom:0;font-size:clamp(72px,14vw,150px);opacity:.85;filter:drop-shadow(0 12px 14px #2c62bb25)}.eyebrow{font-weight:800;letter-spacing:.12em;color:#2459c7}.intro h1{font-size:clamp(36px,6vw,58px);font-weight:850;letter-spacing:-.04em}.intro h1 span{color:#1d5de8}.intro p{max-width:620px;font-size:clamp(17px,2.4vw,21px);line-height:1.65;margin-bottom:0}.blog-stats{display:flex;gap:10px;flex-wrap:wrap;margin-top:24px}.blog-stat{background:#ffffffc9;border:1px solid #ffffff;border-radius:14px;padding:9px 13px;font-size:13px;font-weight:700}.section-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:28px 0 14px}.section-head h2{font-size:clamp(23px,3vw,30px);margin:0;letter-spacing:-.03em}.section-head a,.all-link{border:1px solid #b9ccfa;border-radius:999px;padding:7px 14px;font-weight:700;text-decoration:none;white-space:nowrap}.category-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}.category-card{display:flex;flex-direction:column;min-width:0;overflow:hidden;text-decoration:none;color:#14213d;border-radius:19px;border:1px solid #e2e9f7;box-shadow:0 5px 15px #18386a0a;transition:transform .18s,box-shadow .18s;background:white}.category-card:hover{transform:translateY(-3px);box-shadow:0 12px 25px #18386a17}.category-art{height:112px;display:grid;place-items:center;font-size:54px;background:linear-gradient(135deg,var(--tint),#fff)}.category-copy{padding:14px 15px 16px;display:flex;flex-direction:column;flex:1}.category-copy h3{margin:0 0 5px;font-size:17px;line-height:1.3}.category-copy p{margin:0 0 12px;font-size:13px;line-height:1.5;flex:1}.category-bottom{display:flex;justify-content:space-between;align-items:center;gap:8px}.count-pill{background:var(--tint);border-radius:999px;padding:5px 10px;font-size:12px;font-weight:750}.arrow-pill{width:30px;height:30px;border-radius:50%;background:var(--tint);display:grid;place-items:center;font-size:18px;font-weight:800}.latest-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}.post{padding:0;overflow:hidden;margin:0;border-radius:18px;box-shadow:0 5px 16px #18386a0a;transition:transform .18s,box-shadow .18s}.post:hover{transform:translateY(-3px);box-shadow:0 12px 25px #18386a16}.post-art{height:150px;background:linear-gradient(135deg,#dbeafe,#bfdbfe);overflow:hidden}.post-art img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .3s}.post:hover .post-art img{transform:scale(1.04)}.post-copy{padding:17px 18px 19px}.post-copy .date{display:inline-block;background:#f1f5f9;border-radius:999px;padding:3px 9px;margin-bottom:9px}.post-copy h3{margin:0 0 8px;color:#14213d;font-size:19px;line-height:1.35}.post-copy p{font-size:14px;line-height:1.6;margin:0 0 12px}.post-copy strong{color:#1d5de8}.blog-search{display:flex;gap:8px;margin-top:22px;max-width:720px}.blog-search input{min-width:0;flex:1;border:1px solid #cbd8ef;border-radius:14px;background:#fff;padding:13px 15px;font:inherit;outline-color:#1d5de8}.blog-search button{border:0;border-radius:14px;padding:0 20px;background:#1d5de8;color:white;font:inherit;font-weight:800}.filter-note{color:#64708f;font-size:14px;margin:0 0 14px}.empty-state{padding:28px;background:white;border:1px dashed #cbd8ef;border-radius:18px}@media(max-width:850px){.category-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.latest-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.post-art{height:135px}}@media(max-width:560px){.wrap{margin:20px auto;padding:0 12px}.intro{padding:25px 22px}.intro:after{right:3%;bottom:4px;font-size:74px;opacity:.4}.intro p{max-width:95%;font-size:16px}.blog-stats{gap:7px}.blog-stat{padding:7px 9px;font-size:11px}.section-head{margin:24px 0 12px;align-items:flex-start}.section-head h2{font-size:22px}.category-grid{gap:10px}.category-art{height:90px;font-size:43px}.category-copy{padding:12px 11px}.category-copy h3{font-size:15px}.category-copy p{font-size:12px}.count-pill{font-size:11px;padding:4px 8px}.latest-grid{grid-template-columns:1fr;gap:13px}.post-art{height:170px}.post-copy{padding:15px}.post-copy h3{font-size:18px}.blog-search{gap:6px}.blog-search button{padding:0 13px}}</style></head><body><header><div class="bar"><a class="brand" href="/">∑ Calcusite</a><a href="/">← Back to calculators</a></div></header><main class="wrap">'+content+'</main><footer>© 2026 Calcusite · Smart Calculations, Smarter Decisions</footer></body></html>',{headers:{"content-type":"text/html; charset=utf-8","cache-control":"public, max-age=60"}});
 }
 let blogListingMemoryCache={expiresAt:0,posts:null};
+let sitemapMemoryCache={expiresAt:0,xml:""};
 async function serveBlog(request, env, url) {
  let path; try { path=decodeURIComponent(url.pathname); } catch { return blogHtml("Invalid URL", '<section class="intro"><h1>Invalid URL</h1><a href="/blog">Browse articles</a></section>'); }
  if(path==="/blog"||path==="/blog/"){
@@ -213,26 +214,31 @@ async function serveBlog(request, env, url) {
 function xmlEsc(s) { return String(s || "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&apos;"); }
 async function serveSitemap(request, env) {
   const origin = new URL(request.url).origin;
+  if (sitemapMemoryCache.xml && sitemapMemoryCache.expiresAt > Date.now()) {
+    return new Response(sitemapMemoryCache.xml, {
+      headers: { "content-type": "application/xml; charset=utf-8", "cache-control": "public, max-age=3600" }
+    });
+  }
   const urls = [
     { loc: origin + "/", changefreq: "weekly", priority: "1.0" },
     { loc: origin + "/blog", changefreq: "weekly", priority: "0.8" }
   ];
-  // The Markdown filename is the canonical blog route. Build the sitemap from
-  // the directory listing in one GitHub API request instead of fetching every
-  // article body one by one; this keeps crawlers' sitemap requests lightweight.
   try {
     const files = await github(request, env, "/repos/Avdhesh-khutar/calcusite/contents/content/blog?ref=main");
     if (Array.isArray(files)) {
-      for (const f of files) {
-        if (f.type !== "file" || !f.name.endsWith(".md")) continue;
-        const slug = f.name.replace(/\.md$/, "");
-        if (!validSlug(slug)) continue;
-        urls.push({
-          loc: origin + "/blog/" + encodeURIComponent(slug),
-          changefreq: "monthly",
-          priority: "0.6"
-        });
-      }
+      const entries = await Promise.all(files.filter(f => f.type === "file" && f.name.endsWith(".md")).map(async f => {
+        try {
+          const item = await github(request, env, "/repos/Avdhesh-khutar/calcusite/contents/" + f.path.split("/").map(encodeURIComponent).join("/") + "?ref=main");
+          const dec = atob((item.content || "").replace(/\n/g, ""));
+          const raw = new TextDecoder().decode(Uint8Array.from(dec, ch => ch.charCodeAt(0)));
+          const p = blogParse(raw, f.name.replace(/\.md$/, ""));
+          if (p.published === false || p.published === "false") return null;
+          const slug = f.name.replace(/\.md$/, "");
+          if (!validSlug(slug)) return null;
+          return { loc: origin + "/blog/" + encodeURIComponent(slug), changefreq: "monthly", priority: "0.6" };
+        } catch { return null; }
+      }));
+      urls.push(...entries.filter(Boolean));
     }
   } catch (error) {
     console.error("Could not load blog sitemap entries", error);
@@ -242,6 +248,7 @@ async function serveSitemap(request, env) {
     urls.map(u => '<url><loc>' + xmlEsc(u.loc) + '</loc>' +
       '<changefreq>' + u.changefreq + '</changefreq><priority>' + u.priority + '</priority></url>').join("") +
     '</urlset>';
+  sitemapMemoryCache = { expiresAt: Date.now() + 60 * 60 * 1000, xml };
   return new Response(xml, {
     headers: { "content-type": "application/xml; charset=utf-8", "cache-control": "public, max-age=3600" }
   });
