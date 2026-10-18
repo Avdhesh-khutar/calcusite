@@ -213,27 +213,38 @@ async function serveBlog(request, env, url) {
 function xmlEsc(s) { return String(s || "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&apos;"); }
 async function serveSitemap(request, env) {
   const origin = new URL(request.url).origin;
-  const urls = [{ loc: origin + "/", changefreq: "weekly", priority: "1.0" }, { loc: origin + "/blog", changefreq: "weekly", priority: "0.8" }];
+  const urls = [
+    { loc: origin + "/", changefreq: "weekly", priority: "1.0" },
+    { loc: origin + "/blog", changefreq: "weekly", priority: "0.8" }
+  ];
+  // The Markdown filename is the canonical blog route. Build the sitemap from
+  // the directory listing in one GitHub API request instead of fetching every
+  // article body one by one; this keeps crawlers' sitemap requests lightweight.
   try {
     const files = await github(request, env, "/repos/Avdhesh-khutar/calcusite/contents/content/blog?ref=main");
     if (Array.isArray(files)) {
-      for (const f of files.filter(x => x.type === "file" && x.name.endsWith(".md"))) {
-        try {
-          const item = await github(request, env, "/repos/Avdhesh-khutar/calcusite/contents/" + f.path.split("/").map(encodeURIComponent).join("/") + "?ref=main");
-          const dec = atob((item.content || "").replace(/\n/g, ""));
-          const raw = new TextDecoder().decode(Uint8Array.from(dec, ch => ch.charCodeAt(0)));
-          const p = blogParse(raw, f.name.replace(/\.md$/, ""));
-          if (p.published === false || p.published === "false") continue;
-          // Blog routes are keyed by the Markdown filename, not frontmatter slug.
-          const slug = f.name.replace(/\.md$/, "");
-          if (!validSlug(slug)) continue;
-          urls.push({ loc: origin + "/blog/" + encodeURIComponent(slug), lastmod: /^\d{4}-\d{2}-\d{2}$/.test(String(p.updated)) ? p.updated : "", changefreq: "monthly", priority: "0.6" });
-        } catch {}
+      for (const f of files) {
+        if (f.type !== "file" || !f.name.endsWith(".md")) continue;
+        const slug = f.name.replace(/\.md$/, "");
+        if (!validSlug(slug)) continue;
+        urls.push({
+          loc: origin + "/blog/" + encodeURIComponent(slug),
+          changefreq: "monthly",
+          priority: "0.6"
+        });
       }
     }
-  } catch {}
-  const xml = '<?xml version="1.0" encoding="UTF-8"?>\n' + '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' + urls.map(u => '<url><loc>' + xmlEsc(u.loc) + '</loc>' + (u.lastmod ? '<lastmod>' + u.lastmod + '</lastmod>' : '') + '<changefreq>' + u.changefreq + '</changefreq><priority>' + u.priority + '</priority></url>').join("") + '</urlset>';
-  return new Response(xml, { headers: { "content-type": "application/xml; charset=utf-8", "cache-control": "public, max-age=3600" } });
+  } catch (error) {
+    console.error("Could not load blog sitemap entries", error);
+  }
+  const xml = '<?xml version="1.0" encoding="UTF-8"?>\n' +
+    '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' +
+    urls.map(u => '<url><loc>' + xmlEsc(u.loc) + '</loc>' +
+      '<changefreq>' + u.changefreq + '</changefreq><priority>' + u.priority + '</priority></url>').join("") +
+    '</urlset>';
+  return new Response(xml, {
+    headers: { "content-type": "application/xml; charset=utf-8", "cache-control": "public, max-age=3600" }
+  });
 }
 function serveRobots(request) {
   const origin = new URL(request.url).origin;
