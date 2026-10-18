@@ -235,7 +235,7 @@ async function serveSitemap(request, env) {
           if (p.published === false || p.published === "false") return null;
           const slug = f.name.replace(/\.md$/, "");
           if (!validSlug(slug)) return null;
-          return { loc: origin + "/blog/" + encodeURIComponent(slug), lastmod: /^\\d{4}-\\d{2}-\\d{2}$/.test(String(p.updated)) ? p.updated : "", changefreq: "monthly", priority: "0.6" };
+          return { loc: origin + "/blog/" + encodeURIComponent(slug), lastmod: /^\d{4}-\d{2}-\d{2}$/.test(String(p.updated)) ? p.updated : "", changefreq: "monthly", priority: "0.6" };
         } catch { return null; }
       }));
       urls.push(...entries.filter(Boolean));
