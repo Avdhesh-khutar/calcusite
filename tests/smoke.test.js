@@ -55,10 +55,9 @@ test('blog pages include structured data for search engines', () => {
   assert.match(worker, /type="application\/ld\+json"/);
 });
 
-test('homepage hints font connections early and keeps font display swappable', () => {
-  assert.match(html, /rel="preconnect" href="https:\/\/fonts\.googleapis\.com"/);
-  assert.match(html, /rel="preconnect" href="https:\/\/fonts\.gstatic\.com" crossorigin/);
-  assert.match(html, /family=Plus\+Jakarta\+Sans:[^"]*&display=swap/);
+test('homepage uses a fast system font stack without blocking external font requests', () => {
+  assert.match(html, /font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif/);
+  assert.doesNotMatch(html, /fonts\.googleapis\.com|fonts\.gstatic\.com/);
 });
 
 test('homepage contains basic search metadata and private admin is noindex', () => {
