@@ -1016,7 +1016,7 @@ test('calculator boundary validation prevents invalid temperature, fuel economy 
   assert.match(validateInputs(get('cagr'), { s: 100, e: 0, n: 5 }), /Final value must be greater than zero/);
   assert.match(validateInputs(get('maxhr'), { a: 0 }), /greater than zero/);
   assert.match(validateInputs(get('maxhr'), { a: 121 }), /between 1 and 120/);
-  assert.match(validateInputs(get('reqm'), { c: 60, w: 0, t: 75 }), /exam weight/);
+  assert.match(validateInputs(get('reqm'), { c: 60, w: 0, t: 75 }), /greater than zero/);
   assert.match(validateInputs(get('eligib'), { i: 80000, x: 90000, r: 8, y: 20, f: 50 }), /positive income/);
   assert.equal(validateInputs(get('eligib'), { i: 80000, x: 10000, r: 8, y: 20, f: 50 }), '');
 });
