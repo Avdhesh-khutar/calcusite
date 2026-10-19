@@ -855,3 +855,18 @@ test('homepage declares installable web app metadata and a local SVG favicon', (
   assert.equal(manifest.display, 'standalone');
   assert.ok(manifest.icons.some(icon => icon.src === '/favicon.svg' && icon.type === 'image/svg+xml'));
 });
+
+
+test('public Worker responses apply baseline browser security headers', () => {
+  assert.match(worker, /X-Content-Type-Options", "nosniff"/);
+  assert.match(worker, /Referrer-Policy", "strict-origin-when-cross-origin"/);
+  assert.match(worker, /X-Frame-Options", "DENY"/);
+  assert.match(worker, /Permissions-Policy", "camera=\(\), microphone=\(\), geolocation=\(\)"/);
+  assert.match(worker, /return withSecurityHeaders\(response\)/);
+});
+
+test('privacy policy does not claim an unconfigured Google Fonts dependency', () => {
+  assert.match(html, /<h2>Privacy Policy<\/h2>/);
+  assert.match(html, /externally hosted services or links/);
+  assert.doesNotMatch(html, /Pages load fonts from Google Fonts/);
+});
