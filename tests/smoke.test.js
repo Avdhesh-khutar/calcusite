@@ -283,6 +283,54 @@ test('default inputs pass the same validation used by the calculator UI', () => 
   assert.match(validateInputs(power, { b: -2, e: 0.5 }), /whole-number exponent/);
 });
 
+test('all calculators handle zero-valued numeric boundaries without non-finite results', () => {
+  const registryStart = html.indexOf('const C=[');
+  const registryEnd = html.indexOf('const CATS=', registryStart);
+  const validationStart = html.indexOf('function validateInputs(c,v){');
+  const validationEnd = html.indexOf('let cur,curC;', validationStart);
+  const dateHelperStart = html.indexOf('function isValidCalendarDate(');
+  const registry = html.slice(registryStart, registryEnd);
+  const validator = html.slice(validationStart, validationEnd);
+  const dateHelper = html.slice(dateHelperStart, validationStart);
+  const harness = `
+    const CURS = { INR: ['₹', 'en-IN'] };
+    const CU = 'INR';
+    const fmt = n => Number.isFinite(Number(n)) ? Number(n).toLocaleString('en-IN', { maximumFractionDigits: 2 }) : '—';
+    const rs = n => '₹' + fmt(Math.round(n));
+    const emiF = (P,r,m) => { r/=1200; return r ? P*r*Math.pow(1+r,m)/(Math.pow(1+r,m)-1) : P/m; };
+    function loan(P,r,m) {
+      const e=emiF(P,r,m);let bal=P,rows=[],yp=0,yi=0,totalPaid=0,totalInterest=0;
+      for(let k=1;k<=m;k++){const i=bal*r/1200,p=Math.min(bal,Math.max(0,e-i)),payment=p+i;bal=Math.max(0,bal-p);totalPaid+=payment;totalInterest+=i;yp+=p;yi+=i;if(k%12===0||k===m){rows.push([Math.ceil(k/12),rs(e),rs(yp),rs(yi),rs(bal)]);yp=yi=0}}
+      return {main:['Monthly EMI',rs(e)],rows:[['Principal',rs(P)],['Total Interest',rs(totalInterest)],['Total Payment',rs(totalPaid)]],donut:[['Principal',P,'#1d5de8'],['Interest',totalInterest,'#f5a524']],table:[['Year','EMI','Principal','Interest','Balance'],rows]};
+    }
+    ${dateHelper}
+    ${registry}
+    ${validator}
+    return { calculators: C, validateInputs };
+  `;
+  const { calculators, validateInputs } = new Function(harness)();
+  const failures = [];
+  let checked = 0;
+  for (const calculator of calculators) {
+    for (const field of calculator.f) {
+      if (typeof field[2] !== 'number' || field[3]) continue;
+      const values = Object.fromEntries(calculator.f.map(item => [item[0], item[2]]));
+      values[field[0]] = 0;
+      if (validateInputs(calculator, values)) continue;
+      checked++;
+      try {
+        const result = calculator.run(values);
+        assert.ok(result && Array.isArray(result.main), 'main result exists');
+        assert.doesNotMatch(JSON.stringify(result), /\\b(?:NaN|Infinity)\\b/, 'result must be finite');
+      } catch (error) {
+        failures.push(calculator.id + '.' + field[0] + ': ' + error.message);
+      }
+    }
+  }
+  assert.ok(checked > 20, 'should exercise many zero-value boundaries');
+  assert.deepEqual(failures, [], 'zero-boundary failures: ' + failures.join('; '));
+});
+
 test('Admin article API validates saves and writes draft/published frontmatter correctly', async () => {
   const app = new Function(worker.replace('export default {', 'const worker = {') + '; return worker;')();
   const env = { ADMIN_PASSWORD: 'correct-password', SESSION_SECRET: 'test-session-secret', GITHUB_TOKEN: 'fake-test-token' };
