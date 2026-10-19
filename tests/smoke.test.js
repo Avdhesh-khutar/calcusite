@@ -54,7 +54,8 @@ test('Admin output escapes untrusted article names and errors', () => {
 test('unpublished blog articles are excluded from public routes and sitemap', () => {
   assert.match(worker, /p\.published===false\|\|p\.published==="false"/);
   assert.match(worker, /function serveSitemap/);
-  assert.match(worker, /Promise\.all\(files\.filter/);
+  assert.match(worker, /raw\.githubusercontent\.com/);
+  assert.match(worker, /content\/blog\/index\.json/);
   assert.match(worker, /sitemapMemoryCache\.expiresAt > Date\.now\(\)/);
   assert.match(worker, /Disallow: \/admin\//);
 });
@@ -131,6 +132,9 @@ test('sitemap lists published Markdown articles and excludes unpublished ones', 
   };
   globalThis.fetch = async (input) => {
     const url = new URL(typeof input === 'string' ? input : input.url);
+    if (url.hostname === 'raw.githubusercontent.com' && url.pathname.endsWith('/content/blog/index.json')) {
+      return new Response(JSON.stringify({ articles: Object.keys(markdown).map(name => name.replace(/\\.md$/, '')) }), { status: 200, headers: { 'content-type': 'application/json' } });
+    }
     if (url.pathname.endsWith('/contents/content/blog')) {
       return new Response(JSON.stringify(Object.keys(markdown).map(name => ({
         type: 'file', name, path: 'content/blog/' + name
@@ -980,9 +984,9 @@ test('theme toggle matches the CSS data-theme contract and persists safely', () 
 });
 
 test('public blog and sitemap use unauthenticated GitHub reads, not the private write token', () => {
-  assert.ok(worker.includes('async function githubPublic(path)'));
   const publicRoutes = worker.slice(worker.indexOf('async function serveBlog('), worker.indexOf('function serveRobots('));
-  assert.ok(publicRoutes.includes('githubPublic('));
+  assert.ok(publicRoutes.includes('raw.githubusercontent.com'));
+  assert.ok(publicRoutes.includes('content/blog/index.json'));
   assert.ok(!publicRoutes.includes('github(request'));
   assert.ok(worker.includes('if (!env.GITHUB_TOKEN) throw new Error("GitHub write token is not configured'));
 });
