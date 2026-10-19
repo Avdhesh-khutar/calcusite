@@ -30,8 +30,8 @@ test('currency converter fetches live reference rates and labels fallback estima
   assert.match(html, /https:\/\/open\.er-api\.com\/v6\/latest\/USD/);
   assert.match(html, /async function loadLiveFX\(\)/);
   assert.match(html, /fxUpdatedAt=data\.time_last_update_utc/);
-  assert.match(html, /Offline fallback estimate · live rate unavailable/);
-  assert.match(html, /Market reference rate only; bank\/remittance fees and spreads may differ/);
+  assert.match(html, /Offline fallback estimate · latest rate unavailable/);
+  assert.match(html, /Reference rate only; bank\/remittance fees and spreads may differ/);
   assert.match(html, /if\(id==='currency'\)loadLiveFX\(\)/);
 });
 test('AI math parser returns safe arithmetic results', () => {
