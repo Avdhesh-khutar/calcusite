@@ -258,13 +258,38 @@ function serveRobots(request) {
   return new Response(`User-agent: *\nAllow: /\nDisallow: /admin/\nDisallow: /api/\nSitemap: ${origin}/sitemap.xml\n`, { headers: { "content-type": "text/plain; charset=utf-8", "cache-control": "public, max-age=3600" } });
 }
 
+function withSecurityHeaders(response) {
+  const headers = new Headers(response.headers);
+  headers.set("X-Content-Type-Options", "nosniff");
+  headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
+  headers.set("X-Frame-Options", "DENY");
+  headers.set("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
+  return new Response(response.body, { status: response.status, statusText: response.statusText, headers });
+}
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
-    if (url.pathname === "/robots.txt") return serveRobots(request);
-    if (url.pathname === "/sitemap.xml") return serveSitemap(request, env);
-    if (url.pathname.startsWith("/api/admin/")) return adminApi(request, env, url);
-    if (url.pathname === "/blog" || url.pathname === "/blog/" || url.pathname.startsWith("/blog/")) { try { return await serveBlog(request, env, url); } catch (error) { console.error("Calcusite blog route error", error && error.stack ? error.stack : error); return new Response("<!doctype html><html lang=\"en\"><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\"><title>Blog temporarily unavailable</title><body style=\"font:16px system-ui;padding:24px;max-width:640px;margin:auto\"><h1>Blog temporarily unavailable</h1><p>We are recovering the blog service. Please try again shortly.</p><p><a href=\"/\">Return to Calcusite</a></p></body></html>", { status: 503, headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store" } }); } }
-    return env.ASSETS.fetch(request);
+    let response;
+    if (url.pathname === "/robots.txt") {
+      response = serveRobots(request);
+    } else if (url.pathname === "/sitemap.xml") {
+      response = await serveSitemap(request, env);
+    } else if (url.pathname.startsWith("/api/admin/")) {
+      response = await adminApi(request, env, url);
+    } else if (url.pathname === "/blog" || url.pathname === "/blog/" || url.pathname.startsWith("/blog/")) {
+      try {
+        response = await serveBlog(request, env, url);
+      } catch (error) {
+        console.error("Calcusite blog route error", error && error.stack ? error.stack : error);
+        response = new Response("<!doctype html><html lang=\"en\"><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\"><title>Blog temporarily unavailable</title><body style=\"font:16px system-ui;padding:24px;max-width:640px;margin:auto\"><h1>Blog temporarily unavailable</h1><p>We are recovering the blog service. Please try again shortly.</p><p><a href=\"/\">Return to Calcusite</a></p></body></html>", {
+          status: 503,
+          headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store" }
+        });
+      }
+    } else {
+      response = await env.ASSETS.fetch(request);
+    }
+    return withSecurityHeaders(response);
   }
 };
