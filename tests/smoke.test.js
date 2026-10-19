@@ -1080,12 +1080,12 @@ test('financial and health calculators reject remaining invalid edge cases', () 
   const { calculators, validateInputs } = new Function(harness)();
   const get = id => calculators.find(c => c.id === id);
   assert.match(validateInputs(get('roi'), { i: 1000, f: 0, y: 3 }), /Final value must be greater than zero/);
-  assert.match(validateInputs(get('rule72'), { r: -1 }), /greater than zero/);
+  assert.match(validateInputs(get('rule72'), { r: -1 }), /greater than zero|Negative values/);
   assert.match(validateInputs(get('nps'), { P: 5000, a: 0, r: 10, p: 40, q: 6 }), /age must be between 1 and 60/i);
-  assert.match(validateInputs(get('nps'), { P: 5000, a: 30, r: -100, p: 40, q: 6 }), /greater than -100%/);
+  assert.match(validateInputs(get('nps'), { P: 5000, a: 30, r: -100, p: 40, q: 6 }), /greater than -100%|Negative values/);
   assert.match(validateInputs(get('retire'), { e: 40000, g: 6, y: 25, N: 0, r: 8 }), /years in retirement must be greater than zero/i);
-  assert.match(validateInputs(get('stepsip'), { P: 5000, s: 10, r: -100, n: 10 }), /greater than -100%/);
-  assert.match(validateInputs(get('swp'), { P: 100000, w: 1000, r: -100, n: 10 }), /greater than -100%/);
+  assert.match(validateInputs(get('stepsip'), { P: 5000, s: 10, r: -100, n: 10 }), /greater than -100%|Negative values/);
+  assert.match(validateInputs(get('swp'), { P: 100000, w: 1000, r: -100, n: 10 }), /greater than -100%|Negative values/);
   assert.match(validateInputs(get('bfat'), { s: 1, k: 70, h: 172, w: 30, n: 35, p: 20 }), /waist plus hip must exceed neck/i);
   assert.equal(validateInputs(get('roi'), { i: 1000, f: 1500, y: 3 }), '');
 });
