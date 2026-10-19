@@ -888,6 +888,12 @@ test('privacy policy does not claim an unconfigured Google Fonts dependency', ()
 });
 
 
+test('currency converter starts at one and displays money with two decimal places', () => {
+  assert.match(html, /T\('currency','Currency Converter','Unit & Conversion','Latest reference rates[^']*',[^\n]*\[\['x','Amount',1\]/);
+  assert.match(html, /minimumFractionDigits:2,maximumFractionDigits:2/);
+  assert.match(html, /Latest reference rate/);
+});
+
 test('theme toggle matches the CSS data-theme contract and persists safely', () => {
   assert.match(read('public/index.html'), /:root\[data-theme="dark"\]/);
   assert.match(calculator, /root\.setAttribute\('data-theme',next\)/);
