@@ -19,6 +19,13 @@ test('Admin, Worker and calculator scripts parse', () => {
   new vm.Script(worker.replace('export default {', 'const worker = {'));
   new vm.Script(calculator);
 });
+test('AI assistant uses a keyboard-editable text input and handles form submission', () => {
+  assert.match(html, /<form class="ask" id="aiForm" autocomplete="off">/);
+  assert.match(html, /<input id="aq" type="text" name="question"[^>]*tabindex="0">/);
+  assert.match(html, /#aiForm\{position:relative;z-index:1\}#aq\{position:relative;z-index:2;display:block\}/);
+  assert.match(html, /form\.addEventListener\('submit',e=>\{e\.preventDefault\(\);send\(input\.value\)\}\)/);
+  assert.match(html, /input\.addEventListener\('keydown',e=>\{if\(e\.key==='Enter'/);
+});
 test('AI math parser returns safe arithmetic results', () => {
   const start = html.indexOf('function safeMath(source){');
   const end = html.indexOf('function ai(q)', start);
