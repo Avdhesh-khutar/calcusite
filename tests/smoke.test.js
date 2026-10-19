@@ -793,3 +793,54 @@ test('temperature, tax rates and weighted grade inputs respect realistic boundar
   assert.equal(get('sgpa').run(sgpaValid).main[1], '8.00');
 });
 
+
+
+test('all calculators handle high but plausible values without non-finite results', () => {
+  const registryStart = html.indexOf('const C=[');
+  const registryEnd = html.indexOf('const CATS=', registryStart);
+  const validationStart = html.indexOf('function validateInputs(c,v){');
+  const validationEnd = html.indexOf('let cur,curC;', validationStart);
+  const dateHelperStart = html.indexOf('function isValidCalendarDate(');
+  const dateHelper = html.slice(dateHelperStart, validationStart);
+  const registry = html.slice(registryStart, registryEnd);
+  const validator = html.slice(validationStart, validationEnd);
+  const harness = `
+    const CURS = { INR: ['₹', 'en-IN'] };
+    const CU = 'INR';
+    const fmt = n => Number.isFinite(Number(n)) ? Number(n).toLocaleString('en-IN', { maximumFractionDigits: 2 }) : '—';
+    const rs = n => '₹' + fmt(Math.round(n));
+    const emiF = (P,r,m) => { r/=1200; return r ? P*r*Math.pow(1+r,m)/(Math.pow(1+r,m)-1) : P/m; };
+    function loan(P,r,m) { const e=emiF(P,r,m),tot=e*m,int=tot-P; return {main:['Monthly EMI',rs(e)],rows:[['Principal',rs(P)],['Total Interest',rs(int)],['Total Payment',rs(tot)]]}; }
+    ${dateHelper}
+    ${registry}
+    ${validator}
+    return { calculators: C, validateInputs };
+  `;
+  const { calculators, validateInputs } = new Function(harness)();
+  const failures = [];
+  let checked = 0;
+  for (const calculator of calculators) {
+    const base = Object.fromEntries(calculator.f.map(field => [field[0], field[2]]));
+    for (const field of calculator.f) {
+      if (field[4] === 'date' || field[3]) continue;
+      const label = field[1].toLowerCase();
+      let high = 1000;
+      if (/year|tenure|period|month|age|cycle|duration/.test(label)) high = 50;
+      else if (/rate|percent|discount|return|tax|interest|hike|step-up/.test(label)) high = 100;
+      else if (/height|weight|waist|neck|hip|distance|salary|amount|price|principal|investment|deposit|marks|value|cost|income|budget|loan|saving|target|bill|bill|area|length|width|volume|water|calorie|protein|score|rank|total|classes|attended|credit|grade|speed|time|daily|monthly|weekly|yearly|payment|premium|expense|fuel|mileage/.test(label)) high = 1000000;
+      const input = { ...base, [field[0]]: high };
+      const issue = validateInputs(calculator, input);
+      if (issue) continue;
+      try {
+        const result = calculator.run(input);
+        assert.ok(result && Array.isArray(result.main), 'main result exists');
+        assert.doesNotMatch(JSON.stringify(result), /\\b(?:NaN|Infinity)\\b/, 'high-value result must be finite');
+        checked++;
+      } catch (error) {
+        failures.push(calculator.id + '.' + field[0] + ': ' + error.message);
+      }
+    }
+  }
+  assert.ok(checked >= calculators.length, 'must exercise high-value cases across the calculator set');
+  assert.deepEqual(failures, [], 'high-value failures: ' + failures.join('; '));
+});
