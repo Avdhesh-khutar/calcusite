@@ -1048,7 +1048,7 @@ test('integer-only calculators reject fractional inputs and reading speed reject
   assert.match(validateInputs(get('readtime'), { n: 1500, w: 0 }), /Words per minute must be greater than zero/);
   assert.equal(validateInputs(get('readtime'), { n: 1500, w: 200 }), '');
   assert.match(validateInputs(get('ncr'), { n: 10.5, r: 3 }), /whole numbers/);
-  assert.match(validateInputs(get('ncr'), { n: 10, r: 3 }), '');
+  assert.equal(validateInputs(get('ncr'), { n: 10, r: 3 }), '');
   assert.match(validateInputs(get('fact'), { n: 5.5 }), /whole number/);
   assert.match(validateInputs(get('prime'), { x: 97.5 }), /whole number/);
   assert.match(validateInputs(get('numsys'), { x: 255.5 }), /whole decimal number/);
