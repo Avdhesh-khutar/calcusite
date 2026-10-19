@@ -844,3 +844,14 @@ test('all calculators handle high but plausible values without non-finite result
   assert.ok(checked >= calculators.length, 'must exercise high-value cases across the calculator set');
   assert.deepEqual(failures, [], 'high-value failures: ' + failures.join('; '));
 });
+
+
+test('homepage declares installable web app metadata and a local SVG favicon', () => {
+  assert.match(html, /rel="manifest" href="\/manifest\.webmanifest"/);
+  assert.match(html, /rel="icon" type="image\/svg\+xml" href="\/favicon\.svg"/);
+  const manifest = JSON.parse(read('public/manifest.webmanifest'));
+  assert.equal(manifest.name, 'Calcusite AI');
+  assert.equal(manifest.start_url, '/');
+  assert.equal(manifest.display, 'standalone');
+  assert.ok(manifest.icons.some(icon => icon.src === '/favicon.svg' && icon.type === 'image/svg+xml'));
+});
