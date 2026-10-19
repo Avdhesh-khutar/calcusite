@@ -72,8 +72,10 @@ h2 a{font-size:13px;color:var(--pri)}
 label{display:block;font-size:13px;font-weight:600;margin:12px 0 4px}
 input,select{width:100%;padding:10px 12px;border:1px solid var(--bd);border-radius:10px;background:var(--bg)}
 .res .big{font-size:34px;font-weight:800;color:var(--ok)}
-.row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px dashed var(--bd);font-size:14px}
-.row b{font-variant-numeric:tabular-nums}
+.row{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;padding:10px 0;border-bottom:1px dashed var(--bd);font-size:14px;line-height:1.55;min-width:0}
+.row span{flex:0 1 38%;min-width:0;overflow-wrap:anywhere}
+.row b{flex:1 1 62%;min-width:0;text-align:right;font-variant-numeric:tabular-nums;white-space:normal;overflow-wrap:anywhere;word-break:normal;line-height:1.55}
+@media(max-width:560px){.row{gap:8px;font-size:13px}.row span{flex-basis:40%}.row b{flex-basis:60%}}
 .acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
 .amount-range{display:block;width:100%;margin:10px 0 0;accent-color:var(--pri);cursor:pointer}.range-scale{display:flex;justify-content:space-between;color:var(--mut);font-size:12px;margin-top:-7px;margin-bottom:12px}
 .field-range{margin:7px 0 18px}.field-range .range-scale{margin-top:0;margin-bottom:0}.field-range input[type=range]{width:100%}
