@@ -51,6 +51,19 @@ test('Admin output escapes untrusted article names and errors', () => {
   assert.match(admin, /&lt;/);
   assert.match(worker, /Invalid save mode/);
 });
+test('admin article saves update the public blog manifest for listing and sitemap', () => {
+  assert.match(worker, /Keep the public blog manifest in sync with every article save/);
+  assert.match(worker, /contents\/content\/blog\/index\.json/);
+  assert.match(worker, /manifest\.articles\.push\(slug\)/);
+  assert.match(worker, /Update blog article manifest/);
+});
+test('calculator engine includes the expected core calculator types and mobile responsive styles', () => {
+  for (const type of ['emi','sip','loan','bmi','age','gst','fd','rd','percentage']) {
+    assert.match(calculator, new RegExp("type:'" + type + "'"));
+  }
+  assert.match(calculator, /@media\(max-width:650px\)/);
+  assert.match(calculator, /function openCalc/);
+});
 test('unpublished blog articles are excluded from public routes and sitemap', () => {
   assert.match(worker, /p\.published===false\|\|p\.published==="false"/);
   assert.match(worker, /function serveSitemap/);
