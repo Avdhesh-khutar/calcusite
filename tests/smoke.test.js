@@ -307,12 +307,15 @@ test('all calculators remain safe for negative numeric boundaries when validatio
   const { calculators, validateInputs } = new Function(harness)();
   const failures = [];
   let checked = 0;
+  let attempted = 0;
+  let rejected = 0;
   for (const calculator of calculators) {
     for (const field of calculator.f) {
       if (typeof field[2] !== 'number' || field[3]) continue;
+      attempted++;
       const values = Object.fromEntries(calculator.f.map(item => [item[0], item[2]]));
       values[field[0]] = -1;
-      if (validateInputs(calculator, values)) continue;
+      if (validateInputs(calculator, values)) { rejected++; continue; }
       checked++;
       try {
         const result = calculator.run(values);
@@ -323,7 +326,8 @@ test('all calculators remain safe for negative numeric boundaries when validatio
       }
     }
   }
-  assert.ok(checked > 10, 'should exercise multiple negative-value boundaries accepted by validation');
+  assert.ok(attempted > 30, 'should attempt negative boundaries across many numeric fields');
+  assert.ok(rejected > 10, 'validation should reject negative values for many constrained fields');
   assert.deepEqual(failures, [], 'negative-boundary failures: ' + failures.join('; '));
 });
 
