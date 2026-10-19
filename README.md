@@ -9,8 +9,9 @@ Calcusite is a responsive online calculator website built with HTML, CSS, JavaSc
 - `public/style.css` — website styling
 - `public/script.js` — calculator logic
 - `public/admin/` — private blog Admin Panel
+- `public/favicon.svg` and `public/manifest.webmanifest` — branded app icon and install metadata
 - `content/blog/` — blog articles stored as Markdown
-- `tests/smoke.test.js` — automated regression and Admin API tests
+- `tests/smoke.test.js` — automated regression, security-header, metadata, and Admin API tests
 - `wrangler.jsonc` — Cloudflare Worker and static assets configuration
 
 ## Requirements
@@ -68,4 +69,6 @@ Do not test publishing against the live blog unless you are comfortable creating
 - The Admin Panel writes Markdown articles directly to the repository's `main` branch.
 - Drafts are stored with `published: false`; published articles are included in public blog routes and the sitemap.
 - The Admin API uses signed, HttpOnly, Secure, SameSite=Strict session cookies.
+- Worker responses apply baseline browser security headers (content-type sniffing protection, referrer policy, frame protection, and restricted camera/microphone/location permissions).
+- The web manifest provides basic install metadata; installability and appearance should still be checked on target mobile browsers.
 - Automated Admin tests mock GitHub API responses. They validate code paths but do not prove that live Cloudflare secrets are configured or that the latest Worker has been deployed.
