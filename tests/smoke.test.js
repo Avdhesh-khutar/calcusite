@@ -589,7 +589,13 @@ test('Admin article API validates saves and writes draft/published frontmatter c
     calls.length = 0;
     globalThis.fetch = async (url, options = {}) => {
       calls.push({ url: String(url), method: options.method || 'GET', body: options.body ? JSON.parse(options.body) : null });
-      if ((options.method || 'GET') === 'GET') return new Response(JSON.stringify({ sha: 'old-file-sha', content: '', html_url: 'https://github.com/example/article' }), { status: 200, headers: { 'content-type': 'application/json' } });
+      if ((options.method || 'GET') === 'GET') {
+        if (String(url).includes('content/blog/index.json')) {
+          const content = btoa(JSON.stringify({ articles: ['test-draft'] }));
+          return new Response(JSON.stringify({ sha: 'manifest-sha', content, html_url: 'https://github.com/example/manifest' }), { status: 200, headers: { 'content-type': 'application/json' } });
+        }
+        return new Response(JSON.stringify({ sha: 'old-file-sha', content: '', html_url: 'https://github.com/example/article' }), { status: 200, headers: { 'content-type': 'application/json' } });
+      }
       return new Response(JSON.stringify({
         content: { path: 'content/blog/test-draft.md', html_url: 'https://github.com/example/article' },
         commit: { sha: 'fedcba9876543210' }
