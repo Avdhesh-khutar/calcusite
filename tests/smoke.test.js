@@ -870,3 +870,12 @@ test('privacy policy does not claim an unconfigured Google Fonts dependency', ()
   assert.match(html, /externally hosted services or links/);
   assert.doesNotMatch(html, /Pages load fonts from Google Fonts/);
 });
+
+
+test('theme toggle matches the CSS data-theme contract and persists safely', () => {
+  assert.match(read('public/index.html'), /:root\[data-theme="dark"\]/);
+  assert.match(calculator, /root\.setAttribute\('data-theme',next\)/);
+  assert.match(calculator, /localStorage\.setItem\('calcTheme',next\)/);
+  assert.match(calculator, /localStorage\.getItem\('calcTheme'\)/);
+  assert.doesNotMatch(calculator, /classList\.toggle\('dark'\)/);
+});
