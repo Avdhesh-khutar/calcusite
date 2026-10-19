@@ -1,0 +1,24 @@
+{
+  "name": "Calcusite AI",
+  "short_name": "Calcusite",
+  "description": "Free online calculators for finance, health, education, tax and everyday math.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f2f6fd",
+  "theme_color": "#1d5de8",
+  "lang": "en",
+  "categories": [
+    "utilities",
+    "finance",
+    "education"
+  ],
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
