@@ -152,6 +152,35 @@ async function adminApi(request, env, url) {
         branch: "main",
         ...(sha ? { sha } : {})
       }) });
+      // Keep the public blog manifest in sync with every article save.
+      // The public listing and sitemap both read this manifest.
+      const manifestPath = "/repos/Avdhesh-khutar/calcusite/contents/content/blog/index.json";
+      let manifestFile;
+      let manifest = { articles: [] };
+      try {
+        manifestFile = await github(request, env, manifestPath + "?ref=main");
+        const decodedManifest = atob(String(manifestFile.content || "").replace(/\\n/g, ""));
+        const manifestBytes = Uint8Array.from(decodedManifest, c => c.charCodeAt(0));
+        manifest = JSON.parse(new TextDecoder().decode(manifestBytes));
+      } catch (e) {
+        if (e.status !== 404) throw e;
+      }
+      if (!Array.isArray(manifest.articles)) manifest.articles = [];
+      if (!manifest.articles.includes(slug)) {
+        manifest.articles.push(slug);
+        manifest.articles.sort();
+        const manifestText = JSON.stringify(manifest, null, 2) + "\\n";
+        const manifestBytes = new TextEncoder().encode(manifestText);
+        let binary = "";
+        for (const byte of manifestBytes) binary += String.fromCharCode(byte);
+        const manifestEncoded = btoa(binary);
+        await github(request, env, manifestPath, { method: "PUT", body: JSON.stringify({
+          message: "Update blog article manifest: " + slug,
+          content: manifestEncoded,
+          branch: "main",
+          ...(manifestFile ? { sha: manifestFile.sha } : {})
+        }) });
+      }
       return json({ ok: true, slug, path: result.content.path, commit: result.commit.sha, url: result.content.html_url, updated: Boolean(sha), published: body.published !== false }, 200);
     }
     return json({ error: "Not found." }, 404);
