@@ -195,6 +195,28 @@ test('production EMI calculation reconciles totals with the amortization schedul
   assert.doesNotMatch(JSON.stringify(result), /\b(?:NaN|Infinity)\b/);
 });
 
+test('water intake offers normal, cold and warm/hot preferences without changing hydration estimate', () => {
+  const start = html.indexOf("{id:'water',n:'Water Intake'");
+  const end = html.indexOf("},\n{id:'idealw'", start);
+  assert.ok(start >= 0 && end > start, 'water calculator definition exists');
+  const water = html.slice(start, end);
+  assert.match(water, /Normal water/);
+  assert.match(water, /Cold water/);
+  assert.match(water, /Warm \/ hot water/);
+  assert.match(water, /hydration amount stays the same/);
+  assert.match(water, /not a medical prescription/);
+});
+
+test('ideal weight calculator includes adult BMI range and estimate caveat', () => {
+  const start = html.indexOf("{id:'idealw',n:'Ideal Weight'");
+  const end = html.indexOf("},\n{id:'reqm'", start);
+  assert.ok(start >= 0 && end > start, 'ideal weight calculator definition exists');
+  const ideal = html.slice(start, end);
+  assert.match(ideal, /Adult BMI healthy weight range/);
+  assert.match(ideal, /Traditional formula range/);
+  assert.match(ideal, /BMI is not a diagnosis/);
+});
+
 test('BMI calculator explains categories and healthy-weight gap without implying diagnosis', () => {
   const bmiStart = html.indexOf("{id:'bmi',n:'BMI Calculator'");
   const bmiEnd = html.indexOf("},\n{id:'marks'", bmiStart);
