@@ -1054,3 +1054,38 @@ test('integer-only calculators reject fractional inputs and reading speed reject
   assert.match(validateInputs(get('numsys'), { x: 255.5 }), /whole decimal number/);
   assert.match(validateInputs(get('leap'), { y: 2024.5 }), /whole calendar year/);
 });
+
+
+test('financial and health calculators reject remaining invalid edge cases', () => {
+  const registryStart = html.indexOf('const C=[');
+  const registryEnd = html.indexOf('const CATS=', registryStart);
+  const validationStart = html.indexOf('function validateInputs(c,v){');
+  const validationEnd = html.indexOf('let cur,curC;', validationStart);
+  const dateHelperStart = html.indexOf('function isValidCalendarDate(');
+  const dateHelper = html.slice(dateHelperStart, validationStart);
+  const registry = html.slice(registryStart, registryEnd);
+  const validator = html.slice(validationStart, validationEnd);
+  const harness = `
+    const CURS = { INR: ['₹', 'en-IN'] };
+    const CU = 'INR';
+    const fmt = n => Number.isFinite(Number(n)) ? Number(n).toLocaleString('en-IN', { maximumFractionDigits: 2 }) : '—';
+    const rs = n => '₹' + fmt(Math.round(n));
+    const emiF = (P,r,m) => { r/=1200; return r ? P*r*Math.pow(1+r,m)/(Math.pow(1+r,m)-1) : P/m; };
+    function loan(P,r,m) { const e=emiF(P,r,m),tot=e*m,int=tot-P; return {main:['Monthly EMI',rs(e)],rows:[['Principal',rs(P)],['Total Interest',rs(int)],['Total Payment',rs(tot)]]}; }
+    ${dateHelper}
+    ${registry}
+    ${validator}
+    return { calculators: C, validateInputs };
+  `;
+  const { calculators, validateInputs } = new Function(harness)();
+  const get = id => calculators.find(c => c.id === id);
+  assert.match(validateInputs(get('roi'), { i: 1000, f: 0, y: 3 }), /Final value must be greater than zero/);
+  assert.match(validateInputs(get('rule72'), { r: -1 }), /greater than zero/);
+  assert.match(validateInputs(get('nps'), { P: 5000, a: 0, r: 10, p: 40, q: 6 }), /age must be between 1 and 60/i);
+  assert.match(validateInputs(get('nps'), { P: 5000, a: 30, r: -100, p: 40, q: 6 }), /greater than -100%/);
+  assert.match(validateInputs(get('retire'), { e: 40000, g: 6, y: 25, N: 0, r: 8 }), /years in retirement must be greater than zero/i);
+  assert.match(validateInputs(get('stepsip'), { P: 5000, s: 10, r: -100, n: 10 }), /greater than -100%/);
+  assert.match(validateInputs(get('swp'), { P: 100000, w: 1000, r: -100, n: 10 }), /greater than -100%/);
+  assert.match(validateInputs(get('bfat'), { s: 1, k: 70, h: 172, w: 30, n: 35, p: 20 }), /waist plus hip must exceed neck/i);
+  assert.equal(validateInputs(get('roi'), { i: 1000, f: 1500, y: 3 }), '');
+});
