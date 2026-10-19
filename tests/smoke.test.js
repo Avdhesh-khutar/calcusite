@@ -310,7 +310,7 @@ test('financial calculators match independent reference calculations', () => {
   assert.equal(amount('vat', { a: 1000, r: 20, m: 0 }), 1200);
   assert.equal(amount('vat', { a: 1200, r: 20, m: 1 }), 1000);
   assert.equal(amount('tds', { a: 100000, r: 10 }), 10000);
-  assert.equal(amount('roi', { i: 100000, f: 150000, y: 3 }), 50);
+  assert.equal(get('roi').run({ i: 100000, f: 150000, y: 3 }).main[1], '50.00%');
 });
 
 test('all calculators remain safe for negative numeric boundaries when validation permits them', () => {
