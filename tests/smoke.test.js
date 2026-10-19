@@ -133,7 +133,7 @@ test('sitemap lists published Markdown articles and excludes unpublished ones', 
   globalThis.fetch = async (input) => {
     const url = new URL(typeof input === 'string' ? input : input.url);
     if (url.hostname === 'raw.githubusercontent.com' && url.pathname.endsWith('/content/blog/index.json')) {
-      return new Response(JSON.stringify({ articles: Object.keys(markdown).map(name => name.replace(/\\.md$/, '')) }), { status: 200, headers: { 'content-type': 'application/json' } });
+      return new Response(JSON.stringify({ articles: Object.keys(markdown).map(name => name.slice(0, -3)) }), { status: 200, headers: { 'content-type': 'application/json' } });
     }
     if (url.pathname.endsWith('/contents/content/blog')) {
       return new Response(JSON.stringify(Object.keys(markdown).map(name => ({
