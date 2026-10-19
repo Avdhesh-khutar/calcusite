@@ -142,9 +142,9 @@ let mem={};
 const store={get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return mem[k]??d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){mem[k]=v}}};
 function toast(t){const e=$('#toast');e.textContent=t;e.style.display='block';clearTimeout(toast.t);toast.t=setTimeout(()=>e.style.display='none',1800)}
 const emiF=(P,r,m)=>{r/=1200;return r?P*r*Math.pow(1+r,m)/(Math.pow(1+r,m)-1):P/m};
-function loan(P,r,m){const e=emiF(P,r,m),tot=e*m,int=tot-P;let bal=P,rows=[],yp=0,yi=0;
- for(let k=1;k<=m;k++){const i=bal*r/1200,p=e-i;bal=Math.max(0,bal-p);yp+=p;yi+=i;if(k%12==0||k==m){rows.push([Math.ceil(k/12),rs(e),rs(yp),rs(yi),rs(bal)]);yp=yi=0}}
- return{main:['Monthly EMI',rs(e)],rows:[['Principal',rs(P)],['Total Interest',rs(int)],['Total Payment',rs(tot)]],donut:[['Principal',P,'#1d5de8'],['Interest',int,'#f5a524']],table:[['Year','EMI','Principal','Interest','Balance'],rows]}}
+function loan(P,r,m){const e=emiF(P,r,m);let bal=P,rows=[],yp=0,yi=0,totalPaid=0,totalInterest=0;
+ for(let k=1;k<=m;k++){const i=bal*r/1200,p=Math.min(bal,Math.max(0,e-i)),payment=p+i;bal=Math.max(0,bal-p);totalPaid+=payment;totalInterest+=i;yp+=p;yi+=i;if(k%12===0||k===m){rows.push([Math.ceil(k/12),rs(e),rs(yp),rs(yi),rs(bal)]);yp=yi=0}}
+ return{main:['Monthly EMI',rs(e)],rows:[['Principal',rs(P)],['Total Interest',rs(totalInterest)],['Total Payment',rs(totalPaid)]],donut:[['Principal',P,'#1d5de8'],['Interest',totalInterest,'#f5a524']],table:[['Year','EMI','Principal','Interest','Balance'],rows]}}
 const C=[
 {id:'emi',n:'EMI Calculator',cat:'Financial',d:'Loan EMI, interest & amortization',ic:'🏠',f:[['P','Loan Amount (₹)',1000000],['r','Interest Rate (% p.a.)',8.5],['n','Loan Tenure (Years)',5]],run:v=>loan(v.P,v.r,v.n*12)},
 {id:'sip',n:'SIP Calculator',cat:'Financial',d:'Plan your monthly investments',ic:'🪙',f:[['P','Monthly Investment (₹)',5000],['r','Expected Return (% p.a.)',12],['n','Time Period (Years)',10]],run:v=>{const i=v.r/1200,m=v.n*12,fv=i?v.P*((Math.pow(1+i,m)-1)/i)*(1+i):v.P*m,inv=v.P*m;return{main:['Maturity Value',rs(fv)],rows:[['Invested Amount',rs(inv)],['Wealth Gained',rs(fv-inv)]],donut:[['Invested',inv,'#1d5de8'],['Gains',fv-inv,'#10a76b']]}}},
