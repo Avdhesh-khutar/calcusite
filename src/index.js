@@ -194,10 +194,10 @@ async function serveBlog(request, env, url) {
    let posts=[];
    if(blogListingMemoryCache.posts&&blogListingMemoryCache.expiresAt>Date.now()){posts=blogListingMemoryCache.posts;}
    else {
-     let files=[];
-     try { const d=await githubPublic("/repos/Avdhesh-khutar/calcusite/contents/content/blog?ref=main"); files=Array.isArray(d)?d.filter(x=>x.type==="file"&&x.name.endsWith(".md")):[]; }
-     catch(e){if(e.status!==404)return blogHtml("Blog temporarily unavailable",'<section class="intro"><h1>Blog temporarily unavailable</h1><p>Please refresh in a moment.</p></section>');}
-     const loaded=await Promise.all(files.map(async f=>{try{const articleResponse=await fetch("https://raw.githubusercontent.com/Avdhesh-khutar/calcusite/main/"+f.path.split("/").map(encodeURIComponent).join("/"),{headers:{"User-Agent":"CalcusitePublic/1.0"}});if(!articleResponse.ok)throw new Error("Blog article fetch failed: "+articleResponse.status);const raw=await articleResponse.text();const p=blogParse(raw,f.name.replace(/\.md$/,""));if(p.published===false||p.published==="false")return null;return {...p,slug:f.name.replace(/\.md$/,"")};}catch{return null;}}));
+     let slugs=[];
+     try { const response=await fetch("https://raw.githubusercontent.com/Avdhesh-khutar/calcusite/main/content/blog/index.json",{headers:{"User-Agent":"CalcusitePublic/1.0"}}); if(!response.ok)throw new Error("Blog index unavailable: "+response.status); const manifest=await response.json(); slugs=Array.isArray(manifest.articles)?manifest.articles.filter(validSlug):[]; }
+     catch(e){return blogHtml("Blog temporarily unavailable",'<section class="intro"><h1>Blog temporarily unavailable</h1><p>We are recovering the article list. Please try again shortly.</p></section>');}
+     const loaded=await Promise.all(slugs.map(async slug=>{try{const articleResponse=await fetch("https://raw.githubusercontent.com/Avdhesh-khutar/calcusite/main/content/blog/"+encodeURIComponent(slug)+".md",{headers:{"User-Agent":"CalcusitePublic/1.0"}});if(!articleResponse.ok)throw new Error("Blog article fetch failed: "+articleResponse.status);const raw=await articleResponse.text();const p=blogParse(raw,slug);if(p.published===false||p.published==="false")return null;return {...p,slug};}catch{return null;}}));
      posts=loaded.filter(Boolean).sort((a,b)=>String(b.updated).localeCompare(String(a.updated)));
      blogListingMemoryCache={expiresAt:Date.now()+5*60*1000,posts};
    }
@@ -245,22 +245,20 @@ async function serveSitemap(request, env) {
     { loc: origin + "/blog", changefreq: "weekly", priority: "0.8" }
   ];
   try {
-    const files = await githubPublic( "/repos/Avdhesh-khutar/calcusite/contents/content/blog?ref=main");
-    if (Array.isArray(files)) {
-      const entries = await Promise.all(files.filter(f => f.type === "file" && f.name.endsWith(".md")).map(async f => {
-        try {
-          const articleResponse = await fetch("https://raw.githubusercontent.com/Avdhesh-khutar/calcusite/main/" + f.path.split("/").map(encodeURIComponent).join("/"), { headers: { "User-Agent": "CalcusitePublic/1.0" } });
-          if (!articleResponse.ok) throw new Error("Blog article fetch failed: " + articleResponse.status);
-          const raw = await articleResponse.text();
-          const p = blogParse(raw, f.name.replace(/\.md$/, ""));
-          if (p.published === false || p.published === "false") return null;
-          const slug = f.name.replace(/\.md$/, "");
-          if (!validSlug(slug)) return null;
-          return { loc: origin + "/blog/" + encodeURIComponent(slug), lastmod: /^\d{4}-\d{2}-\d{2}$/.test(String(p.updated)) ? p.updated : "", changefreq: "monthly", priority: "0.6" };
-        } catch { return null; }
-      }));
-      urls.push(...entries.filter(Boolean));
-    }
+    const indexResponse = await fetch("https://raw.githubusercontent.com/Avdhesh-khutar/calcusite/main/content/blog/index.json", { headers: { "User-Agent": "CalcusitePublic/1.0" } });
+    if (!indexResponse.ok) throw new Error("Blog index unavailable: " + indexResponse.status);
+    const manifest = await indexResponse.json();
+    const slugs = Array.isArray(manifest.articles) ? manifest.articles.filter(validSlug) : [];
+    const entries = await Promise.all(slugs.map(async slug => {
+      try {
+        const articleResponse = await fetch("https://raw.githubusercontent.com/Avdhesh-khutar/calcusite/main/content/blog/" + encodeURIComponent(slug) + ".md", { headers: { "User-Agent": "CalcusitePublic/1.0" } });
+        if (!articleResponse.ok) throw new Error("Blog article fetch failed: " + articleResponse.status);
+        const p = blogParse(await articleResponse.text(), slug);
+        if (p.published === false || p.published === "false") return null;
+        return { loc: origin + "/blog/" + encodeURIComponent(slug), lastmod: /^\\d{4}-\\d{2}-\\d{2}$/.test(String(p.updated)) ? p.updated : "", changefreq: "monthly", priority: "0.6" };
+      } catch { return null; }
+    }));
+    urls.push(...entries.filter(Boolean));
   } catch (error) {
     console.error("Could not load blog sitemap entries", error);
   }
