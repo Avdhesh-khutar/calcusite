@@ -136,11 +136,12 @@ test('sitemap lists published Markdown articles and excludes unpublished ones', 
         type: 'file', name, path: 'content/blog/' + name
       }))), { status: 200, headers: { 'content-type': 'application/json' } });
     }
-    const name = decodeURIComponent(url.pathname.split('/').pop());
-    if (markdown[name]) {
-      return new Response(JSON.stringify({
-        content: Buffer.from(markdown[name], 'utf8').toString('base64')
-      }), { status: 200, headers: { 'content-type': 'application/json' } });
+    const name = decodeURIComponent(url.pathname.split('/').pop()).replace(/\\.md$/, '.md');
+    if (url.hostname === 'raw.githubusercontent.com' && markdown[name]) {
+      return new Response(markdown[name], { status: 200, headers: { 'content-type': 'text/plain; charset=utf-8' } });
+    }
+    if (url.pathname.endsWith('/contents/content/blog/' + name)) {
+      return new Response(JSON.stringify({ content: Buffer.from(markdown[name] || '', 'utf8').toString('base64') }), { status: markdown[name] ? 200 : 404 });
     }
     return new Response(JSON.stringify({ message: 'Not found' }), { status: 404 });
   };
