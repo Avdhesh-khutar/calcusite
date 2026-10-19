@@ -85,7 +85,7 @@ th,td{text-align:right;padding:7px 8px;border-bottom:1px solid var(--bd)}th:firs
 .chat{min-height:260px;max-height:420px;overflow:auto;display:flex;flex-direction:column;gap:10px;padding:6px}
 .m{max-width:80%;padding:10px 14px;border-radius:14px;font-size:14px}
 .m.b{background:var(--soft);align-self:flex-start}.m.u{background:var(--pri);color:#fff;align-self:flex-end}
-.ask{display:flex;gap:8px;margin-top:10px}.ask button{width:90px}
+.ask{display:flex;gap:8px;margin-top:10px}.ask input{flex:1 1 auto;min-width:0;pointer-events:auto;user-select:text;-webkit-user-select:text}.ask button{width:90px;flex:0 0 90px;cursor:pointer}#aiForm{position:relative;z-index:1}#aq{position:relative;z-index:2;display:block}
 .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
 .chip{border:1px solid var(--bd);background:var(--card);padding:6px 12px;border-radius:16px;font-size:13px;cursor:pointer}
 .chip:hover{border-color:var(--pri);color:var(--pri)}
@@ -295,7 +295,7 @@ calc(id){const c=byId(id);if(!c)return'<div class="card">Calculator not found. <
 <h2>Related</h2><div class="grid">${C.filter(x=>x.cat==c.cat&&x.id!=c.id).slice(0,3).map(item).join('')}</div>`},
 ai(){return`<div class="card"><h2 style="margin-top:0">🤖 AI Assistant <span class="new">New</span></h2><p style="color:var(--mut);margin:0">Ask any calculation or math question in plain Hindi/English — try “10 lakh loan EMI for 5 years” or “(250*4)+18%”.</p>
 <div class="chat" id="chat"><div class="m b">Hello! I can help with any calculation. What would you like to calculate?</div></div>
-<div class="ask"><input id="aq" placeholder="Type your question…" aria-label="Question"><button class="btn" id="go">Ask</button></div>
+<form class="ask" id="aiForm" autocomplete="off"><input id="aq" type="text" name="question" placeholder="Type your question…" aria-label="Type your calculation or question" autocomplete="off" autocapitalize="sentences" spellcheck="true" enterkeyhint="send" tabindex="0"><button class="btn" id="go" type="submit">Ask</button></form>
 <div class="chips">${['10 lakh loan EMI for 5 years','SIP 5000 per month','BMI for 70 kg and 5.8 ft','GST on ₹25000','FD 2 lakh 7% 5 years','(1250*12)/4'].map(s=>`<button class="chip">${s}</button>`).join('')}</div></div>`},
 about(){return `<div class="card doc"><h2>About Calcusite AI</h2><p>Calcusite AI is a free set of online calculators for money, health, study, tax and daily math. Pick a calculator, change the numbers and see the result at once, with charts and tables where they help.</p><h3>What you can do</h3><ul><li>Use ${C.length}+ calculators across ${CATS.length} categories.</li><li>Ask the AI Assistant in plain words, for example "10 lakh loan EMI for 5 years".</li><li>Save favourites and see your recent calculations on your own device.</li></ul><p>No signup is needed.</p></div>`},
 contact(){return `<div class="card doc"><h2>Contact Us</h2><p>Questions, feedback or a calculator you want added? Write to us below. Sending opens your email app with the message filled in.</p><form id="cf"><label for="cn">Your name</label><input id="cn" required><label for="cm">Message</label><textarea id="cm" required></textarea><div class="acts"><button class="btn" type="submit">Send message</button></div></form></div>`},
@@ -416,8 +416,12 @@ function ai(q){const t=q.toLowerCase().replace(/₹|,/g,'').trim();
  if(/emi|loan|karz/.test(t)&&A){const r=loan(A,pc??8.5,(yr||5)*12);return L('emi',`EMI on ${rs(A)} for ${yr||5} years at ${pc??8.5}%: <b>${r.main[1]}</b>. Total interest ${r.rows[1][1]}.`)}
  const m=t.match(/(\d+(?:\.\d+)?)\s*(?:%|percent)\s*of\s*(\d+(?:\.\d+)?)/);if(m)return`${m[1]}% of ${m[2]} = <b>${fmt(m[1]*m[2]/100)}</b>`;
  return'I could not understand that yet. Try an EMI, SIP, FD, GST or BMI question, or a math expression like (250*4)+100.'}
-function bindAI(){const chat=$('#chat'),send=q=>{q=q.trim();if(!q)return;const u=document.createElement('div');u.className='m u';u.textContent=q;chat.append(u);const b=document.createElement('div');b.className='m b';b.innerHTML=ai(q);chat.append(b);chat.scrollTop=1e9;$('#aq').value=''};
- $('#go').onclick=()=>send($('#aq').value);if(window.pre){send(window.pre);window.pre=''}$('#aq').onkeydown=e=>e.key=='Enter'&&send(e.target.value);document.querySelectorAll('.chip').forEach(c=>c.onclick=()=>send(c.textContent))}
+function bindAI(){const chat=$('#chat'),form=$('#aiForm'),input=$('#aq'),send=q=>{q=String(q||'').trim();if(!q){input.focus();return}const u=document.createElement('div');u.className='m u';u.textContent=q;chat.append(u);const b=document.createElement('div');b.className='m b';b.innerHTML=ai(q);chat.append(b);chat.scrollTop=chat.scrollHeight;input.value='';input.focus()};
+ if(form){form.addEventListener('submit',e=>{e.preventDefault();send(input.value)});}
+ if(window.pre){const pre=window.pre;window.pre='';input.value=pre;send(pre)}
+ document.querySelectorAll('.chip').forEach(c=>c.addEventListener('click',()=>{input.value=c.textContent.trim();input.focus();send(input.value)}));
+ input.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send(input.value)}});
+}
 function homeInit(){const u=()=>{const P=+$('#m_p').value||0,r=+$('#m_r').value||0,n=+$('#m_n').value||0;$('#m_o').textContent=n>0&&P>0?rs(emiF(P,r,n*12)):'—'};document.querySelectorAll('.mini input').forEach(e=>e.oninput=u);u();$('#hsf').onsubmit=e=>{e.preventDefault();const v=$('#hs').value.trim();if(v)location.hash='#/search/'+encodeURIComponent(v)}}
 function contactInit(){$('#cf').onsubmit=e=>{e.preventDefault();location.href='mailto:contact@calcusite.com?subject='+encodeURIComponent('Message from '+$('#cn').value)+'&body='+encodeURIComponent($('#cm').value)}}
 // router + sidebar
