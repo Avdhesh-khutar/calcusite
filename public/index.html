@@ -371,7 +371,7 @@ function validateInputs(c,v){
  if(c.id==='car'&&v.d>=v.p)return 'Down payment must be less than the car price.';
  if(c.id==='roi'&&(v.i<=0||v.y<=0))return 'Investment and years must be greater than zero.';
  if(c.id==='rule72'&&v.r===0)return 'Return rate must be greater than zero to calculate doubling time.';
- if(c.id==='nps'&&(v.a>60||v.p>100||v.q>100))return 'Age must be 60 or less; annuity percentages must be at most 100%.';
+ if(c.id==='nps'&&(v.p>100||v.q>100))return 'Annuity percentages must be at most 100%.';
  if(c.id==='bfat'&&(v.w<=v.n||v.h<=0||(v.s===1&&v.p<=0)))return 'Check waist, neck, hip and height measurements.';
  if(c.id==='whr'&&(v.h<=0||v.w<=0))return 'Waist and hip measurements must be greater than zero.';
  if(c.id==='ovul'&&(v.c<20||v.c>45))return 'Cycle length should be between 20 and 45 days.';
