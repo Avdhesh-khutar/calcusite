@@ -352,6 +352,12 @@ function validateInputs(c,v){
   if(!(v[key]>0))return 'This field must be greater than zero.';
  }
  if(c.id==='temp'&&((v.a===0&&v.x< -273.15)||(v.a===1&&v.x< -459.67)||(v.a===2&&v.x<0)))return 'Temperature cannot be below absolute zero.';
+ if(c.id==='unit'&&((v.t===4&&v.x< -273.15)||(v.t===5&&v.x< -459.67)))return 'Temperature cannot be below absolute zero.';
+ if(c.id==='mpg'&&v.x<=0)return 'Fuel economy value must be greater than zero.';
+ if(c.id==='cagr'&&v.e<=0)return 'Final value must be greater than zero to calculate CAGR.';
+ if(c.id==='maxhr'&&(v.a<=0||v.a>120))return 'Age must be between 1 and 120 years.';
+ if(c.id==='reqm'&&(v.c<0||v.c>100||v.w<=0||v.w>100||v.t<0||v.t>100))return 'Scores must be 0–100% and exam weight must be greater than 0%.';
+ if(c.id==='eligib'&&(v.i<=0||v.x<0||v.x>=v.i||v.f<=0))return 'Enter positive income, non-negative existing EMIs below income, and a positive income share.';
  if(c.id==='vat'&&v.r>100)return 'VAT rate must be between 0 and 100%.';
  if(c.id==='tds'&&v.r>100)return 'TDS rate must be between 0 and 100%.';
  if(c.id==='duty'&&(v.d>100||v.t>100))return 'Duty and tax rates must be between 0 and 100%.';
