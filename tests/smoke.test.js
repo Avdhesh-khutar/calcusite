@@ -313,6 +313,36 @@ test('financial calculators match independent reference calculations', () => {
   assert.equal(get('roi').run({ i: 100000, f: 150000, y: 3 }).main[1], '50.00%');
 });
 
+test('zero-interest and zero-return financial scenarios match principal-only references', () => {
+  const registryStart = html.indexOf('const C=[');
+  const registryEnd = html.indexOf('const CATS=', registryStart);
+  const registry = html.slice(registryStart, registryEnd);
+  const harness = `
+    const CURS = { INR: ['₹', 'en-IN'] };
+    const CU = 'INR';
+    const fmt = n => Number.isFinite(Number(n)) ? Number(n).toLocaleString('en-IN', { maximumFractionDigits: 2 }) : '—';
+    const rs = n => '₹' + Number(Math.round(n)).toLocaleString('en-IN');
+    const emiF = (P,r,m) => { r/=1200; return r ? P*r*Math.pow(1+r,m)/(Math.pow(1+r,m)-1) : P/m; };
+    function loan(P,r,m) { const e=emiF(P,r,m),tot=e*m,int=tot-P; return {main:['Monthly EMI',rs(e)],rows:[['Principal',rs(P)],['Total Interest',rs(int)],['Total Payment',rs(tot)]]}; }
+    ${registry}
+    return C;
+  `;
+  const calculators = new Function(harness)();
+  const get = id => calculators.find(c => c.id === id);
+  const amount = (id, input) => {
+    const result = get(id).run(input);
+    return Number(result.main[1].replace(/[₹,]/g, ''));
+  };
+  assert.equal(amount('emi', { P: 120000, r: 0, n: 2 }), 5000);
+  assert.equal(amount('sip', { P: 5000, r: 0, n: 10 }), 600000);
+  assert.equal(amount('fd', { P: 100000, r: 0, n: 5 }), 100000);
+  assert.equal(amount('rd', { P: 1000, r: 0, n: 2 }), 24000);
+  assert.equal(amount('lumpsum', { P: 100000, r: 0, n: 10 }), 100000);
+  assert.equal(amount('ppf', { P: 1000, r: 0, n: 15 }), 15000);
+  assert.equal(amount('goal', { t: 120000, y: 10, r: 0 }), 1000);
+  assert.equal(amount('nps', { P: 5000, a: 30, r: 0, p: 40, q: 6 }), 1800000);
+});
+
 test('all calculators remain safe for negative numeric boundaries when validation permits them', () => {
   const registryStart = html.indexOf('const C=[');
   const registryEnd = html.indexOf('const CATS=', registryStart);
