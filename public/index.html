@@ -68,14 +68,25 @@ h2 a{font-size:13px;color:var(--pri)}
 .it b{display:block;font-size:14px}.it small{color:var(--mut);font-size:12px}
 .fav{margin-left:auto;background:none;border:0;cursor:pointer;font-size:16px;color:var(--mut)}
 .crumb{font-size:13px;color:var(--mut);margin-bottom:10px}.crumb a{color:var(--pri)}
-.cg{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-label{display:block;font-size:13px;font-weight:600;margin:12px 0 4px}
-input,select{width:100%;padding:10px 12px;border:1px solid var(--bd);border-radius:10px;background:var(--bg)}
-.res .big{font-size:34px;font-weight:800;color:var(--ok)}
-.row{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;padding:10px 0;border-bottom:1px dashed var(--bd);font-size:14px;line-height:1.55;min-width:0}
-.row span{flex:0 1 38%;min-width:0;overflow-wrap:anywhere}
-.row b{flex:1 1 62%;min-width:0;text-align:right;font-variant-numeric:tabular-nums;white-space:normal;overflow-wrap:anywhere;word-break:normal;line-height:1.55}
-@media(max-width:560px){.row{gap:8px;font-size:13px}.row span{flex-basis:40%}.row b{flex-basis:60%}}
+.cg{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px;align-items:start}
+.cg>.card{min-width:0;box-shadow:0 8px 28px rgba(25,55,110,.06)}
+.cg>.card>h2{padding-bottom:12px;border-bottom:1px solid var(--bd);letter-spacing:-.2px}
+.calc-intro{color:var(--mut);font-size:13px;margin:-4px 0 12px;line-height:1.6}
+label{display:block;font-size:13px;font-weight:650;margin:14px 0 6px;color:var(--tx)}
+input,select{width:100%;min-width:0;padding:12px 13px;border:1px solid var(--bd);border-radius:11px;background:var(--bg);transition:border-color .15s,box-shadow .15s}
+input:focus,select:focus{border-color:var(--pri);box-shadow:0 0 0 3px rgba(29,93,232,.12);outline:none}
+.res{position:relative;overflow:hidden}
+.res:before{content:"";display:block;height:4px;position:absolute;top:0;left:0;right:0;background:linear-gradient(90deg,var(--pri),#10a76b,#45c4e8)}
+.result-hero{padding:14px 16px 18px;margin:0 0 12px;background:linear-gradient(135deg,rgba(29,93,232,.09),rgba(16,167,107,.08));border:1px solid var(--bd);border-radius:14px;min-width:0}
+.result-hero small{display:block;color:var(--mut);font-size:13px;font-weight:650;letter-spacing:.2px;margin-bottom:4px}
+.res .big{font-size:clamp(27px,3vw,38px);font-weight:850;letter-spacing:-.8px;line-height:1.2;color:var(--ok);overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
+.result-detail-heading{font-size:12px;font-weight:750;text-transform:uppercase;letter-spacing:.8px;color:var(--mut);margin:18px 0 4px}
+@media(max-width:560px){.cg{gap:12px}.result-hero{padding:12px}.res .big{font-size:clamp(25px,8vw,34px)}}
+.row{display:grid;grid-template-columns:minmax(0, .82fr) minmax(0,1.18fr);align-items:start;gap:14px;padding:12px 2px;border-bottom:1px solid var(--bd);font-size:13px;line-height:1.6;min-width:0}
+.row:last-of-type{border-bottom:0}
+.row span{min-width:0;color:var(--mut);overflow-wrap:anywhere}
+.row b{min-width:0;text-align:right;font-weight:700;color:var(--tx);font-variant-numeric:tabular-nums;white-space:normal;overflow-wrap:anywhere;word-break:normal;line-height:1.6}
+@media(max-width:560px){.row{grid-template-columns:minmax(0,.78fr) minmax(0,1.22fr);gap:10px;font-size:12px;padding:10px 0}}
 .acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
 .amount-range{display:block;width:100%;margin:10px 0 0;accent-color:var(--pri);cursor:pointer}.range-scale{display:flex;justify-content:space-between;color:var(--mut);font-size:12px;margin-top:-7px;margin-bottom:12px}
 .field-range{margin:7px 0 18px}.field-range .range-scale{margin-top:0;margin-bottom:0}.field-range input[type=range]{width:100%}
@@ -290,7 +301,7 @@ cats(){return`<h2>Categories</h2><div class="grid">${CATS.map(catCard).join('')}
 cat(n){n=decodeURIComponent(n);const l=C.filter(c=>c.cat==n);return`<div class="crumb"><a href="#/">Home</a> › ${esc(n)}</div><h2>${esc(n)} Calculators</h2><p style="color:var(--mut);margin:0 0 12px">${l.length} calculators in this category.</p><div class="grid">${l.map(item).join('')||'<div class="card">No calculators here yet.</div>'}</div>`},
 calc(id){const c=byId(id);if(!c)return'<div class="card">Calculator not found. <a href="#/calcs" style="color:var(--pri)">Browse all</a></div>';
  return`<div class="crumb"><a href="#/">Home</a> › <a href="#/cat/${encodeURIComponent(c.cat)}">${c.cat}</a> › ${c.n}</div>
-<div class="cg"><div class="card"><h2 style="margin-top:0">${c.ic} ${c.n}</h2><div id="form">${c.f.map(f=>`<label for="f_${f[0]}">${f[1].replace('₹',CURS[CU][0].trim())}</label>${f[3]?`<select id="f_${f[0]}">${f[3].map((o,i)=>`<option value="${i}" ${i==f[2]?'selected':''}>${o}</option>`).join('')}</select>`:`<input id="f_${f[0]}" type="${f[4]||'number'}" step="any" value="${f[2]}">${(f[4]||'number')==='number'?'<div class="field-range"><input class="amount-range" id="range_'+f[0]+'" type="range" min="0" max="'+sliderMax(f)+'" step="'+sliderStep(f)+'" value="'+Math.max(0,Math.min(sliderMax(f),Number(f[2])||0))+'" aria-label="Adjust '+f[1]+'"><div class="range-scale"><span>0</span><span>'+sliderMax(f).toLocaleString('en-IN')+'</span></div></div>':''}`}`).join('')}</div>
+<div class="cg"><div class="card"><h2 style="margin-top:0">${c.ic} ${c.n}</h2><p class="calc-intro">${c.d}</p><div id="form">${c.f.map(f=>`<label for="f_${f[0]}">${f[1].replace('₹',CURS[CU][0].trim())}</label>${f[3]?`<select id="f_${f[0]}">${f[3].map((o,i)=>`<option value="${i}" ${i==f[2]?'selected':''}>${o}</option>`).join('')}</select>`:`<input id="f_${f[0]}" type="${f[4]||'number'}" step="any" value="${f[2]}">${(f[4]||'number')==='number'?'<div class="field-range"><input class="amount-range" id="range_'+f[0]+'" type="range" min="0" max="'+sliderMax(f)+'" step="'+sliderStep(f)+'" value="'+Math.max(0,Math.min(sliderMax(f),Number(f[2])||0))+'" aria-label="Adjust '+f[1]+'"><div class="range-scale"><span>0</span><span>'+sliderMax(f).toLocaleString('en-IN')+'</span></div></div>':''}`}`).join('')}</div>
 <div class="acts"><button class="btn" id="calc">Calculate</button><button class="btn g" id="reset">Reset</button></div></div>
 <div class="card res"><h2 style="margin-top:0">Result</h2><div id="res"></div><div class="acts"><button class="btn g" id="copy">Copy</button><button class="btn g" onclick="print()">Print</button><button class="btn g" id="share">Share</button></div></div></div>
 <div class="card" id="tbl" style="margin-top:16px;display:none"></div>
@@ -382,7 +393,7 @@ function validateInputs(c,v){
 let cur,curC;
 function update(){const c=curC;let r,valid=true;try{const v=vals(c);const problem=validateInputs(c,v);if(problem)throw new Error(problem);r=c.run(v);if(!r||!Array.isArray(r.main)||/\b(?:NaN|Infinity)\b/.test(JSON.stringify(r))||r.main[0]==='Check date of birth')throw new Error('invalid result');}catch(e){valid=false;r={main:['Check your inputs',e.message&&e.message!=='invalid result'?e.message:'Fill every field with a valid number or date. Use non-zero values where required.'],rows:[]};}
  cur=r;
- $('#res').innerHTML=`<small style="color:var(--mut)">${r.main[0]}</small><div class="big">${r.main[1]}</div>${(r.rows||[]).map(x=>`<div class="row"><span>${x[0]}</span><b>${x[1]}</b></div>`).join('')}${r.donut?donut(r.donut):''}`;
+ $('#res').innerHTML=`<div class="result-hero"><small>${r.main[0]}</small><div class="big">${r.main[1]}</div></div>${(r.rows||[]).length?'<div class="result-detail-heading">Breakdown &amp; details</div>':''}${(r.rows||[]).map(x=>`<div class="row"><span>${x[0]}</span><b>${x[1]}</b></div>`).join('')}${r.donut?donut(r.donut):''}`;
  const t=$('#tbl');if(r.table){t.style.display='block';t.innerHTML=`<h2 style="margin-top:0">Amortization Schedule</h2><div class="tw"><table><tr>${r.table[0].map(h=>`<th>${h}</th>`).join('')}</tr>${r.table[1].map(x=>`<tr>${x.map(y=>`<td>${y}</td>`).join('')}</tr>`).join('')}</table></div>`}else t.style.display='none';return valid}
 async function loadLiveFX(){
  if(fxLive)return true;
