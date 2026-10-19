@@ -156,6 +156,30 @@ test('sitemap lists published Markdown articles and excludes unpublished ones', 
   }
 });
 
+test('production EMI calculation reconciles totals with the amortization schedule', () => {
+  const start = html.indexOf('function loan(P,r,m){');
+  const end = html.indexOf('\nconst C=[', start);
+  assert.ok(start >= 0 && end > start, 'production loan function exists');
+  const source = html.slice(start, end);
+  const fmt = n => Number(n).toLocaleString('en-IN', { maximumFractionDigits: 0 });
+  const rs = n => '₹' + fmt(Math.round(n));
+  const emiF = (P, r, m) => {
+    r /= 1200;
+    return r ? P * r * Math.pow(1 + r, m) / (Math.pow(1 + r, m) - 1) : P / m;
+  };
+  const loan = new Function('emiF', 'rs', source + '; return loan;')(emiF, rs);
+  const result = loan(1000000, 8.5, 60);
+  const amount = value => Number(value.replace(/[₹,]/g, ''));
+  const principal = amount(result.rows[0][1]);
+  const interest = amount(result.rows[1][1]);
+  const total = amount(result.rows[2][1]);
+  assert.equal(principal, 1000000);
+  assert.equal(total, principal + interest, 'total payment must equal principal plus interest');
+  assert.equal(result.table[1].length, 5, 'five-year loan should have five yearly schedule rows');
+  assert.equal(amount(result.table[1][4][4]), 0, 'loan balance should be zero after the final payment');
+  assert.doesNotMatch(JSON.stringify(result), /\b(?:NaN|Infinity)\b/);
+});
+
 test('all registered calculators produce finite results with their default inputs', () => {
   const start = html.indexOf('const C=[');
   const end = html.indexOf('const CATS=', start);
