@@ -217,6 +217,18 @@ test('ideal weight calculator includes adult BMI range and estimate caveat', () 
   assert.match(ideal, /BMI is not a diagnosis/);
 });
 
+test('all calculator results include category-specific plain-language guidance', () => {
+  assert.match(html, /function resultInsight\(c\)/);
+  assert.match(html, /Compare the total paid or earned/);
+  assert.match(html, /not a medical diagnosis/);
+  assert.match(html, /school or exam board rules/);
+  assert.match(html, /Confirm current rules, exemptions/);
+  assert.match(html, /standard unit conversion factors/);
+  assert.match(html, /Check the date format, local calendar/);
+  assert.match(html, /How to understand this result/);
+  assert.match(html, /Result updated from your inputs/);
+});
+
 test('calculator result rows wrap long health notes without overlap', () => {
   assert.match(html, /\.row\{display:grid;grid-template-columns:minmax\(0, \.82fr\) minmax\(0,1\.18fr\);align-items:start;gap:14px/);
   assert.match(html, /\.row span\{min-width:0;color:var\(--mut\);overflow-wrap:anywhere\}/);
