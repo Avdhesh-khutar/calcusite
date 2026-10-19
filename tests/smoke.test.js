@@ -218,10 +218,10 @@ test('ideal weight calculator includes adult BMI range and estimate caveat', () 
 });
 
 test('calculator result rows wrap long health notes without overlap', () => {
-  assert.match(html, /\.row\{display:flex;align-items:flex-start;justify-content:space-between;gap:14px/);
-  assert.match(html, /\.row span\{flex:0 1 38%;min-width:0;overflow-wrap:anywhere\}/);
-  assert.match(html, /\.row b\{flex:1 1 62%;min-width:0;text-align:right[^}]*white-space:normal;overflow-wrap:anywhere/);
-  assert.match(html, /@media\(max-width:560px\)\{\.row\{gap:8px;font-size:13px\}/);
+  assert.match(html, /\.row\{display:grid;grid-template-columns:minmax\(0, \.82fr\) minmax\(0,1\.18fr\);align-items:start;gap:14px/);
+  assert.match(html, /\.row span\{min-width:0;color:var\(--mut\);overflow-wrap:anywhere\}/);
+  assert.match(html, /\.row b\{min-width:0;text-align:right[^}]*white-space:normal;overflow-wrap:anywhere/);
+  assert.match(html, /@media\(max-width:560px\)\{\.row\{grid-template-columns:minmax\(0,\.78fr\) minmax\(0,1\.22fr\);gap:10px;font-size:12px/);
 });
 
 test('BMI calculator explains categories and healthy-weight gap without implying diagnosis', () => {
