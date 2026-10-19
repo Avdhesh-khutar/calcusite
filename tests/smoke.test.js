@@ -283,6 +283,36 @@ test('default inputs pass the same validation used by the calculator UI', () => 
   assert.match(validateInputs(power, { b: -2, e: 0.5 }), /whole-number exponent/);
 });
 
+test('financial calculators match independent reference calculations', () => {
+  const registryStart = html.indexOf('const C=[');
+  const registryEnd = html.indexOf('const CATS=', registryStart);
+  const registry = html.slice(registryStart, registryEnd);
+  const harness = `
+    const CURS = { INR: ['₹', 'en-IN'] };
+    const CU = 'INR';
+    const fmt = n => Number.isFinite(Number(n)) ? Number(n).toLocaleString('en-IN', { maximumFractionDigits: 2 }) : '—';
+    const rs = n => '₹' + Number(Math.round(n)).toLocaleString('en-IN');
+    const emiF = (P,r,m) => { r/=1200; return r ? P*r*Math.pow(1+r,m)/(Math.pow(1+r,m)-1) : P/m; };
+    function loan(P,r,m) { const e=emiF(P,r,m),tot=e*m,int=tot-P; return {main:['Monthly EMI',rs(e)],rows:[['Principal',rs(P)],['Total Interest',rs(int)],['Total Payment',rs(tot)]]}; }
+    ${registry}
+    return C;
+  `;
+  const calculators = new Function(harness)();
+  const get = id => calculators.find(c => c.id === id);
+  const amount = (id, input) => {
+    const result = get(id).run(input);
+    return Number(result.main[1].replace(/[₹,]/g, ''));
+  };
+  assert.equal(amount('fd', { P: 100000, r: 8, n: 2 }), Math.round(100000 * Math.pow(1 + 0.08 / 4, 8)));
+  assert.equal(amount('interest', { P: 100000, r: 8, n: 3, t: 0 }), 124000);
+  assert.equal(amount('interest', { P: 100000, r: 8, n: 3, t: 1 }), Math.round(100000 * Math.pow(1.08, 3)));
+  assert.equal(amount('lumpsum', { P: 100000, r: 10, n: 2 }), 121000);
+  assert.equal(amount('vat', { a: 1000, r: 20, m: 0 }), 1200);
+  assert.equal(amount('vat', { a: 1200, r: 20, m: 1 }), 1000);
+  assert.equal(amount('tds', { a: 100000, r: 10 }), 10000);
+  assert.equal(amount('roi', { i: 100000, f: 150000, y: 3 }), 50);
+});
+
 test('all calculators remain safe for negative numeric boundaries when validation permits them', () => {
   const registryStart = html.indexOf('const C=[');
   const registryEnd = html.indexOf('const CATS=', registryStart);
