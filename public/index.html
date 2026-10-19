@@ -403,6 +403,15 @@ function validateInputs(c,v){
  if(c.id==='prime'&&!Number.isInteger(v.x))return 'Enter a whole number to check for prime factors.';
  if(c.id==='numsys'&&!Number.isInteger(v.x))return 'Enter a whole decimal number.';
  if(c.id==='leap'&&!Number.isInteger(v.y))return 'Enter a whole calendar year.';
+ if(c.id==='roi'&&v.f<=0)return 'Final value must be greater than zero to calculate annualized return.';
+ if(c.id==='rule72'&&v.r<=0)return 'Return rate must be greater than zero to calculate doubling time.';
+ if(c.id==='nps'&&(v.a<1||v.a>60))return 'Current age must be between 1 and 60 years.';
+ if(c.id==='retire'&&(v.y<=0||v.N<=0))return 'Years to retirement and years in retirement must be greater than zero.';
+ if(c.id==='retire'&&v.r<=-100)return 'Return after retirement must be greater than -100%.';
+ if(c.id==='stepsip'&&v.r<=-100)return 'Expected return must be greater than -100%.';
+ if(c.id==='swp'&&v.r<=-100)return 'Expected return must be greater than -100%.';
+ if(c.id==='nps'&&(v.r<=-100||v.q<0))return 'Expected return must be greater than -100% and annuity rate cannot be negative.';
+ if(c.id==='bfat'&&v.s===1&&v.w+v.p<=v.n)return 'For this formula, waist plus hip must exceed neck measurement.';
  return '';
 }
 let cur,curC;
