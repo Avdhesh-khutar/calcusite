@@ -379,6 +379,7 @@ function validateInputs(c,v){
  if(c.id==='tenure'&&v.e<=v.P*v.r/1200)return 'EMI must be greater than monthly interest.';
  if(c.id==='hike'&&v.h>1000)return 'Please check the hike percentage.';
  if(c.id==='marks'&&(v.o>v.t))return 'Obtained marks cannot exceed total marks.';
+ if(c.id==='marks'&&(v.g<0||v.g>10))return 'CGPA must be between 0 and 10.';
  if(c.id==='attend'&&v.p>v.t)return 'Classes attended cannot exceed total classes.';
  if(c.id==='reqm'&&(v.c>100||v.w>100||v.t>100))return 'Scores and exam weight must be between 0 and 100%.';
  if(c.id==='bmr'&&v.a<=0)return 'Age must be greater than zero.';
