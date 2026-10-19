@@ -397,6 +397,12 @@ function validateInputs(c,v){
  if(c.id==='speed'&&v.t===0)return 'Time must be greater than zero.';
  if(c.id==='idealw'&&v.h===0)return 'Height must be greater than zero.';
  if(c.id==='water'&&v.w===0)return 'Weight must be greater than zero.';
+ if(c.id==='readtime'&&v.w<=0)return 'Words per minute must be greater than zero.';
+ if(c.id==='ncr'&&(!Number.isInteger(v.n)||!Number.isInteger(v.r)))return 'n and r must be whole numbers.';
+ if(c.id==='fact'&&!Number.isInteger(v.n))return 'Enter a whole number from 0 to 170.';
+ if(c.id==='prime'&&!Number.isInteger(v.x))return 'Enter a whole number to check for prime factors.';
+ if(c.id==='numsys'&&!Number.isInteger(v.x))return 'Enter a whole decimal number.';
+ if(c.id==='leap'&&!Number.isInteger(v.y))return 'Enter a whole calendar year.';
  return '';
 }
 let cur,curC;
