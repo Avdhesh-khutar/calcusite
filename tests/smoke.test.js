@@ -985,3 +985,38 @@ test('public blog and sitemap use unauthenticated GitHub reads, not the private 
   assert.ok(!publicRoutes.includes('github(request'));
   assert.ok(worker.includes('if (!env.GITHUB_TOKEN) throw new Error("GitHub write token is not configured'));
 });
+
+
+test('calculator boundary validation prevents invalid temperature, fuel economy and financial inputs', () => {
+  const registryStart = html.indexOf('const C=[');
+  const registryEnd = html.indexOf('const CATS=', registryStart);
+  const validationStart = html.indexOf('function validateInputs(c,v){');
+  const validationEnd = html.indexOf('let cur,curC;', validationStart);
+  const dateHelperStart = html.indexOf('function isValidCalendarDate(');
+  const dateHelper = html.slice(dateHelperStart, validationStart);
+  const registry = html.slice(registryStart, registryEnd);
+  const validator = html.slice(validationStart, validationEnd);
+  const harness = `
+    const CURS = { INR: ['₹', 'en-IN'] };
+    const CU = 'INR';
+    const fmt = n => Number.isFinite(Number(n)) ? Number(n).toLocaleString('en-IN', { maximumFractionDigits: 2 }) : '—';
+    const rs = n => '₹' + fmt(Math.round(n));
+    const emiF = (P,r,m) => { r/=1200; return r ? P*r*Math.pow(1+r,m)/(Math.pow(1+r,m)-1) : P/m; };
+    function loan(P,r,m) { const e=emiF(P,r,m),tot=e*m,int=tot-P; return {main:['Monthly EMI',rs(e)],rows:[['Principal',rs(P)],['Total Interest',rs(int)],['Total Payment',rs(tot)]]}; }
+    ${dateHelper}
+    ${registry}
+    ${validator}
+    return { calculators: C, validateInputs };
+  `;
+  const { calculators, validateInputs } = new Function(harness)();
+  const get = id => calculators.find(c => c.id === id);
+  assert.match(validateInputs(get('unit'), { x: -500, t: 5 }), /absolute zero/);
+  assert.equal(validateInputs(get('unit'), { x: -40, t: 5 }), '');
+  assert.match(validateInputs(get('mpg'), { x: 0, t: 2 }), /greater than zero/);
+  assert.match(validateInputs(get('cagr'), { s: 100, e: 0, n: 5 }), /Final value must be greater than zero/);
+  assert.match(validateInputs(get('maxhr'), { a: 0 }), /between 1 and 120/);
+  assert.match(validateInputs(get('maxhr'), { a: 121 }), /between 1 and 120/);
+  assert.match(validateInputs(get('reqm'), { c: 60, w: 0, t: 75 }), /exam weight/);
+  assert.match(validateInputs(get('eligib'), { i: 80000, x: 90000, r: 8, y: 20, f: 50 }), /positive income/);
+  assert.equal(validateInputs(get('eligib'), { i: 80000, x: 10000, r: 8, y: 20, f: 50 }), '');
+});
