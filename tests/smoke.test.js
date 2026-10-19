@@ -977,3 +977,11 @@ test('theme toggle matches the CSS data-theme contract and persists safely', () 
   assert.match(calculator, /localStorage\.getItem\('calcTheme'\)/);
   assert.doesNotMatch(calculator, /classList\.toggle\('dark'\)/);
 });
+
+test('public blog and sitemap use unauthenticated GitHub reads, not the private write token', () => {
+  assert.match(worker, /async function githubPublic\\(path\\)/);
+  const publicRoutes = worker.slice(worker.indexOf('async function serveBlog('), worker.indexOf('function serveRobots('));
+  assert.match(publicRoutes, /githubPublic\\(/);
+  assert.doesNotMatch(publicRoutes, /github\\(request,\\s*env,/);
+  assert.match(worker, /if \\(!env\\.GITHUB_TOKEN\\) throw new Error\\("GitHub write token is not configured/);
+});
