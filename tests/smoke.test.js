@@ -27,7 +27,7 @@ test('AI assistant uses a keyboard-editable text input and handles form submissi
   assert.match(html, /input\.addEventListener\('keydown',e=>\{if\(e\.key==='Enter'/);
 });
 test('currency converter fetches live reference rates and labels fallback estimates honestly', () => {
-  assert.match(html, /https:\/\/open-er-api\.com\/v6\/latest\/USD/);
+  assert.match(html, /https:\/\/open\.er-api\.com\/v6\/latest\/USD/);
   assert.match(html, /async function loadLiveFX\(\)/);
   assert.match(html, /fxUpdatedAt=data\.time_last_update_utc/);
   assert.match(html, /Offline fallback estimate · live rate unavailable/);
@@ -216,7 +216,6 @@ test('all registered calculators produce finite results with their default input
   const registry = html.slice(start, end);
   const harness = `
     const CURS = { INR: ['₹', 'en-IN'] };
-    let fxLive = false, fxUpdatedAt = 'test';
     const CU = 'INR';
     const fmt = n => Number.isFinite(Number(n)) ? Number(n).toLocaleString('en-IN', { maximumFractionDigits: 2 }) : '—';
     const rs = n => '₹' + fmt(Math.round(n));
@@ -628,7 +627,7 @@ test('EMI, SIP, GST, BMI and age calculators return expected values and reject e
   assert.equal(gstRemoved.main[1], rs(10000));
 
   const bmi = get('bmi').run({ w: 70, h: 170 });
-  assert.match(bmi.main[1], /^24\.2 · Normal$/);
+  assert.match(bmi.main[1], /^24\.2 · Normal weight$/);
   assert.match(bmi.rows[0][1], /kg/);
 
   const problem = validateInputs(get('age'), { dob: '2999-01-01' });
