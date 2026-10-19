@@ -217,6 +217,32 @@ test('ideal weight calculator includes adult BMI range and estimate caveat', () 
   assert.match(ideal, /BMI is not a diagnosis/);
 });
 
+test('marks calculator rejects impossible marks and out-of-range CGPA', () => {
+  const registryStart = html.indexOf('const C=[');
+  const registryEnd = html.indexOf('const CATS=', registryStart);
+  const validationStart = html.indexOf('function validateInputs(c,v){');
+  const validationEnd = html.indexOf('let cur,curC;', validationStart);
+  const dateHelperStart = html.indexOf('function isValidCalendarDate(');
+  const harness = `
+    const CURS = { INR: ['₹', 'en-IN'] };
+    const CU = 'INR';
+    const fmt = n => Number.isFinite(Number(n)) ? Number(n).toLocaleString('en-IN', { maximumFractionDigits: 2 }) : '—';
+    const rs = n => '₹' + fmt(Math.round(n));
+    const emiF = (P,r,m) => { r/=1200; return r ? P*r*Math.pow(1+r,m)/(Math.pow(1+r,m)-1) : P/m; };
+    function loan(P,r,m) { const e=emiF(P,r,m); return {main:['Monthly EMI',rs(e)],rows:[]}; }
+    ${html.slice(dateHelperStart, validationStart)}
+    ${html.slice(registryStart, registryEnd)}
+    ${html.slice(validationStart, validationEnd)}
+    return { calculators: C, validateInputs };
+  `;
+  const { calculators, validateInputs } = new Function(harness)();
+  const marks = calculators.find(c => c.id === 'marks');
+  assert.equal(validateInputs(marks, { o: 432, t: 500, g: 8.5 }), '');
+  assert.match(validateInputs(marks, { o: 501, t: 500, g: 8.5 }), /cannot exceed total marks/);
+  assert.match(validateInputs(marks, { o: 400, t: 500, g: 10.1 }), /CGPA must be between 0 and 10/);
+  assert.match(validateInputs(marks, { o: 400, t: 500, g: -0.1 }), /Negative values are not allowed/);
+});
+
 test('calculator results avoid repetitive generic guidance panels', () => {
   assert.doesNotMatch(html, /function resultInsight\(c\)/);
   assert.doesNotMatch(html, /How to understand this result/);
