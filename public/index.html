@@ -193,7 +193,7 @@ const sg=n=>isFinite(n)?(+Number(n).toPrecision(8)).toLocaleString(CURS[CU][1],{
 const dp=x=>{const q=String(x).split('-').map(Number);return new Date(Date.UTC(q[0],q[1]-1,q[2]))};
 const ds=d=>d.toLocaleDateString('en-IN',{dateStyle:'full',timeZone:'UTC'});
 const cv=(id,n,ic,u)=>T(id,n,'Unit & Conversion',u.slice(0,3).map(x=>x[0]).join(', ')+' and more',ic,[['x','Value',1],['a','From',0,u.map(x=>x[0])],['b','To',1,u.map(x=>x[0])]],v=>({main:['Result',sg(v.x*u[v.a][1]/u[v.b][1])+' '+u[v.b][0]],rows:[['1 '+u[v.a][0],sg(u[v.a][1]/u[v.b][1])+' '+u[v.b][0]]]}));
-const FX=[['USD',1],['INR',85],['EUR',.92],['GBP',.78],['AED',3.6725],['SAR',3.75],['CAD',1.37],['AUD',1.5],['SGD',1.35],['JPY',150],['CNY',7.2],['CHF',.88],['NPR',136],['BDT',120],['PKR',280]];
+let fxLive=false,fxUpdatedAt='',fxLoading=null;const FX=[['USD',1],['INR',85],['EUR',.92],['GBP',.78],['AED',3.6725],['SAR',3.75],['CAD',1.37],['AUD',1.5],['SGD',1.35],['JPY',150],['CNY',7.2],['CHF',.88],['NPR',136],['BDT',120],['PKR',280]];
 const TM=['°C','°F','K'];
 C.push(
 T('lirate','Loan Interest Rate','Financial','Find the rate from your EMI','📉',[['P','Loan Amount (₹)',500000],['e','Monthly EMI (₹)',10624],['n','Tenure (Months)',60]],v=>{if(v.e*v.n<=v.P)return{main:['Interest Rate','EMI too low'],rows:[['Tip','EMI × months must be more than the loan']]};let lo=0,hi=300;for(let k=0;k<90;k++){const m=(lo+hi)/2;emiF(v.P,m,v.n)<v.e?lo=m:hi=m}const t=v.e*v.n;return{main:['Interest Rate',lo.toFixed(2)+'% p.a.'],rows:[['Total Interest',rs(t-v.P)],['Total Payment',rs(t)]],donut:[['Principal',v.P,'#1d5de8'],['Interest',t-v.P,'#f5a524']]}}),
@@ -227,7 +227,7 @@ T('readtime','Reading Time','Education','Time to read a text','📖',[['n','Word
 T('studyhrs','Study Planner','Education','Hours per day to finish a syllabus','📅',[['t','Number of Topics',30],['h','Hours per Topic',2],['d','Days Left',20]],v=>({main:['Study per day',(v.t*v.h/Math.max(1,v.d)).toFixed(1)+' hours'],rows:[['Total hours',fmt(v.t*v.h)]]})),
 T('ptile','Percentile Calculator','Education','Percentile from your rank','🏅',[['r','Your Rank',1500],['t','Total Candidates',100000]],v=>({main:['Percentile',((v.t-v.r)/v.t*100).toFixed(2)],rows:[['Better than',fmt(v.t-v.r)+' candidates']]})),
 T('passm','Passing Marks','Education','Marks needed to pass','✅',[['t','Total Marks',500],['p','Pass Percentage (%)',33]],v=>({main:['Marks to pass',Math.ceil(v.t*v.p/100)]})),
-T('currency','Currency Converter','Unit & Conversion','Convert 15 major currencies','💱',[['x','Amount',100],['a','From',0,FX.map(x=>x[0])],['b','To',1,FX.map(x=>x[0])]],v=>{const r=FX[v.b][1]/FX[v.a][1];return{main:['Converted',sg(v.x*r)+' '+FX[v.b][0]],rows:[['Rate','1 '+FX[v.a][0]+' = '+sg(r)+' '+FX[v.b][0]],['Note','Approximate rates. Check a live rate before use.']]}}),
+T('currency','Currency Converter','Unit & Conversion','Live exchange rates for 15 currencies','💱',[['x','Amount',100],['a','From',0,FX.map(x=>x[0])],['b','To',1,FX.map(x=>x[0])]],v=>{const r=FX[v.b][1]/FX[v.a][1];return{main:['Converted',sg(v.x*r)+' '+FX[v.b][0]],rows:[['Rate','1 '+FX[v.a][0]+' = '+sg(r)+' '+FX[v.b][0]],['Rate status',fxLive?'Live reference rate · updated '+fxUpdatedAt:'Offline fallback estimate · live rate unavailable'],['Note','Market reference rate only; bank/remittance fees and spreads may differ.']]}}),
 cv('length','Length Converter','📐',[['Metre',1],['Kilometre',1000],['Centimetre',.01],['Millimetre',.001],['Mile',1609.344],['Yard',.9144],['Foot',.3048],['Inch',.0254]]),
 cv('weight','Weight Converter','⚖️',[['Kilogram',1],['Gram',.001],['Milligram',1e-6],['Tonne',1000],['Quintal',100],['Pound',.45359237],['Ounce',.0283495]]),
 cv('volume','Volume Converter','🧪',[['Litre',1],['Millilitre',.001],['Cubic metre',1000],['US gallon',3.785412],['US cup',.236588],['US fluid ounce',.0295735]]),
@@ -382,6 +382,23 @@ function update(){const c=curC;let r,valid=true;try{const v=vals(c);const proble
  cur=r;
  $('#res').innerHTML=`<small style="color:var(--mut)">${r.main[0]}</small><div class="big">${r.main[1]}</div>${(r.rows||[]).map(x=>`<div class="row"><span>${x[0]}</span><b>${x[1]}</b></div>`).join('')}${r.donut?donut(r.donut):''}`;
  const t=$('#tbl');if(r.table){t.style.display='block';t.innerHTML=`<h2 style="margin-top:0">Amortization Schedule</h2><div class="tw"><table><tr>${r.table[0].map(h=>`<th>${h}</th>`).join('')}</tr>${r.table[1].map(x=>`<tr>${x.map(y=>`<td>${y}</td>`).join('')}</tr>`).join('')}</table></div>`}else t.style.display='none';return valid}
+async function loadLiveFX(){
+ if(fxLive)return true;
+ if(fxLoading)return fxLoading;
+ fxLoading=(async()=>{try{
+  const response=await fetch('https://open.er-api.com/v6/latest/USD',{cache:'no-store'});
+  if(!response.ok)throw new Error('Rate service returned '+response.status);
+  const data=await response.json();
+  if(data.result!=='success'||!data.rates||!Number.isFinite(Number(data.rates.INR))||Number(data.rates.INR)<=0)throw new Error('Invalid rate data');
+  for(const item of FX){const rate=Number(data.rates[item[0]]);if(Number.isFinite(rate)&&rate>0)item[1]=rate;}
+  fxLive=true;
+  fxUpdatedAt=data.time_last_update_utc?new Date(data.time_last_update_utc).toLocaleString():'recently';
+  if(curC&&curC.id==='currency')update();
+  return true;
+ }catch(error){console.warn('Live currency rates unavailable; using fallback estimates.',error);return false}
+ finally{fxLoading=null}})();
+ return fxLoading;
+}
 function initCalc(id){const c=curC=byId(id);if(!c)return;
  c.f.forEach(f=>{const el=$('#f_'+f[0]),range=$('#range_'+f[0]);if(el&&range){const max=Number(range.max)||10000000;range.value=Math.max(Number(range.min)||0,Math.min(max,Number(el.value)||0));el.addEventListener('input',()=>{range.value=Math.max(Number(range.min)||0,Math.min(max,Number(el.value)||0))});range.addEventListener('input',()=>{el.value=range.value;update()})}});
  $('#form').oninput=()=>update();
@@ -389,7 +406,7 @@ function initCalc(id){const c=curC=byId(id);if(!c)return;
  $('#reset').onclick=()=>{c.f.forEach(f=>{const el=$('#f_'+f[0]),range=$('#range_'+f[0]);if(el)el.value=f[2];if(range&&el)range.value=Math.max(Number(range.min)||0,Math.min(Number(range.max)||10000000,Number(el.value)||0))});update()};
  $('#copy').onclick=()=>{if(!cur){toast('Calculate first');return}const textOut=c.n+' — '+cur.main.join(': ')+'\\n'+(cur.rows||[]).map(x=>x.join(': ')).join('\\n');try{navigator.clipboard.writeText(textOut).then(()=>toast('Copied'),()=>toast('Copy not allowed'))}catch(e){toast('Copy not available')}};
  $('#share').onclick=()=>{if(!cur){toast('Calculate first');return}const textOut=c.n+': '+cur.main.join(' ');try{navigator.share?navigator.share({title:c.n,text:textOut,url:location.href}):navigator.clipboard.writeText(textOut+' '+location.href).then(()=>toast('Link copied'))}catch(e){toast('Share not available')}};
- update()}
+ update();if(id==='currency')loadLiveFX()}
 // AI parser: evaluate arithmetic with a bounded parser, never JavaScript eval.
 function safeMath(source){
  if(typeof source!=='string'||source.length>180||!/^[\d\s+\-*/().%^]+$/.test(source)||! /\d/.test(source))return null;
