@@ -195,6 +195,20 @@ test('production EMI calculation reconciles totals with the amortization schedul
   assert.doesNotMatch(JSON.stringify(result), /\b(?:NaN|Infinity)\b/);
 });
 
+test('BMI calculator explains categories and healthy-weight gap without implying diagnosis', () => {
+  const bmiStart = html.indexOf("{id:'bmi',n:'BMI Calculator'");
+  const bmiEnd = html.indexOf("},\n{id:'marks'", bmiStart);
+  assert.ok(bmiStart >= 0 && bmiEnd > bmiStart, 'BMI calculator definition exists');
+  const bmi = html.slice(bmiStart, bmiEnd);
+  assert.match(bmi, /Healthy weight range/);
+  assert.match(bmi, /Weight range guidance/);
+  assert.match(bmi, /Underweight: below 18\.5/);
+  assert.match(bmi, /18\.5 – 24\.9/);
+  assert.match(bmi, /25\.0 – 29\.9/);
+  assert.match(bmi, /30\.0 or above/);
+  assert.match(bmi, /not a diagnosis/);
+});
+
 test('all registered calculators produce finite results with their default inputs', () => {
   const start = html.indexOf('const C=[');
   const end = html.indexOf('const CATS=', start);
