@@ -64,6 +64,11 @@ After setting the secrets, redeploy the Worker if your deployment process requir
 
 Do not test publishing against the live blog unless you are comfortable creating a real commit in the repository.
 
+## Quality checks
+
+- Run `npm test` before shipping changes. The Cloudflare deployment workflow runs the full regression suite before attempting deployment, so a failing test prevents a new deployment.
+- A green test suite verifies the covered code paths; it does not replace checking the live website on real mobile devices or confirming that Cloudflare credentials are configured.
+
 ## Notes
 
 - The Admin Panel writes Markdown articles directly to the repository's `main` branch.
