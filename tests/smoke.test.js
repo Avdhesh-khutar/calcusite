@@ -26,6 +26,14 @@ test('AI assistant uses a keyboard-editable text input and handles form submissi
   assert.match(html, /form\.addEventListener\('submit',e=>\{e\.preventDefault\(\);send\(input\.value\)\}\)/);
   assert.match(html, /input\.addEventListener\('keydown',e=>\{if\(e\.key==='Enter'/);
 });
+test('currency converter fetches live reference rates and labels fallback estimates honestly', () => {
+  assert.match(html, /https:\/\/open-er-api\.com\/v6\/latest\/USD/);
+  assert.match(html, /async function loadLiveFX\(\)/);
+  assert.match(html, /fxUpdatedAt=data\.time_last_update_utc/);
+  assert.match(html, /Offline fallback estimate · live rate unavailable/);
+  assert.match(html, /Market reference rate only; bank\/remittance fees and spreads may differ/);
+  assert.match(html, /if\(id==='currency'\)loadLiveFX\(\)/);
+});
 test('AI math parser returns safe arithmetic results', () => {
   const start = html.indexOf('function safeMath(source){');
   const end = html.indexOf('function ai(q)', start);
@@ -194,6 +202,7 @@ test('all registered calculators produce finite results with their default input
   const registry = html.slice(start, end);
   const harness = `
     const CURS = { INR: ['₹', 'en-IN'] };
+    let fxLive = false, fxUpdatedAt = 'test';
     const CU = 'INR';
     const fmt = n => Number.isFinite(Number(n)) ? Number(n).toLocaleString('en-IN', { maximumFractionDigits: 2 }) : '—';
     const rs = n => '₹' + fmt(Math.round(n));
