@@ -83,10 +83,6 @@ input:focus,select:focus{border-color:var(--pri);box-shadow:0 0 0 3px rgba(29,93
 .result-detail-heading{font-size:12px;font-weight:750;text-transform:uppercase;letter-spacing:.8px;color:var(--mut);margin:18px 0 4px}
 .result-status{display:flex;align-items:center;gap:7px;font-size:11px;font-weight:650;color:var(--mut);margin-top:10px}
 .status-dot{width:7px;height:7px;flex:none;border-radius:50%;background:var(--ok);box-shadow:0 0 0 3px rgba(16,167,107,.12)}
-.result-insight{display:flex;align-items:flex-start;gap:10px;margin-top:18px;padding:13px;background:var(--soft);border:1px solid var(--bd);border-radius:12px;min-width:0}
-.insight-icon{display:grid;place-items:center;flex:none;width:24px;height:24px;border-radius:8px;background:var(--card);color:var(--pri);font-weight:800}
-.result-insight strong{font-size:12px;display:block;margin:1px 0 3px}
-.result-insight p{margin:0;color:var(--mut);font-size:12px;line-height:1.6}
 @media(max-width:560px){.cg{gap:12px}.result-hero{padding:12px}.res .big{font-size:clamp(25px,8vw,34px)}}
 .row{display:grid;grid-template-columns:minmax(0, .82fr) minmax(0,1.18fr);align-items:start;gap:14px;padding:12px 2px;border-bottom:1px solid var(--bd);font-size:13px;line-height:1.6;min-width:0}
 .row:last-of-type{border-bottom:0}
@@ -397,22 +393,9 @@ function validateInputs(c,v){
  return '';
 }
 let cur,curC;
-function resultInsight(c){
- const tips={
-  'Financial':'Compare the total paid or earned, not only the monthly amount. Actual outcomes can vary with fees, taxes, rate changes and payment timing.',
-  'Health':'This is a general estimate, not a medical diagnosis. Personal needs can vary with age, health, activity and other circumstances.',
-  'Education':'Check your school or exam board rules, rounding method and required passing criteria before relying on this estimate.',
-  'Tax & GST':'This is an estimate from the rate entered. Confirm current rules, exemptions, place-of-supply and your specific tax situation.',
-  'Unit & Conversion':'The result uses standard unit conversion factors. Confirm the units and context before using it for technical or safety-critical work.',
-  'Date & Time':'Check the date format, local calendar and time zone where relevant, especially when planning deadlines or travel.',
-  'Math Tools':'Review the entered values and units. The result follows the mathematical operation shown by the selected calculator.',
-  'Other Tools':'Use the result as a guide and verify the input assumptions that matter for your specific situation.'
- };
- return tips[c&&c.cat]||'Review the inputs and units above. This result is calculated from the values you entered.';
-}
 function update(){const c=curC;let r,valid=true;try{const v=vals(c);const problem=validateInputs(c,v);if(problem)throw new Error(problem);r=c.run(v);if(!r||!Array.isArray(r.main)||/\b(?:NaN|Infinity)\b/.test(JSON.stringify(r))||r.main[0]==='Check date of birth')throw new Error('invalid result');}catch(e){valid=false;r={main:['Check your inputs',e.message&&e.message!=='invalid result'?e.message:'Fill every field with a valid number or date. Use non-zero values where required.'],rows:[]};}
  cur=r;
- $('#res').innerHTML=`<div class="result-hero"><small>${r.main[0]}</small><div class="big">${r.main[1]}</div><span class="result-status"><span class="status-dot"></span>Result updated from your inputs</span></div>${(r.rows||[]).length?'<div class="result-detail-heading">Breakdown &amp; details</div>':''}${(r.rows||[]).map(x=>`<div class="row"><span>${x[0]}</span><b>${x[1]}</b></div>`).join('')}${r.donut?donut(r.donut):''}<div class="result-insight"><span class="insight-icon">ⓘ</span><div><strong>How to understand this result</strong><p>${resultInsight(curC)}</p></div></div>`;
+ $('#res').innerHTML=`<div class="result-hero"><small>${r.main[0]}</small><div class="big">${r.main[1]}</div><span class="result-status"><span class="status-dot"></span>Result updated from your inputs</span></div>${(r.rows||[]).length?'<div class="result-detail-heading">Breakdown &amp; details</div>':''}${(r.rows||[]).map(x=>`<div class="row"><span>${x[0]}</span><b>${x[1]}</b></div>`).join('')}${r.donut?donut(r.donut):''}`;
  const t=$('#tbl');if(r.table){t.style.display='block';t.innerHTML=`<h2 style="margin-top:0">Amortization Schedule</h2><div class="tw"><table><tr>${r.table[0].map(h=>`<th>${h}</th>`).join('')}</tr>${r.table[1].map(x=>`<tr>${x.map(y=>`<td>${y}</td>`).join('')}</tr>`).join('')}</table></div>`}else t.style.display='none';return valid}
 async function loadLiveFX(){
  if(fxLive)return true;
