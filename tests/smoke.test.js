@@ -1020,3 +1020,37 @@ test('calculator boundary validation prevents invalid temperature, fuel economy 
   assert.match(validateInputs(get('eligib'), { i: 80000, x: 90000, r: 8, y: 20, f: 50 }), /positive income/);
   assert.equal(validateInputs(get('eligib'), { i: 80000, x: 10000, r: 8, y: 20, f: 50 }), '');
 });
+
+
+test('integer-only calculators reject fractional inputs and reading speed rejects zero', () => {
+  const registryStart = html.indexOf('const C=[');
+  const registryEnd = html.indexOf('const CATS=', registryStart);
+  const validationStart = html.indexOf('function validateInputs(c,v){');
+  const validationEnd = html.indexOf('let cur,curC;', validationStart);
+  const dateHelperStart = html.indexOf('function isValidCalendarDate(');
+  const dateHelper = html.slice(dateHelperStart, validationStart);
+  const registry = html.slice(registryStart, registryEnd);
+  const validator = html.slice(validationStart, validationEnd);
+  const harness = `
+    const CURS = { INR: ['₹', 'en-IN'] };
+    const CU = 'INR';
+    const fmt = n => Number.isFinite(Number(n)) ? Number(n).toLocaleString('en-IN', { maximumFractionDigits: 2 }) : '—';
+    const rs = n => '₹' + fmt(Math.round(n));
+    const emiF = (P,r,m) => { r/=1200; return r ? P*r*Math.pow(1+r,m)/(Math.pow(1+r,m)-1) : P/m; };
+    function loan(P,r,m) { const e=emiF(P,r,m),tot=e*m,int=tot-P; return {main:['Monthly EMI',rs(e)],rows:[['Principal',rs(P)],['Total Interest',rs(int)],['Total Payment',rs(tot)]]}; }
+    ${dateHelper}
+    ${registry}
+    ${validator}
+    return { calculators: C, validateInputs };
+  `;
+  const { calculators, validateInputs } = new Function(harness)();
+  const get = id => calculators.find(c => c.id === id);
+  assert.match(validateInputs(get('readtime'), { n: 1500, w: 0 }), /Words per minute must be greater than zero/);
+  assert.equal(validateInputs(get('readtime'), { n: 1500, w: 200 }), '');
+  assert.match(validateInputs(get('ncr'), { n: 10.5, r: 3 }), /whole numbers/);
+  assert.match(validateInputs(get('ncr'), { n: 10, r: 3 }), '');
+  assert.match(validateInputs(get('fact'), { n: 5.5 }), /whole number/);
+  assert.match(validateInputs(get('prime'), { x: 97.5 }), /whole number/);
+  assert.match(validateInputs(get('numsys'), { x: 255.5 }), /whole decimal number/);
+  assert.match(validateInputs(get('leap'), { y: 2024.5 }), /whole calendar year/);
+});
