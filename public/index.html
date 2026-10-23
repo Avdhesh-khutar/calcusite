@@ -470,6 +470,21 @@ function ai(q){const t=q.toLowerCase().replace(/₹|,/g,'').trim();
  if(m)return 'Answer: <b>'+fmt(Number(m[1])+Number(m[2]))+'</b>';
  m=t.match(new RegExp('^\\s*'+num+'\\s*(?:ko\\s*)?(?:minus|ghatao|ghata)\\s*(?:me\\s*)?'+num+'\\s*(?:karo|kar[o]?)?\\s*$','i'));
  if(m)return 'Answer: <b>'+fmt(Number(m[1])-Number(m[2]))+'</b>';
+ if(/byaj|byaaj|byaaz|interest|intrest/.test(t)){
+  const amountMatch=t.match(/(\\d+(?:\\.\\d+)?)\\s*(?:rupees?|rs|₹)?/);
+  const rateMatch=t.match(/(\\d+(?:\\.\\d+)?)\\s*(?:%|percent|per\\s*cent|persent|parsent)/);
+  const monthMatch=t.match(/(\\d+(?:\\.\\d+)?)\\s*(?:months?|month|mahine|mahina|mahino)/);
+  const yearMatch=t.match(/(\\d+(?:\\.\\d+)?)\\s*(?:years?|yrs?|saal|sal)/);
+  const principal=amountMatch?Number(amountMatch[1]):0, rate=rateMatch?Number(rateMatch[1]):null, months=monthMatch?Number(monthMatch[1]):(yearMatch?Number(yearMatch[1])*12:0);
+  if(principal>0&&rate!==null&&months>0){
+   const monthly=/per\\s*month|monthly|mahina|mahine|mahino|\\bmonth\\b/.test(t);
+   const annual=/per\\s*year|annually|yearly|saalana|\\byear\\b|\\bsaal\\b/.test(t);
+   if(!monthly&&!annual)return 'Aapka byaj calculate kar sakta hoon. '+rs(principal)+' par '+rate+'% '+months+' mahine ke liye hai. Rate monthly hai ya yearly? Please “monthly” ya “yearly” bata dein.';
+   const interest=principal*(rate/100)*(annual?months/12:months), total=principal+interest;
+   return 'Simple interest ('+(annual?'yearly':'monthly')+' rate): <b>'+rs(interest)+'</b>. Total amount: <b>'+rs(total)+'</b>. Assumption: rate '+(annual?'per year':'per month')+' hai, compounding include nahi hai.';
+  }
+  return 'Byaj nikalne ke liye amount, rate aur time bataiye. Example: “246656 par 2% monthly, 8 month byaj”.';
+ }
  if(t.length<=180){const r=safeMath(t);if(r!==null)return'Answer: <b>'+fmt(r)+'</b>'}
  const M={lakh:1e5,lac:1e5,crore:1e7,cr:1e7,k:1e3,thousand:1e3},n=[...t.matchAll(/(\\d+(?:\\.\\d+)?)\\s*(lakh|lac|crore|cr|k|thousand)?\\b/g)].map(m=>+m[1]*(M[m[2]]||1));
  const yr=+((t.match(/(\\d+(?:\\.\\d+)?)\\s*(?:year|yr|saal|sal)/)||[])[1]||0),pm=t.match(/(\\d+(?:\\.\\d+)?)\\s*%/),pc=pm?Number(pm[1]):null,A=n[0]||0;
