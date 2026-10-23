@@ -42,3 +42,9 @@ test('interest question asks for missing rate period instead of guessing', () =>
 test('division by zero is handled safely', () => {
   assert.match(ai('15 ko 0 se bhaag karo'), /Zero se divide nahi kar sakte/);
 });
+
+test('Hindi question asking for half returns a deterministic answer', () => {
+  assert.match(ai('Mujhe ek baat batao 10 ka aadha kitna hua'), /Aadha = <b>5<\/b>/);
+  assert.match(ai('20 ka aadha batao'), /Aadha = <b>10<\/b>/);
+  assert.match(ai('100 ka half'), /Aadha = <b>50<\/b>/);
+});
