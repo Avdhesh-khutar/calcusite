@@ -48,3 +48,10 @@ test('Hindi question asking for half returns a deterministic answer', () => {
   assert.match(ai('20 ka aadha batao'), /Aadha = <b>10<\/b>/);
   assert.match(ai('100 ka half'), /Aadha = <b>50<\/b>/);
 });
+
+test('everyday Hindi assistant intents stay deterministic', () => {
+  assert.match(ai('hello'), /Namaste/);
+  assert.match(ai('10 ka double'), /Double = <b>20<\/b>/);
+  assert.match(ai('square of 9'), /Square = <b>81<\/b>/);
+  assert.match(ai('help'), /basic maths/);
+});
