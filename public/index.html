@@ -458,7 +458,7 @@ function safeMath(source){
  const expr=()=>{let a=term();while(list[i]==='+'||list[i]==='-'){const op=list[i++],b=term();a=op==='+'?a+b:a-b;if(!Number.isFinite(a)||Math.abs(a)>1e100)throw Error('range')}return a};
  try{const result=expr();return i===list.length&&Number.isFinite(result)?result:null}catch{return null}
 }
-function ai(q,context=''){const follow=/^(monthly|yearly|annual|annually|saalana|mahine|mahina)$/i.test(String(q).trim())&&/byaj|byaaj|byaaz|interest|intrest/.test(String(context));const t=(follow?String(context)+' '+String(q):String(q)).toLowerCase().replace(/₹|,/g,'').trim();
+function ai(q,context=''){const follow=/^(monthly|month|yearly|year|annual|annually|saalana|mahine|mahina|mahino|per month|per year)$/i.test(String(q).trim())&&/byaj|byaaj|byaaz|interest|intrest/.test(String(context));const t=(follow?String(context)+' '+String(q):String(q)).toLowerCase().replace(/₹|,/g,'').trim();
  // Understand common Hindi/Hinglish arithmetic phrases before trying calculator-specific intents.
  const num='(\\d+(?:\\.\\d+)?)';
  const divPatterns=[
@@ -472,16 +472,16 @@ function ai(q,context=''){const follow=/^(monthly|yearly|annual|annually|saalana
  m=t.match(new RegExp('^\\s*'+num+'\\s*(?:ko\\s*)?(?:minus|ghatao|ghata)\\s*(?:me\\s*)?'+num+'\\s*(?:karo|kar[o]?)?\\s*$','i'));
  if(m)return 'Answer: <b>'+fmt(Number(m[1])-Number(m[2]))+'</b>';
  if(/byaj|byaaj|byaaz|interest|intrest/.test(t)){
-  const amountMatch=t.match(/(?:₹|rs\.?\s*)?(\d+(?:\.\d+)?)/i);
-  const rateMatch=t.match(/(\d+(?:\.\d+)?)\s*(?:%|percent|per\s*cent|persent|parsent|pars\s*ent|par\s*sent|parsen)/i);
-  const monthMatch=t.match(/(\d+(?:\.\d+)?)\s*(?:months?|mahine|mahina|mahino)/i);
-  const yearMatch=t.match(/(\d+(?:\.\d+)?)\s*(?:years?|yrs?|saal|sal)/i);
-  const principal=amountMatch?Number(amountMatch[1]):0,rate=rateMatch?Number(rateMatch[1]):null,months=monthMatch?Number(monthMatch[1]):(yearMatch?Number(yearMatch[1])*12:0);
+  const amountMatch=t.match(/(?:₹|rs\.?\s*)?([\d,]+(?:\.\d+)?)/i);
+  const rateMatch=t.match(/([\d.]+)\s*(?:%|percent|per\s*cent|persent|parsent|pars\s*ent|par\s*sent|parsen)/i);
+  const monthMatch=t.match(/([\d.]+)\s*(?:months?|mahine|mahina|mahino|month)/i);
+  const yearMatch=t.match(/([\d.]+)\s*(?:years?|yrs?|saal|sal)/i);
+  const principal=amountMatch?Number(amountMatch[1].replace(/,/g,'')):0,rate=rateMatch?Number(rateMatch[1]):null,months=monthMatch?Number(monthMatch[1]):(yearMatch?Number(yearMatch[1])*12:0);
   if(principal>0&&rate!==null&&months>0){
-   const monthly=/monthly|per\s*month|mahina|mahine|mahino/.test(t),annual=/yearly|annually|annual|per\s*year|saalana/.test(t);
+   const monthly=/monthly|per\s*month|mahina|mahine|mahino|\bmonth\b/.test(t),annual=/yearly|annually|annual|per\s*year|saalana|\byearly\b/.test(t);
    if(!monthly&&!annual)return 'Aapka byaj calculate kar sakta hoon. '+rs(principal)+' par '+rate+'% aur '+months+' mahine mile. Rate monthly hai ya yearly?';
    const interest=principal*rate/100*(annual?months/12:months);
-   return '8 mahine ka simple interest: <b>'+rs(interest)+'</b>. Total amount: <b>'+rs(principal+interest)+'</b>. '+(annual?'Rate yearly':'Rate monthly')+' maana hai; compounding nahi jodi gayi.';
+   return months+' mahine ka simple interest: <b>'+rs(interest)+'</b>. Total amount: <b>'+rs(principal+interest)+'</b>. '+(annual?'Rate yearly':'Rate monthly')+' maana hai; compounding nahi jodi gayi.';
   }
   return 'Byaj nikalne ke liye amount, rate aur time bataiye. Example: “246656 par 2% monthly, 8 month byaj”.';
  }
@@ -497,11 +497,27 @@ function ai(q,context=''){const follow=/^(monthly|yearly|annual|annually|saalana
  if(/emi|loan|karz/.test(t)&&A){const r=loan(A,pc??8.5,(yr||5)*12);return L('emi',`EMI on ${rs(A)} for ${yr||5} years at ${pc??8.5}%: <b>${r.main[1]}</b>. Total interest ${r.rows[1][1]}.`)}
  m=t.match(/(\\d+(?:\\.\\d+)?)\\s*(?:%|percent)\\s*of\\s*(\\d+(?:\\.\\d+)?)/);if(m)return`${m[1]}% of ${m[2]} = <b>${fmt(m[1]*m[2]/100)}</b>`;
  return'I could not understand that yet. Try an EMI, SIP, FD, GST or BMI question, or a math expression like (250*4)+100.'}
-function bindAI(){const chat=$('#chat'),form=$('#aiForm'),input=$('#aq'),send=q=>{q=String(q||'').trim();if(!q){input.focus();return}const u=document.createElement('div');u.className='m u';u.textContent=q;chat.append(u);const b=document.createElement('div');b.className='m b';const prior=[...chat.querySelectorAll('.m.u')].slice(-2,-1)[0]?.textContent||'';b.innerHTML=ai(q,prior);chat.append(b);chat.scrollTop=chat.scrollHeight;input.value='';input.focus()};
- if(form){form.addEventListener('submit',e=>{e.preventDefault();send(input.value)});}
+function bindAI(){
+ const chat=$('#chat'),form=$('#aiForm'),input=$('#aq'),key='calcusite_ai_chat_v1';
+ let history=[];try{history=JSON.parse(localStorage.getItem(key)||'[]');if(!Array.isArray(history))history=[]}catch(e){history=[]}
+ const draw=(item)=>{const el=document.createElement('div');el.className='m '+(item.role==='user'?'u':'b');if(item.role==='user')el.textContent=item.text;else el.textContent=item.text;chat.append(el)};
+ chat.innerHTML='';
+ if(history.length){history.slice(-40).forEach(draw)}else{draw({role:'assistant',text:'Namaste! Main Calcusite ka rule-based calculation assistant hoon. Main maths aur kuch common calculator questions mein madad kar sakta hoon; har tarah ke sawal ka jawab dene wala real LLM nahi hoon.'})}
+ const save=()=>{try{localStorage.setItem(key,JSON.stringify(history.slice(-40)))}catch(e){}};
+ const send=q=>{q=String(q||'').trim();if(!q){input.focus();return}
+  history.push({role:'user',text:q});draw({role:'user',text:q});
+  const context=history.slice(0,-1).filter(x=>x.role==='user').slice(-4).map(x=>x.text).join(' ');
+  const answer=ai(q,context);
+  history.push({role:'assistant',text:answer.replace(/<[^>]*>/g,'')});
+  const b=document.createElement('div');b.className='m b';b.innerHTML=answer;chat.append(b);save();chat.scrollTop=chat.scrollHeight;input.value='';input.focus();
+ };
+ if(form)form.addEventListener('submit',e=>{e.preventDefault();send(input.value)});
  if(window.pre){const pre=window.pre;window.pre='';input.value=pre;send(pre)}
- document.querySelectorAll('.chip').forEach(c=>c.addEventListener('click',()=>{input.value=c.textContent.trim();input.focus();send(input.value)}));
+ document.querySelectorAll('.chip').forEach(c=>c.addEventListener('click',()=>{input.value=c.textContent.trim();send(input.value)}));
  input.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send(input.value)}});
+ let clear=document.getElementById('clearAiChat');
+ if(!clear){clear=document.createElement('button');clear.id='clearAiChat';clear.type='button';clear.className='chip';clear.textContent='Clear conversation';chat.parentElement.appendChild(clear)}
+ clear.onclick=()=>{history=[];try{localStorage.removeItem(key)}catch(e){}chat.innerHTML='';draw({role:'assistant',text:'Conversation cleared. Naya sawal poochhiye.'});toast('AI conversation cleared')};
 }
 function homeInit(){const u=()=>{const P=+$('#m_p').value||0,r=+$('#m_r').value||0,n=+$('#m_n').value||0;$('#m_o').textContent=n>0&&P>0?rs(emiF(P,r,n*12)):'—'};document.querySelectorAll('.mini input').forEach(e=>e.oninput=u);u();$('#hsf').onsubmit=e=>{e.preventDefault();const v=$('#hs').value.trim();if(v)location.hash='#/search/'+encodeURIComponent(v)}}
 function contactInit(){$('#cf').onsubmit=e=>{e.preventDefault();location.href='mailto:contact@calcusite.com?subject='+encodeURIComponent('Message from '+$('#cn').value)+'&body='+encodeURIComponent($('#cm').value)}}
