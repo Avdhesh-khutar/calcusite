@@ -5,7 +5,7 @@ Calcusite is a responsive online calculator website built with HTML, CSS, JavaSc
 ## Project structure
 
 - `src/index.js` — Cloudflare Worker routes, blog rendering, sitemap/robots, and Admin API
-- `public/index.html` — homepage and calculator registry
+- `public/index.html` — homepage, calculator registry, and rule-based AI calculation assistant
 - `public/style.css` — website styling
 - `public/script.js` — calculator logic
 - `public/admin/` — private blog Admin Panel
@@ -13,6 +13,12 @@ Calcusite is a responsive online calculator website built with HTML, CSS, JavaSc
 - `content/blog/` — blog articles stored as Markdown
 - `tests/smoke.test.js` — automated regression, security-header, metadata, and Admin API tests
 - `wrangler.jsonc` — Cloudflare Worker and static assets configuration
+
+## AI assistant scope
+
+The current assistant is a **rule-based calculator helper**, not a connected generative AI/LLM. It safely evaluates supported arithmetic expressions and recognizes a limited set of EMI/loan, SIP, FD, GST, and BMI prompts. It does not send prompts to an external AI service, and it may not understand open-ended questions. Treat financial results as estimates, not financial advice. BMI is a screening measure, not a diagnosis.
+
+A future LLM integration should be opt-in, document the provider and data sent, handle API keys only as server-side Worker secrets, enforce rate limits, and retain a reliable deterministic calculator fallback. Do not place API keys in browser JavaScript.
 
 ## Requirements
 
@@ -67,7 +73,8 @@ Do not test publishing against the live blog unless you are comfortable creating
 ## Quality checks
 
 - Run `npm test` before shipping changes. The Cloudflare deployment workflow runs the full regression suite before attempting deployment, so a failing test prevents a new deployment.
-- A green test suite verifies the covered code paths; it does not replace checking the live website on real mobile devices or confirming that Cloudflare credentials are configured.
+- A green test suite verifies the covered code paths; it does not replace checking the live website on real mobile devices or confirming that Cloudflare secrets are configured.
+- Before a release, check the live homepage and representative calculator flows on mobile and desktop, verify keyboard access, and confirm the production Worker version.
 
 ## Notes
 
