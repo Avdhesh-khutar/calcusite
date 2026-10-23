@@ -14,7 +14,7 @@ function makeAssistant() {
   const context = {
     fmt: n => Number(n).toLocaleString('en-IN', { maximumFractionDigits: 2 }),
     rs: n => '₹' + Number(n).toLocaleString('en-IN', { maximumFractionDigits: 2 }),
-    safeMath: expression => /^[\\d+\\-*/().\\s]+$/.test(expression) ? Function('"use strict"; return (' + expression + ')')() : null,
+    safeMath: expression => /^[\d+\-*/().\s]+$/.test(expression) ? Function('"use strict"; return (' + expression + ')')() : null,
     byId: id => ({ n: id, run: args => { calls.push({ id, args }); return { main: ['Result', id === 'bmi' ? '23.4' : '₹123'], rows: [['Invested', '₹60,000'], ['Interest', '₹10,000']] }; } }),
     loan: (...args) => { calls.push({ id: 'loan', args }); return { main: ['EMI', '₹20,000'], rows: [['Payment', '₹20,000'], ['Interest', '₹2,00,000']] }; }
   };
