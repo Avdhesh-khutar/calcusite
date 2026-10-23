@@ -460,8 +460,8 @@ function safeMath(source){
 }
 function ai(q,context=''){const follow=/^(monthly|month|yearly|year|annual|annually|saalana|mahine|mahina|mahino|per month|per year)$/i.test(String(q).trim())&&/byaj|byaaj|byaaz|interest|intrest/.test(String(context));const t=(follow?String(context)+' '+String(q):String(q)).toLowerCase().replace(/₹|,/g,'').trim();
  // Understand common Hindi/Hinglish arithmetic phrases before trying calculator-specific intents.
- const halfMatch=t.match(/(?:^|\\b)(\\d+(?:\\.\\d+)?)\\s*(?:ka|ki|ke)?\\s*(?:aadha|adha|aadhi|aadh|half|आधा|आधी|अधा)(?:\\s*(?:kitna|kitni|hua|hoga|batao|nikalo|hai))?/i)
-  || t.match(/(?:aadha|adha|aadhi|half|आधा|आधी|अधा)\\s*(?:of|ka|ki|ke)?\\s*(\\d+(?:\\.\\d+)?)/i);
+ const halfMatch=t.match(/(?:^|\b)(\d+(?:\.\d+)?)\s*(?:ka|ki|ke)?\s*(?:aadha|adha|aadhi|aadh|half|आधा|आधी|अधा)(?:\s*(?:kitna|kitni|hua|hoga|batao|nikalo|hai))?/i)
+  || t.match(/(?:aadha|adha|aadhi|aadh|half|आधा|आधी|अधा)\s*(?:of|ka|ki|ke)?\s*(\d+(?:\.\d+)?)/i);
  if(halfMatch){const value=Number(halfMatch[1]);return 'Aadha = <b>'+fmt(value/2)+'</b>';}
  const num='(\\d+(?:\\.\\d+)?)';
  const divPatterns=[
