@@ -460,6 +460,14 @@ function safeMath(source){
 }
 function ai(q,context=''){const follow=/^(monthly|month|yearly|year|annual|annually|saalana|mahine|mahina|mahino|per month|per year)$/i.test(String(q).trim())&&/byaj|byaaj|byaaz|interest|intrest/.test(String(context));const t=(follow?String(context)+' '+String(q):String(q)).toLowerCase().replace(/₹|,/g,'').trim();
  // Understand common Hindi/Hinglish arithmetic phrases before trying calculator-specific intents.
+ // Small-talk and common everyday math, handled locally without a paid AI service.
+ if(/^(hi|hello|hey|namaste|namaskar|kaise ho|kya haal hai)[!.? ]*$/.test(t))return 'Namaste! 😊 Main aapki maths, percentage, BMI, SIP, EMI, GST aur interest calculation mein madad kar sakta hoon. Apna sawal normal Hindi ya Hinglish mein poochhiye.';
+ if(/^(thanks|thank you|shukriya|dhanyavaad|धन्यवाद)[!.? ]*$/.test(t))return 'Aapka swagat hai! 😊 Aur koi calculation ya sawal ho to poochhiye.';
+ if(/^(help|madad|kya kar sakte ho|tum kya kar sakte ho)[!.? ]*$/.test(t))return 'Main Hindi/Hinglish mein basic maths, aadha/double, plus-minus, percentage, BMI, SIP, EMI, FD, GST aur simple interest mein madad kar sakta hoon. Jaise: “10 ka aadha”, “500 ka 20%”, ya “5 lakh loan EMI 10 years”.';
+ const doubleMatch=t.match(/(?:^|\\b)(\\d+(?:\\.\\d+)?)\\s*(?:ka|ki|ke)?\\s*(?:double|dugna|dugना|do guna|dोगुना)(?:\\s*(?:kitna|kitni|hua|hoga|batao|hai))?/i);
+ if(doubleMatch)return 'Double = <b>'+fmt(Number(doubleMatch[1])*2)+'</b>';
+ const squareMatch=t.match(/(?:square|squared|ka square|varg|वर्ग)\\s*(?:of|ka|ki|ke)?\\s*(\\d+(?:\\.\\d+)?)/i)||t.match(/(\\d+(?:\\.\\d+)?)\\s*(?:ka square|squared|square|ka varg|वर्ग)/i);
+ if(squareMatch)return 'Square = <b>'+fmt(Number(squareMatch[1])*Number(squareMatch[1]))+'</b>';
  const halfMatch=t.match(/(?:^|\b)(\d+(?:\.\d+)?)\s*(?:ka|ki|ke)?\s*(?:aadha|adha|aadhi|aadh|half|आधा|आधी|अधा)(?:\s*(?:kitna|kitni|hua|hoga|batao|nikalo|hai))?/i)
   || t.match(/(?:aadha|adha|aadhi|aadh|half|आधा|आधी|अधा)\s*(?:of|ka|ki|ke)?\s*(\d+(?:\.\d+)?)/i);
  if(halfMatch){const value=Number(halfMatch[1]);return 'Aadha = <b>'+fmt(value/2)+'</b>';}
