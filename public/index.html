@@ -495,7 +495,7 @@ function ai(q,context=''){const follow=/^(monthly|month|yearly|year|annual|annua
  if(/sip/.test(t)&&A){const r=byId('sip').run({P:A,r:pc??12,n:yr||10});return L('sip',`SIP of ${rs(A)}/month for ${yr||10} years at ${pc??12}%: <b>${r.main[1]}</b>. Invested ${r.rows[0][1]}.`)}
  if(/fd|fixed/.test(t)&&A){const r=byId('fd').run({P:A,r:pc??7,n:yr||5});return L('fd',`FD of ${rs(A)} at ${pc??7}% for ${yr||5} years matures at <b>${r.main[1]}</b>.`)}
  if(/emi|loan|karz/.test(t)&&A){const r=loan(A,pc??8.5,(yr||5)*12);return L('emi',`EMI on ${rs(A)} for ${yr||5} years at ${pc??8.5}%: <b>${r.main[1]}</b>. Total interest ${r.rows[1][1]}.`)}
- m=t.match(/(\\d+(?:\\.\\d+)?)\\s*(?:%|percent)\\s*of\\s*(\\d+(?:\\.\\d+)?)/);if(m)return`${m[1]}% of ${m[2]} = <b>${fmt(m[1]*m[2]/100)}</b>`;
+ m=t.match(/(\d+(?:\.\d+)?)\s*(?:%|percent)\s*of\s*(\d+(?:\.\d+)?)/);if(m)return`${m[1]}% of ${m[2]} = <b>${fmt(m[1]*m[2]/100)}</b>`;
  return'I could not understand that yet. Try an EMI, SIP, FD, GST or BMI question, or a math expression like (250*4)+100.'}
 function bindAI(){
  const chat=$('#chat'),form=$('#aiForm'),input=$('#aq'),key='calcusite_ai_chat_v1';
