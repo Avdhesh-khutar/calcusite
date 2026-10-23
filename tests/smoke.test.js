@@ -36,7 +36,7 @@ test('currency converter fetches live reference rates and labels fallback estima
 });
 test('AI math parser returns safe arithmetic results', () => {
   const start = html.indexOf('function safeMath(source){');
-  const end = html.indexOf('function ai(q)', start);
+  const end = html.indexOf('function ai(q,context=', start);
   assert.ok(start >= 0 && end > start, 'safeMath parser exists');
   const safeMath = new Function(html.slice(start, end) + '; return safeMath;')();
   assert.equal(safeMath('(250*4)+18'), 1018);
@@ -1116,7 +1116,7 @@ test('financial and health calculators reject remaining invalid edge cases', () 
 
 
 test('AI assistant percentage answers and unsupported prompts stay deterministic', () => {
-  const start = html.indexOf('function ai(q){');
+  const start = html.indexOf('function ai(q,context=');
   const end = html.indexOf('function bindAI(){', start);
   assert.ok(start >= 0 && end > start, 'AI helper exists');
   const ai = new Function(`
