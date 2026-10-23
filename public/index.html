@@ -458,17 +458,29 @@ function safeMath(source){
  try{const result=expr();return i===list.length&&Number.isFinite(result)?result:null}catch{return null}
 }
 function ai(q){const t=q.toLowerCase().replace(/₹|,/g,'').trim();
- if(t.length<=180){const r=safeMath(t);if(r!==null)return`Answer: <b>${fmt(r)}</b>`}
- const M={lakh:1e5,lac:1e5,crore:1e7,cr:1e7,k:1e3,thousand:1e3},n=[...t.matchAll(/(\d+(?:\.\d+)?)\s*(lakh|lac|crore|cr|k|thousand)?\b/g)].map(m=>+m[1]*(M[m[2]]||1));
- const yr=+((t.match(/(\d+(?:\.\d+)?)\s*(?:year|yr|saal|sal)/)||[])[1]||0),pm=t.match(/(\d+(?:\.\d+)?)\s*%/),pc=pm?Number(pm[1]):null,A=n[0]||0;
+ // Understand common Hindi/Hinglish arithmetic phrases before trying calculator-specific intents.
+ const num='(\\d+(?:\\.\\d+)?)';
+ const divPatterns=[
+  new RegExp('^\\s*'+num+'\\s*(?:ko\\s*)?(?:/|÷|divide(?:d)?|divided|bhaag|bhag|baant)\\s*(?:by\\s*)?'+num+'\\s*(?:se)?\\s*(?:karo|kar[o]?|do)?\\s*$','i'),
+  new RegExp('^\\s*'+num+'\\s+ko\\s+'+num+'\\s+se\\s+(?:bhaag|bhag|divide)\\s+(?:karo|kar[o]?)\\s*$','i'),
+  new RegExp('^\\s*'+num+'\\s+(?:ko\\s+)?'+num+'\\s+se\\s+(?:divide|bhaag|bhag)\\s+(?:karo|kar[o]?)\\s*$','i')
+ ];
+ for(const re of divPatterns){const m=t.match(re);if(m){const a=Number(m[1]),b=Number(m[2]);if(b===0)return 'Zero se divide nahi kar sakte. Please doosri number dein.';return 'Answer: <b>'+fmt(a/b)+'</b> ('+fmt(a)+' ÷ '+fmt(b)+')';}}
+ let m=t.match(new RegExp('^\\s*'+num+'\\s*(?:ko\\s*)?(?:plus|jodo|jod)\\s*(?:me\\s*)?'+num+'\\s*(?:karo|kar[o]?)?\\s*$','i'));
+ if(m)return 'Answer: <b>'+fmt(Number(m[1])+Number(m[2]))+'</b>';
+ m=t.match(new RegExp('^\\s*'+num+'\\s*(?:ko\\s*)?(?:minus|ghatao|ghata)\\s*(?:me\\s*)?'+num+'\\s*(?:karo|kar[o]?)?\\s*$','i'));
+ if(m)return 'Answer: <b>'+fmt(Number(m[1])-Number(m[2]))+'</b>';
+ if(t.length<=180){const r=safeMath(t);if(r!==null)return'Answer: <b>'+fmt(r)+'</b>'}
+ const M={lakh:1e5,lac:1e5,crore:1e7,cr:1e7,k:1e3,thousand:1e3},n=[...t.matchAll(/(\\d+(?:\\.\\d+)?)\\s*(lakh|lac|crore|cr|k|thousand)?\\b/g)].map(m=>+m[1]*(M[m[2]]||1));
+ const yr=+((t.match(/(\\d+(?:\\.\\d+)?)\\s*(?:year|yr|saal|sal)/)||[])[1]||0),pm=t.match(/(\\d+(?:\\.\\d+)?)\\s*%/),pc=pm?Number(pm[1]):null,A=n[0]||0;
  const L=(id,txt)=>`${txt}<br><a href="#/calc/${id}" style="color:var(--pri);font-weight:700">Open ${byId(id).n} →</a>`;
- if(/bmi|weight|vajan/.test(t)){const kg=+((t.match(/(\d+(?:\.\d+)?)\s*kg/)||[])[1]||0);let cm=+((t.match(/(\d+(?:\.\d+)?)\s*cm/)||[])[1]||0);const ft=+((t.match(/(\d+(?:\.\d+)?)\s*(?:ft|feet|foot)/)||[])[1]||0);if(ft){const f=Math.floor(ft);cm=(f*12+Math.round((ft-f)*10))*2.54}
+ if(/bmi|weight|vajan/.test(t)){const kg=+((t.match(/(\\d+(?:\\.\\d+)?)\\s*kg/)||[])[1]||0);let cm=+((t.match(/(\\d+(?:\\.\\d+)?)\\s*cm/)||[])[1]||0);const ft=+((t.match(/(\\d+(?:\\.\\d+)?)\\s*(?:ft|feet|foot)/)||[])[1]||0);if(ft){const f=Math.floor(ft);cm=(f*12+Math.round((ft-f)*10))*2.54}
   if(kg&&cm){const r=byId('bmi').run({w:kg,h:cm});return L('bmi',`BMI = <b>${r.main[1]}</b> (height taken as ${cm.toFixed(0)} cm; 5.8 ft means 5 ft 8 in).`)}return'Please give weight and height, e.g. “BMI for 70 kg and 5.8 ft”.'}
  if(/gst/.test(t)&&A){const r=pc??18,g=A*r/100;return L('gst',`GST @${r}% on ${rs(A)} = <b>${rs(g)}</b>. Total: <b>${rs(A+g)}</b>.`)}
  if(/sip/.test(t)&&A){const r=byId('sip').run({P:A,r:pc??12,n:yr||10});return L('sip',`SIP of ${rs(A)}/month for ${yr||10} years at ${pc??12}%: <b>${r.main[1]}</b>. Invested ${r.rows[0][1]}.`)}
  if(/fd|fixed/.test(t)&&A){const r=byId('fd').run({P:A,r:pc??7,n:yr||5});return L('fd',`FD of ${rs(A)} at ${pc??7}% for ${yr||5} years matures at <b>${r.main[1]}</b>.`)}
  if(/emi|loan|karz/.test(t)&&A){const r=loan(A,pc??8.5,(yr||5)*12);return L('emi',`EMI on ${rs(A)} for ${yr||5} years at ${pc??8.5}%: <b>${r.main[1]}</b>. Total interest ${r.rows[1][1]}.`)}
- const m=t.match(/(\d+(?:\.\d+)?)\s*(?:%|percent)\s*of\s*(\d+(?:\.\d+)?)/);if(m)return`${m[1]}% of ${m[2]} = <b>${fmt(m[1]*m[2]/100)}</b>`;
+ m=t.match(/(\\d+(?:\\.\\d+)?)\\s*(?:%|percent)\\s*of\\s*(\\d+(?:\\.\\d+)?)/);if(m)return`${m[1]}% of ${m[2]} = <b>${fmt(m[1]*m[2]/100)}</b>`;
  return'I could not understand that yet. Try an EMI, SIP, FD, GST or BMI question, or a math expression like (250*4)+100.'}
 function bindAI(){const chat=$('#chat'),form=$('#aiForm'),input=$('#aq'),send=q=>{q=String(q||'').trim();if(!q){input.focus();return}const u=document.createElement('div');u.className='m u';u.textContent=q;chat.append(u);const b=document.createElement('div');b.className='m b';b.innerHTML=ai(q);chat.append(b);chat.scrollTop=chat.scrollHeight;input.value='';input.focus()};
  if(form){form.addEventListener('submit',e=>{e.preventDefault();send(input.value)});}
