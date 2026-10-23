@@ -478,7 +478,7 @@ function ai(q,context=''){const follow=/^(monthly|month|yearly|year|annual|annua
   const yearMatch=t.match(/([\d.]+)\s*(?:years?|yrs?|saal|sal)/i);
   const principal=amountMatch?Number(amountMatch[1].replace(/,/g,'')):0,rate=rateMatch?Number(rateMatch[1]):null,months=monthMatch?Number(monthMatch[1]):(yearMatch?Number(yearMatch[1])*12:0);
   if(principal>0&&rate!==null&&months>0){
-   const monthly=/monthly|per\s*month|mahina|mahine|mahino|\bmonth\b/.test(t),annual=/yearly|annually|annual|per\s*year|saalana|\byearly\b/.test(t);
+   const monthly=/monthly|per\s*month|mahinaana|month\s*rate/.test(t),annual=/yearly|annually|annual|per\s*year|per\s*annum|p\.a\.|saalana/.test(t);
    if(!monthly&&!annual)return 'Aapka byaj calculate kar sakta hoon. '+rs(principal)+' par '+rate+'% aur '+months+' mahine mile. Rate monthly hai ya yearly?';
    const interest=principal*rate/100*(annual?months/12:months);
    return months+' mahine ka simple interest: <b>'+rs(interest)+'</b>. Total amount: <b>'+rs(principal+interest)+'</b>. '+(annual?'Rate yearly':'Rate monthly')+' maana hai; compounding nahi jodi gayi.';
@@ -486,16 +486,16 @@ function ai(q,context=''){const follow=/^(monthly|month|yearly|year|annual|annua
   return 'Byaj nikalne ke liye amount, rate aur time bataiye. Example: “246656 par 2% monthly, 8 month byaj”.';
  }
  if(t.length<=180){const r=safeMath(t);if(r!==null)return'Answer: <b>'+fmt(r)+'</b>'}
- const M={lakh:1e5,lac:1e5,crore:1e7,cr:1e7,k:1e3,thousand:1e3},n=[...t.matchAll(/(\\d+(?:\\.\\d+)?)\\s*(lakh|lac|crore|cr|k|thousand)?\\b/g)].map(m=>+m[1]*(M[m[2]]||1));
- const yr=+((t.match(/(\\d+(?:\\.\\d+)?)\\s*(?:year|yr|saal|sal)/)||[])[1]||0),pm=t.match(/(\\d+(?:\\.\\d+)?)\\s*%/),pc=pm?Number(pm[1]):null,A=n[0]||0;
+ const M={lakh:1e5,lac:1e5,crore:1e7,cr:1e7,k:1e3,thousand:1e3},n=[...t.matchAll(/(\d+(?:\.\d+)?)\s*(lakh|lac|crore|cr|k|thousand)?\b/g)].map(m=>+m[1]*(M[m[2]]||1));
+ const yr=+((t.match(/(\d+(?:\.\d+)?)\s*(?:year|yr|saal|sal)/)||[])[1]||0),pm=t.match(/(\d+(?:\.\d+)?)\s*%/),pc=pm?Number(pm[1]):null,A=n[0]||0;
  const L=(id,txt)=>`${txt}<br><a href="#/calc/${id}" style="color:var(--pri);font-weight:700">Open ${byId(id).n} →</a>`;
- if(/bmi|weight|vajan/.test(t)){const kg=+((t.match(/(\\d+(?:\\.\\d+)?)\\s*kg/)||[])[1]||0);let cm=+((t.match(/(\\d+(?:\\.\\d+)?)\\s*cm/)||[])[1]||0);const ft=+((t.match(/(\\d+(?:\\.\\d+)?)\\s*(?:ft|feet|foot)/)||[])[1]||0);if(ft){const f=Math.floor(ft);cm=(f*12+Math.round((ft-f)*10))*2.54}
+ if(/bmi|weight|vajan/.test(t)){const kg=+((t.match(/(\d+(?:\.\d+)?)\s*kg/)||[])[1]||0);let cm=+((t.match(/(\d+(?:\.\d+)?)\s*cm/)||[])[1]||0);const ft=+((t.match(/(\d+(?:\.\d+)?)\s*(?:ft|feet|foot)/)||[])[1]||0);if(ft){const f=Math.floor(ft);cm=(f*12+Math.round((ft-f)*10))*2.54}
   if(kg&&cm){const r=byId('bmi').run({w:kg,h:cm});return L('bmi',`BMI = <b>${r.main[1]}</b> (height taken as ${cm.toFixed(0)} cm; 5.8 ft means 5 ft 8 in).`)}return'Please give weight and height, e.g. “BMI for 70 kg and 5.8 ft”.'}
  if(/gst/.test(t)&&A){const r=pc??18,g=A*r/100;return L('gst',`GST @${r}% on ${rs(A)} = <b>${rs(g)}</b>. Total: <b>${rs(A+g)}</b>.`)}
  if(/sip/.test(t)&&A){const r=byId('sip').run({P:A,r:pc??12,n:yr||10});return L('sip',`SIP of ${rs(A)}/month for ${yr||10} years at ${pc??12}%: <b>${r.main[1]}</b>. Invested ${r.rows[0][1]}.`)}
  if(/fd|fixed/.test(t)&&A){const r=byId('fd').run({P:A,r:pc??7,n:yr||5});return L('fd',`FD of ${rs(A)} at ${pc??7}% for ${yr||5} years matures at <b>${r.main[1]}</b>.`)}
  if(/emi|loan|karz/.test(t)&&A){const r=loan(A,pc??8.5,(yr||5)*12);return L('emi',`EMI on ${rs(A)} for ${yr||5} years at ${pc??8.5}%: <b>${r.main[1]}</b>. Total interest ${r.rows[1][1]}.`)}
- m=t.match(/(\\d+(?:\\.\\d+)?)\\s*(?:%|percent)\\s*of\\s*(\\d+(?:\\.\\d+)?)/);if(m)return`${m[1]}% of ${m[2]} = <b>${fmt(m[1]*m[2]/100)}</b>`;
+ m=t.match(/(\d+(?:\.\d+)?)\s*(?:%|percent)\s*of\s*(\d+(?:\.\d+)?)/);if(m)return`${m[1]}% of ${m[2]} = <b>${fmt(m[1]*m[2]/100)}</b>`;
  return'I could not understand that yet. Try an EMI, SIP, FD, GST or BMI question, or a math expression like (250*4)+100.'}
 function bindAI(){
  const chat=$('#chat'),form=$('#aiForm'),input=$('#aq'),key='calcusite_ai_chat_v1';
