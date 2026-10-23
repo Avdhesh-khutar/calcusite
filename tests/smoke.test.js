@@ -1113,3 +1113,28 @@ test('financial and health calculators reject remaining invalid edge cases', () 
   assert.match(validateInputs(get('bfat'), { s: 1, k: 70, h: 172, w: 30, n: 35, p: 20 }), /Check waist, neck, hip and height measurements|waist plus hip must exceed neck/i);
   assert.equal(validateInputs(get('roi'), { i: 1000, f: 1500, y: 3 }), '');
 });
+
+
+test('AI assistant percentage answers and unsupported prompts stay deterministic', () => {
+  const start = html.indexOf('function ai(q){');
+  const end = html.indexOf('function bindAI(){', start);
+  assert.ok(start >= 0 && end > start, 'AI helper exists');
+  const ai = new Function(`
+    const safeMath = () => null;
+    const fmt = n => String(n);
+    const rs = n => '$' + n;
+    const byId = () => ({ n: 'Calculator', run: () => ({ main: ['Result', '0'], rows: [] }) });
+    const loan = () => ({ main: ['EMI', '$0'], rows: [['Total Interest', '$0']] });
+    ${html.slice(start, end)}
+    return ai;
+  `)();
+  assert.match(ai('18% of 250'), /18% of 250 = <b>45<\/b>/);
+  assert.match(ai('explain quantum physics in detail'), /I could not understand that yet/);
+  assert.doesNotMatch(ai('18% of 250'), /undefined|NaN/);
+});
+
+test('AI assistant does not call an external model or expose API credentials in the browser', () => {
+  assert.doesNotMatch(html, /openai\.com\/v1\/chat\/completions|api\.anthropic\.com\/v1\/messages/);
+  assert.doesNotMatch(html, /(?:sk-[A-Za-z0-9_-]{20,}|AIza[0-9A-Za-z_-]{30,})/);
+  assert.match(html, /I could not understand that yet/);
+});
