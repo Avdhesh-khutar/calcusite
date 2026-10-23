@@ -26,7 +26,7 @@ test('simple interest with monthly rate calculates correctly', () => {
   const answer = ai('246656 par 2 percent monthly, 8 month byaj');
   assert.match(answer, /8 mahine ka simple interest/);
   assert.match(answer, /₹39,464\.96/);
-  assert.match(answer, /₹286,120\.96/);
+  assert.match(answer, /₹2,86,120\.96/);
 });
 
 test('monthly follow-up uses previous interest question', () => {
