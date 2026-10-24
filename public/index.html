@@ -472,7 +472,7 @@ function ai(q,context=''){const follow=/^(monthly|month|yearly|year|annual|annua
   || t.match(/(?:aadha|adha|aadhi|aadh|half|आधा|आधी|अधा)\s*(?:of|ka|ki|ke)?\s*(\d+(?:\.\d+)?)/i);
  if(halfMatch){const value=Number(halfMatch[1]);return 'Aadha = <b>'+fmt(value/2)+'</b>';}
  const percentMatch=t.match(/(\d+(?:\.\d+)?)\s*(?:ka|ki|ke|का|की|के)\s*(\d+(?:\.\d+)?)\s*(?:%|percent|per\s*cent|persent|प्रतिशत)(?:\s*(?:kitna|kitni|batao|nikalo|hai|hota|hoga|hua|कितना|कितनी|बताओ|निकालो|है))?/i);
- if(percentMatch)return percentMatch[2]+'% of '+percentMatch[1]+' = <b>'+fmt(Number(percentMatch[1])*Number(percentMatch[2])/100)+'</b>';
+ if(percentMatch&&!/byaj|byaaj|byaaz|interest|intrest/.test(t))return percentMatch[2]+'% of '+percentMatch[1]+' = <b>'+fmt(Number(percentMatch[1])*Number(percentMatch[2])/100)+'</b>';
  const num='(\\d+(?:\\.\\d+)?)';
  const divPatterns=[
   new RegExp('^\\s*'+num+'\\s*(?:ko\\s*)?(?:/|÷|divide(?:d)?|divided|bhaag|bhag|baant)\\s*(?:by\\s*)?'+num+'\\s*(?:se)?\\s*(?:karo|kar[o]?|do)?\\s*$','i'),
