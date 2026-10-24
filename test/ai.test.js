@@ -55,3 +55,11 @@ test('everyday Hindi assistant intents stay deterministic', () => {
   assert.match(ai('square of 9'), /Square = <b>81<\/b>/);
   assert.match(ai('help'), /basic maths/);
 });
+
+
+test('Devanagari numerals and Hindi math phrasing are supported', () => {
+  assert.match(ai('१० का आधा'), /Aadha = <b>5<\/b>/);
+  assert.match(ai('10 का दोगुना'), /Double = <b>20<\/b>/);
+  assert.match(ai('9 का वर्ग'), /Square = <b>81<\/b>/);
+  assert.match(ai('500 का 20 प्रतिशत'), /20% of 500 = <b>100<\/b>/);
+});
