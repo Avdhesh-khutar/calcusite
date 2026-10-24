@@ -459,6 +459,12 @@ function safeMath(source){
  try{const result=expr();return i===list.length&&Number.isFinite(result)?result:null}catch{return null}
 }
 function ai(q,context=''){const follow=/^(monthly|month|yearly|year|annual|annually|saalana|mahine|mahina|mahino|per month|per year)$/i.test(String(q).trim())&&/byaj|byaaj|byaaz|interest|intrest/.test(String(context));const t=(follow?String(context)+' '+String(q):String(q)).toLowerCase().replace(/[०-९]/g,d=>'०१२३४५६७८९'.indexOf(d)).replace(/₹|,/g,'').trim();
+ const percentFollow=t.match(/^(?:aur\s*)?(\d+(?:\.\d+)?)\s*(?:%|percent|per\s*cent|प्रतिशत)\s*(?:of\s*(?:it|that)|ka|ki|ke|का|की|के|batao|kitna|kitni|hai)?[!.? ]*$/i);
+ if(percentFollow&&!/byaj|byaaj|byaaz|interest|intrest/.test(String(context).toLowerCase())){
+  const previousContext=String(context).toLowerCase().replace(/[०-९]/g,d=>'०१२३४५६७८९'.indexOf(d));
+  const previousBase=previousContext.match(/(\d+(?:\.\d+)?)\s*(?:ka|ki|ke|का|की|के)\s*\d+(?:\.\d+)?\s*(?:%|percent|per\s*cent|प्रतिशत)/i);
+  if(previousBase)return percentFollow[1]+'% of '+previousBase[1]+' = <b>'+fmt(Number(percentFollow[1])*Number(previousBase[1])/100)+'</b>';
+ }
  // Understand common Hindi/Hinglish arithmetic phrases before trying calculator-specific intents.
  // Small-talk and common everyday math, handled locally without a paid AI service.
  if(/^(hi|hello|hey|namaste|namaskar|kaise ho|kya haal hai)[!.? ]*$/.test(t))return 'Namaste! 😊 Main aapki maths, percentage, BMI, SIP, EMI, GST aur interest calculation mein madad kar sakta hoon. Apna sawal normal Hindi ya Hinglish mein poochhiye.';
