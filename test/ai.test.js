@@ -63,3 +63,9 @@ test('Devanagari numerals and Hindi math phrasing are supported', () => {
   assert.match(ai('9 का वर्ग'), /Square = <b>81<\/b>/);
   assert.match(ai('500 का 20 प्रतिशत'), /20% of 500 = <b>100<\/b>/);
 });
+
+
+test('percentage follow-up reuses the previous base amount', () => {
+  assert.match(ai('aur 10%', '500 ka 20%'), /10% of 500 = <b>50<\/b>/);
+  assert.match(ai('aur 5 percent', '200 ka 15 percent'), /5% of 200 = <b>10<\/b>/);
+});
