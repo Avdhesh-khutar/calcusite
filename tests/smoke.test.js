@@ -83,6 +83,8 @@ test('blog pages include structured data for search engines', () => {
   assert.match(worker, /"@context":"https:\/\/schema\.org"/);
   assert.match(worker, /"@type":"CollectionPage"/);
   assert.match(worker, /"@type":"BlogPosting"/);
+  assert.match(worker, /"dateModified":/);
+  assert.match(worker, /"author":\{"@type":"Organization","name":"Calcusite"/);
   assert.match(worker, /type="application\/ld\+json"/);
 });
 
