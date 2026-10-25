@@ -106,8 +106,8 @@ test('homepage advertises Calcusite as a free WebApplication with structured dat
 test('homepage contains basic search metadata and private admin is noindex', () => {
   assert.match(html, /<title>[^<]+<\/title>/i);
   assert.match(html, /name=["']description["']/i);
-  assert.match(html, /<link rel="canonical" href="https:\/\/calcusite\.avdheshkhutar24\.workers\.dev\/">/i);
-  assert.match(html, /property="og:url" content="https:\/\/calcusite\.avdheshkhutar24\.workers\.dev\/">/i);
+  assert.match(html, /<link rel="canonical" href="https:\/\/calcusite\.in\/">/i);
+  assert.match(html, /property="og:url" content="https:\/\/calcusite\.in\/">/i);
   assert.match(read('public/admin/index.html'), /noindex,nofollow/);
 });
 
