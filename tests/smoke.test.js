@@ -56,6 +56,8 @@ test('admin article saves update the public blog manifest for listing and sitema
   assert.match(worker, /contents\/content\/blog\/index\.json/);
   assert.match(worker, /manifest\.articles\.push\(slug\)/);
   assert.match(worker, /Update blog article manifest/);
+  assert.match(worker, /manifestFile\.content \|\| \"\"\)\.replace\(\/\\n\/g, \"\"\)/);
+  assert.match(worker, /JSON\.stringify\(manifest, null, 2\) \+ \"\\n\"/);
 });
 test('calculator engine includes the expected core calculator types and mobile responsive styles', () => {
   for (const type of ['emi','sip','loan','bmi','age','gst','fd','rd','percentage']) {

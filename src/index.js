@@ -160,7 +160,7 @@ async function adminApi(request, env, url) {
       let manifest = { articles: [] };
       try {
         manifestFile = await github(request, env, manifestPath + "?ref=main");
-        const decodedManifest = atob(String(manifestFile.content || "").replace(/\\n/g, ""));
+        const decodedManifest = atob(String(manifestFile.content || "").replace(/\n/g, ""));
         const manifestBytes = Uint8Array.from(decodedManifest, c => c.charCodeAt(0));
         manifest = JSON.parse(new TextDecoder().decode(manifestBytes));
       } catch (e) {
@@ -170,7 +170,7 @@ async function adminApi(request, env, url) {
       if (!manifest.articles.includes(slug)) {
         manifest.articles.push(slug);
         manifest.articles.sort();
-        const manifestText = JSON.stringify(manifest, null, 2) + "\\n";
+        const manifestText = JSON.stringify(manifest, null, 2) + "\n";
         const manifestBytes = new TextEncoder().encode(manifestText);
         let binary = "";
         for (const byte of manifestBytes) binary += String.fromCharCode(byte);
