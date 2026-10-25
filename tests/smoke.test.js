@@ -72,10 +72,10 @@ test('unpublished blog articles are excluded from public routes and sitemap', ()
   assert.match(worker, /sitemapMemoryCache\.expiresAt > Date\.now\(\)/);
   assert.match(worker, /Disallow: \/admin\//);
 });
-test('blog pages generate canonical and Open Graph metadata from the request origin', () => {
+test('blog pages use the canonical production host for canonical and Open Graph metadata', () => {
   assert.match(worker, /function blogHtml\(title, content, description="Calcusite guides and resources", canonicalUrl=""\)/);
-  assert.match(worker, /new URL\("\/blog",url\.origin\)\.href/);
-  assert.match(worker, /new URL\("\/blog\/"\+encodeURIComponent\(slug\),url\.origin\)\.href/);
+  assert.match(worker, /SITE_ORIGIN \+ "\/blog"/);
+  assert.match(worker, /SITE_ORIGIN \+ "\/blog\/" \+ encodeURIComponent\(slug\)/);
   assert.match(worker, /property="og:url" content=/);
 });
 
