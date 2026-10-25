@@ -1137,6 +1137,25 @@ test('AI assistant percentage answers and unsupported prompts stay deterministic
   assert.doesNotMatch(ai('18% of 250'), /undefined|NaN/);
 });
 
+test('AI assistant handles simple Hindi/Hinglish math and Devanagari numerals', () => {
+  const start = html.indexOf('function ai(q,context=');
+  const end = html.indexOf('function bindAI(){', start);
+  const ai = new Function(`
+    const safeMath = () => null;
+    const fmt = n => String(n);
+    const rs = n => '₹' + n;
+    const byId = () => ({ n: 'Calculator', run: () => ({ main: ['Result', '0'], rows: [] }) });
+    const loan = () => ({ main: ['EMI', '₹0'], rows: [['Total Interest', '₹0']] });
+    ${html.slice(start, end)}
+    return ai;
+  `)();
+  assert.match(ai('10 ka aadha kitna hua'), /Aadha = <b>5<\\/b>/);
+  assert.match(ai('20 ka double'), /Double = <b>40<\\/b>/);
+  assert.match(ai('9 ka square'), /Square = <b>81<\\/b>/);
+  assert.match(ai('१० का आधा'), /Aadha = <b>5<\\/b>/);
+  assert.match(ai('10 का दोगुना'), /Double = <b>20<\\/b>/);
+});
+
 test('AI assistant does not call an external model or expose API credentials in the browser', () => {
   assert.doesNotMatch(html, /openai\.com\/v1\/chat\/completions|api\.anthropic\.com\/v1\/messages/);
   assert.doesNotMatch(html, /(?:sk-[A-Za-z0-9_-]{20,}|AIza[0-9A-Za-z_-]{30,})/);
