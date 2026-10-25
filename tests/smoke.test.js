@@ -1168,3 +1168,22 @@ test('AI assistant does not call an external model or expose API credentials in 
   assert.doesNotMatch(html, /(?:sk-[A-Za-z0-9_-]{20,}|AIza[0-9A-Za-z_-]{30,})/);
   assert.match(html, /I could not understand that yet/);
 });
+
+
+test('Worker adds baseline security headers to dynamic and static responses', async () => {
+  const workerFactory = new Function(worker.replace('export default {', 'const worker = {') + '; return worker;');
+  const app = workerFactory();
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async () => new Response('static asset', { status: 200, headers: { 'content-type': 'text/plain' } });
+  try {
+    for (const path of ['/robots.txt', '/admin/']) {
+      const response = await app.fetch(new Request('https://calcusite.in' + path), { ASSETS: { fetch: async () => new Response('asset') } });
+      assert.equal(response.headers.get('x-content-type-options'), 'nosniff', path);
+      assert.equal(response.headers.get('x-frame-options'), 'DENY', path);
+      assert.equal(response.headers.get('referrer-policy'), 'strict-origin-when-cross-origin', path);
+      assert.equal(response.headers.get('permissions-policy'), 'camera=(), microphone=(), geolocation=()', path);
+    }
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
