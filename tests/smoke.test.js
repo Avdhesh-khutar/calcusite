@@ -1149,11 +1149,11 @@ test('AI assistant handles simple Hindi/Hinglish math and Devanagari numerals', 
     ${html.slice(start, end)}
     return ai;
   `)();
-  assert.match(ai('10 ka aadha kitna hua'), /Aadha = <b>5<\\/b>/);
-  assert.match(ai('20 ka double'), /Double = <b>40<\\/b>/);
-  assert.match(ai('9 ka square'), /Square = <b>81<\\/b>/);
-  assert.match(ai('१० का आधा'), /Aadha = <b>5<\\/b>/);
-  assert.match(ai('10 का दोगुना'), /Double = <b>20<\\/b>/);
+  assert.match(ai('10 ka aadha kitna hua'), /Aadha = <b>5<\/b>/);
+  assert.match(ai('20 ka double'), /Double = <b>40<\/b>/);
+  assert.match(ai('9 ka square'), /Square = <b>81<\/b>/);
+  assert.match(ai('१० का आधा'), /Aadha = <b>5<\/b>/);
+  assert.match(ai('10 का दोगुना'), /Double = <b>20<\/b>/);
 });
 
 test('AI assistant does not call an external model or expose API credentials in the browser', () => {
