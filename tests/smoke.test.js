@@ -1187,3 +1187,23 @@ test('Worker adds baseline security headers to dynamic and static responses', as
     globalThis.fetch = originalFetch;
   }
 });
+
+
+test('admin API rejects cross-origin browser POSTs and preflights', async () => {
+  const workerFactory = new Function(worker.replace('export default {', 'const worker = {') + '; return worker;');
+  const app = workerFactory();
+  const badPost = await app.fetch(new Request('https://calcusite.in/api/admin/login', {
+    method: 'POST', headers: { Origin: 'https://attacker.example', 'Content-Type': 'application/json' }, body: JSON.stringify({ password: 'irrelevant' })
+  }), {});
+  assert.equal(badPost.status, 403);
+  assert.deepEqual(await badPost.json(), { error: 'Origin not allowed.' });
+  const badOptions = await app.fetch(new Request('https://calcusite.in/api/admin/article', {
+    method: 'OPTIONS', headers: { Origin: 'https://attacker.example' }
+  }), {});
+  assert.equal(badOptions.status, 403);
+  const goodOptions = await app.fetch(new Request('https://calcusite.in/api/admin/article', {
+    method: 'OPTIONS', headers: { Origin: 'https://calcusite.in' }
+  }), {});
+  assert.equal(goodOptions.status, 204);
+  assert.equal(goodOptions.headers.get('access-control-allow-origin'), 'https://calcusite.in');
+});
