@@ -87,7 +87,16 @@ async function github(request, env, path, options = {}) {
   return body;
 }
 async function adminApi(request, env, url) {
-  if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: { "Access-Control-Allow-Origin": url.origin, "Access-Control-Allow-Credentials": "true", "Vary": "Origin" } });
+  const requestOrigin = request.headers.get("Origin");
+  if (request.method === "OPTIONS") {
+    if (requestOrigin !== SITE_ORIGIN) return json({ error: "Origin not allowed." }, 403);
+    return new Response(null, { status: 204, headers: { "Access-Control-Allow-Origin": SITE_ORIGIN, "Access-Control-Allow-Credentials": "true", "Vary": "Origin" } });
+  }
+  // Browser state-changing requests must originate from the canonical site. Same-origin
+  // fetches send Origin automatically; allowing a missing header preserves non-browser tooling.
+  if (request.method === "POST" && url.pathname.startsWith("/api/admin/") && requestOrigin && requestOrigin !== SITE_ORIGIN) {
+    return json({ error: "Origin not allowed." }, 403);
+  }
   if (url.pathname === "/api/admin/login" && request.method === "POST") {
     if (!env.ADMIN_PASSWORD || !env.SESSION_SECRET) return json({ error: "Admin login is not configured. Set ADMIN_PASSWORD and SESSION_SECRET in Cloudflare Worker secrets." }, 503);
     const body = await request.json().catch(() => ({}));
