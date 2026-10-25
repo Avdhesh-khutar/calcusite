@@ -1006,6 +1006,13 @@ test('theme toggle matches the CSS data-theme contract and persists safely', () 
   assert.doesNotMatch(calculator, /classList\.toggle\('dark'\)/);
 });
 
+test('blog manifest retries concurrent GitHub content conflicts and reports recoverable sync failures', () => {
+  assert.match(worker, /for \(let attempt = 0; attempt < 3 && !manifestSynced; attempt\+\+\)/);
+  assert.match(worker, /e\.status !== 409 && e\.status !== 422/);
+  assert.match(worker, /Article was saved, but the blog index is busy/);
+  assert.match(worker, /manifest\.articles\.includes\(slug\)/);
+});
+
 test('public blog and sitemap use unauthenticated GitHub reads, not the private write token', () => {
   const publicRoutes = worker.slice(worker.indexOf('async function serveBlog('), worker.indexOf('function serveRobots('));
   assert.ok(publicRoutes.includes('raw.githubusercontent.com'));
