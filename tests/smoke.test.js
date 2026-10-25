@@ -72,10 +72,10 @@ test('unpublished blog articles are excluded from public routes and sitemap', ()
   assert.match(worker, /sitemapMemoryCache\.expiresAt > Date\.now\(\)/);
   assert.match(worker, /Disallow: \/admin\//);
 });
-test('blog pages generate canonical and Open Graph metadata from the request origin', () => {
+test('blog pages use the canonical production host for canonical and Open Graph metadata', () => {
   assert.match(worker, /function blogHtml\(title, content, description="Calcusite guides and resources", canonicalUrl=""\)/);
-  assert.match(worker, /new URL\("\/blog",url\.origin\)\.href/);
-  assert.match(worker, /new URL\("\/blog\/"\+encodeURIComponent\(slug\),url\.origin\)\.href/);
+  assert.match(worker, /SITE_ORIGIN \+ "\/blog"/);
+  assert.match(worker, /SITE_ORIGIN \+ "\/blog\/" \+ encodeURIComponent\(slug\)/);
   assert.match(worker, /property="og:url" content=/);
 });
 
@@ -126,12 +126,12 @@ test('robots.txt and sitemap use the active Worker origin', async () => {
   const robots = await app.fetch(request, {});
   const robotsText = await robots.text();
   assert.equal(robots.status, 200);
-  assert.match(robotsText, /Sitemap: https:\/\/calcusite\.avdheshkhutar24\.workers\.dev\/sitemap\.xml/);
+  assert.match(robotsText, /Sitemap: https:\/\/calcusite\.in\/sitemap\.xml/);
 
   const sitemap = await app.fetch(new Request('https://calcusite.avdheshkhutar24.workers.dev/sitemap.xml'), {});
   const sitemapText = await sitemap.text();
   assert.equal(sitemap.status, 200);
-  assert.match(sitemapText, /https:\/\/calcusite\.avdheshkhutar24\.workers\.dev\//);
+  assert.match(sitemapText, /https:\/\/calcusite\.in\//);
 });
 
 test('sitemap lists published Markdown articles and excludes unpublished ones', async () => {
@@ -169,8 +169,8 @@ test('sitemap lists published Markdown articles and excludes unpublished ones', 
     );
     const xml = await response.text();
     assert.equal(response.status, 200);
-    assert.match(xml, /https:\/\/calcusite\.avdheshkhutar24\.workers\.dev\/blog\/age-calculator-guide/);
-    assert.match(xml, /https:\/\/calcusite\.avdheshkhutar24\.workers\.dev\/blog\/sip-calculator-guide/);
+    assert.match(xml, /https:\/\/calcusite\.in\/blog\/age-calculator-guide/);
+    assert.match(xml, /https:\/\/calcusite\.in\/blog\/sip-calculator-guide/);
     assert.doesNotMatch(xml, /draft-guide/);
     assert.match(xml, /<lastmod>2026-10-17<\/lastmod>/);
 
@@ -180,8 +180,8 @@ test('sitemap lists published Markdown articles and excludes unpublished ones', 
     );
     const articleHtml = await articleResponse.text();
     assert.equal(articleResponse.status, 200);
-    assert.match(articleHtml, /<link rel="canonical" href="https:\/\/calcusite\.avdheshkhutar24\.workers\.dev\/blog\/age-calculator-guide">/);
-    assert.match(articleHtml, /property="og:url" content="https:\/\/calcusite\.avdheshkhutar24\.workers\.dev\/blog\/age-calculator-guide"/);
+    assert.match(articleHtml, /<link rel="canonical" href="https:\/\/calcusite\.in\/blog\/age-calculator-guide">/);
+    assert.match(articleHtml, /property="og:url" content="https:\/\/calcusite\.in\/blog\/age-calculator-guide"/);
     assert.match(articleHtml, /"@type":"BlogPosting"/);
     assert.match(articleHtml, /type="application\/ld\+json"/);
   } finally {
