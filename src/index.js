@@ -66,7 +66,7 @@ async function github(request, env, path, options = {}) {
     ...options,
     headers: {
       "Authorization": "Bearer " + env.GITHUB_TOKEN,
-      "User-Agent": "CalcusiteAdmin/1.0 (https://calcusite.com)",
+      "User-Agent": "CalcusiteAdmin/1.0 (" + SITE_ORIGIN + ")",
       "Accept": "application/vnd.github+json",
       "X-GitHub-Api-Version": "2022-11-28",
       "Content-Type": "application/json",
