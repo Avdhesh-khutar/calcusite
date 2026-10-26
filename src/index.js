@@ -2,7 +2,7 @@ const API = "https://api.github.com";
 const SITE_ORIGIN = "https://calcusite.in";
 
 // Convert UTF-8 text to Base64 without spreading a large byte array into function arguments.
-export function encodeUtf8Base64(value) {
+function encodeUtf8Base64(value) {
   const bytes = new TextEncoder().encode(String(value));
   let binary = "";
   for (const byte of bytes) binary += String.fromCharCode(byte);
