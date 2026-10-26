@@ -1,0 +1,43 @@
+name: Live site smoke checks
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "23 */6 * * *"
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check live endpoints return successfully
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/calcusite-smoke
+          for item in "home:/" "blog:/blog" "sitemap:/sitemap.xml" "robots:/robots.txt"; do
+            name="${item%%:*}"
+            path="${item#*:}"
+            file="/tmp/calcusite-smoke/$name"
+            echo "Checking https://calcusite.in$path"
+            curl --fail --silent --show-error --location --max-time 30 \
+              --output "$file" --write-out "HTTP %{http_code}\n" "https://calcusite.in$path"
+            test -s "$file"
+          done
+
+      - name: Validate sitemap and robots use canonical origin
+        shell: bash
+        run: |
+          set -euo pipefail
+          sitemap="/tmp/calcusite-smoke/sitemap"
+          robots="/tmp/calcusite-smoke/robots"
+          grep -Fq '<urlset' "$sitemap"
+          grep -Fq '<loc>https://calcusite.in/' "$sitemap"
+          grep -Fq 'Sitemap: https://calcusite.in/sitemap.xml' "$robots"
+          if grep -Fq '<loc>https://www.calcusite.in' "$sitemap"; then
+            echo "::error::Sitemap contains a non-canonical www origin."
+            exit 1
+          fi
+          echo "Sitemap and robots.txt use the expected canonical origin."
