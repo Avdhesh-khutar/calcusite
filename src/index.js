@@ -1,6 +1,14 @@
 const API = "https://api.github.com";
 const SITE_ORIGIN = "https://calcusite.in";
 
+// Convert UTF-8 text to Base64 without spreading a large byte array into function arguments.
+function encodeUtf8Base64(value) {
+  const bytes = new TextEncoder().encode(String(value));
+  let binary = "";
+  for (const byte of bytes) binary += String.fromCharCode(byte);
+  return btoa(binary);
+}
+
 function json(data, status = 200, headers = {}) {
   return new Response(JSON.stringify(data), {
     status,
@@ -155,7 +163,7 @@ async function adminApi(request, env, url) {
         content,
         ""
       ].join("\n");
-      const encoded = btoa(String.fromCharCode(...new TextEncoder().encode(frontmatter)));
+      const encoded = encodeUtf8Base64(frontmatter);
       const result = await github(request, env, path, { method: "PUT", body: JSON.stringify({
         message: (sha ? "Update" : "Publish") + " blog article: " + title,
         content: encoded,
@@ -187,10 +195,7 @@ async function adminApi(request, env, url) {
           manifest.articles.push(slug);
           manifest.articles.sort();
           const manifestText = JSON.stringify(manifest, null, 2) + "\n";
-          const manifestBytes = new TextEncoder().encode(manifestText);
-          let binary = "";
-          for (const byte of manifestBytes) binary += String.fromCharCode(byte);
-          const manifestEncoded = btoa(binary);
+          const manifestEncoded = encodeUtf8Base64(manifestText);
           await github(request, env, manifestPath, { method: "PUT", body: JSON.stringify({
             message: "Update blog article manifest: " + slug,
             content: manifestEncoded,
