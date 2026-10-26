@@ -17,8 +17,10 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p /tmp/calcusite-smoke
-          for path in "/" "/blog" "/sitemap.xml" "/robots.txt"; do
-            file="/tmp/calcusite-smoke/$(printf '%s' "$path" | tr '/.' '__')"
+          for item in "home:/" "blog:/blog" "sitemap:/sitemap.xml" "robots:/robots.txt"; do
+            name="${item%%:*}"
+            path="${item#*:}"
+            file="/tmp/calcusite-smoke/$name"
             echo "Checking https://calcusite.in$path"
             curl --fail --silent --show-error --location --max-time 30 \
               --output "$file" --write-out "HTTP %{http_code}\n" "https://calcusite.in$path"
@@ -29,12 +31,12 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          sitemap="/tmp/calcusite-smoke/__sitemap_xml"
-          robots="/tmp/calcusite-smoke/__robots_txt"
+          sitemap="/tmp/calcusite-smoke/sitemap"
+          robots="/tmp/calcusite-smoke/robots"
           grep -Fq '<urlset' "$sitemap"
           grep -Fq '<loc>https://calcusite.in/' "$sitemap"
           grep -Fq 'Sitemap: https://calcusite.in/sitemap.xml' "$robots"
-          if grep -Eq '<loc>https?://(www\.)?calcusite\.in' "$sitemap" && grep -Fq '<loc>https://www.calcusite.in' "$sitemap"; then
+          if grep -Fq '<loc>https://www.calcusite.in' "$sitemap"; then
             echo "::error::Sitemap contains a non-canonical www origin."
             exit 1
           fi
