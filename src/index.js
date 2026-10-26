@@ -155,7 +155,10 @@ async function adminApi(request, env, url) {
         content,
         ""
       ].join("\n");
-      const encoded = btoa(String.fromCharCode(...new TextEncoder().encode(frontmatter)));
+      const frontmatterBytes = new TextEncoder().encode(frontmatter);
+      let frontmatterBinary = "";
+      for (const byte of frontmatterBytes) frontmatterBinary += String.fromCharCode(byte);
+      const encoded = btoa(frontmatterBinary);
       const result = await github(request, env, path, { method: "PUT", body: JSON.stringify({
         message: (sha ? "Update" : "Publish") + " blog article: " + title,
         content: encoded,
