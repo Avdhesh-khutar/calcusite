@@ -28,12 +28,11 @@ jobs:
       - name: Run regression test suite
         run: npm test
 
-      - name: Deploy Worker and static assets
-        if: ${{ env.CLOUDFLARE_API_TOKEN != '' && env.CLOUDFLARE_ACCOUNT_ID != '' }}
-        run: npx wrangler deploy
-
-      - name: Explain skipped deployment
+      - name: Verify Cloudflare deployment credentials
         if: ${{ env.CLOUDFLARE_API_TOKEN == '' || env.CLOUDFLARE_ACCOUNT_ID == '' }}
         run: |
-          echo "::warning::Cloudflare deployment skipped: add CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID as GitHub Actions repository secrets."
-          echo "No Cloudflare credentials were exposed or changed by this workflow."
+          echo "::error::Deployment blocked: configure CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID as GitHub Actions repository secrets."
+          exit 1
+
+      - name: Deploy Worker and static assets
+        run: npx wrangler deploy
