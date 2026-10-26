@@ -1006,10 +1006,11 @@ test('theme toggle matches the CSS data-theme contract and persists safely', () 
   assert.doesNotMatch(calculator, /classList\.toggle\('dark'\)/);
 });
 
-test('blog manifest retries concurrent GitHub content conflicts and reports recoverable sync failures', () => {
+test('blog manifest retries transient failures and reports recoverable sync failures', () => {
   assert.match(worker, /for \(let attempt = 0; attempt < 3 && !manifestSynced; attempt\+\+\)/);
-  assert.match(worker, /e\.status !== 409 && e\.status !== 422/);
-  assert.match(worker, /Article was saved, but the blog index is busy/);
+  assert.match(worker, /e\.status === 409 \|\| e\.status === 422/);
+  assert.match(worker, /e\.status >= 500/);
+  assert.match(worker, /Article was saved, but the blog index could not be synced/);
   assert.match(worker, /manifest\.articles\.includes\(slug\)/);
 });
 
