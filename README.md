@@ -76,6 +76,31 @@ Do not test publishing against the live blog unless you are comfortable creating
 - A green test suite verifies the covered code paths; it does not replace checking the live website on real mobile devices or confirming that Cloudflare secrets are configured.
 - Before a release, check the live homepage and representative calculator flows on mobile and desktop, verify keyboard access, and confirm the production Worker version.
 
+## Production verification checklist
+
+These checks require access to the live Cloudflare and Google Search Console dashboards; repository CI cannot verify them.
+
+### Cloudflare admin login rate limiting
+
+1. Open Cloudflare for the zone `calcusite.in` and find **Security → WAF → Rate limiting rules** (dashboard labels may vary by plan).
+2. Create a rule scoped to hostname `calcusite.in`, path `/api/admin/login`, and HTTP method `POST`.
+3. Start with a threshold of 5 requests per IP per 1 minute and a 10-minute block, then tune to avoid locking out legitimate users. Use only options available in the current plan.
+4. Save the rule and confirm it is enabled. Test carefully without repeatedly submitting real passwords; confirm the dashboard records matching requests.
+5. Do not treat this README entry or a green deployment as evidence that the rule is active.
+
+### Live site and sitemap
+
+1. Open `https://calcusite.in/`, `https://calcusite.in/blog`, `https://calcusite.in/sitemap.xml`, and `https://calcusite.in/robots.txt` in a browser.
+2. Confirm the pages return successfully, the sitemap contains the canonical `https://calcusite.in` origin, and robots.txt points to `https://calcusite.in/sitemap.xml`.
+3. Test one calculator and one published blog article on both mobile and desktop. Check browser console/network errors if something fails.
+
+### Google Search Console
+
+1. Open the verified `calcusite.in` property in Google Search Console.
+2. In **Sitemaps**, submit `https://calcusite.in/sitemap.xml` and check the latest processing status and discovered URL count.
+3. Use **URL inspection** for the homepage, `/blog`, and a representative article. Run a live test and review indexing eligibility.
+4. Request indexing only for important updated URLs when available; submission is not a guarantee of indexing. Record any excluded URLs and their reported reasons.
+
 ## Notes
 
 - The Admin Panel writes Markdown articles directly to the repository's `main` branch.
