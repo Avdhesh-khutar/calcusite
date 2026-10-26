@@ -205,12 +205,20 @@ async function adminApi(request, env, url) {
           manifestSynced = true;
         } catch (e) {
           lastManifestError = e;
-          // GitHub reports concurrent contents updates as 409 or 422; retry from fresh state.
-          if (e.status !== 409 && e.status !== 422) throw e;
+          // Re-read and retry conflicts, transient GitHub 5xx responses, and network
+          // failures. A timed-out PUT may have succeeded, so the next read is authoritative.
+          const retryable = e.status === 409 || e.status === 422 ||
+            !Number.isInteger(e.status) || e.status >= 500;
+          if (!retryable) {
+            const error = new Error("Article was saved, but the blog index could not be synced. Retry saving this article to repair the public listing.");
+            error.status = 503;
+            error.cause = e;
+            throw error;
+          }
         }
       }
       if (!manifestSynced) {
-        const error = new Error("Article was saved, but the blog index is busy. Retry saving this article to sync the public listing.");
+        const error = new Error("Article was saved, but the blog index could not be synced after retries. Retry saving this article to repair the public listing.");
         error.status = 503;
         error.cause = lastManifestError;
         throw error;
