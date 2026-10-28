@@ -576,8 +576,23 @@ function contactInit(){$('#cf').onsubmit=e=>{e.preventDefault();location.href='m
 function sidebar(r){$('#sb').innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px"><span class="logo"><i>∑</i>Calcusite AI</span><button class="ib" id="cl" aria-label="Close" style="background:none;color:#fff;border-color:#35509a">✕</button></div>
 ${[['Dashboard','#/','home','🏠'],['All Calculators','#/calcs','calcs','▦'],['AI Assistant','#/ai','ai','🤖'],...CATS.map(c=>[c[0],'#/cat/'+encodeURIComponent(c[0]),'cat:'+c[0],c[1]]),['History','#/history','history','🕘'],['Blog & Guides','/blog','blog','📚']].map(x=>`<a href="${x[1]}" class="${r==x[2]?'on':''}"><span>${x[3]}&nbsp; ${x[0]}</span>${x[0]=='AI Assistant'?'<span class="new">New</span>':'<span>›</span>'}</a>`).join('')}<div class="try"><b>🤖 Calcusite AI</b><br>Ask anything, get instant calculations &amp; answers!<a class="btn" href="#/ai">Try AI Assistant</a></div>`;$('#cl').onclick=closeSb}
 const closeSb=()=>{$('#sb').classList.remove('open');$('#ov').style.display='none'};
-function route(){const [r,a]=(location.hash.slice(2)||'home').split('/');const k=r||'home',key=pages[k]?k:'home';
- $('#app').innerHTML=pages[key](a);
+function route(){
+ const app=$('#app'),nativeAd=document.getElementById('adsterra-native-slot'),largeAd=document.getElementById('adsterra-300x250-slot'),topAd=document.getElementById('adsterra-top-banner');
+ // Restore ad slots before rerendering the SPA so navigation never deletes them.
+ if(nativeAd&&nativeAd.parentElement===app) app.after(nativeAd);
+ if(largeAd&&largeAd.parentElement===app) app.after(largeAd);
+ const [r,a]=(location.hash.slice(2)||'home').split('/');const k=r||'home',key=pages[k]?k:'home';
+ app.innerHTML=pages[key](a);
+ // On the home page, place the large rectangle near the top and native ad after the hero.
+ if(key==='home'){
+   if(largeAd&&topAd) topAd.after(largeAd);
+   const hero=app.querySelector('.hero'),stats=app.querySelector('.stats');
+   if(nativeAd&&hero) hero.after(nativeAd);
+   if(largeAd&&stats) stats.after(largeAd);
+ }else{
+   if(nativeAd) app.after(nativeAd);
+   if(largeAd) app.after(largeAd);
+ }
  const titleMap={home:'Free Online Calculators',calcs:'All Calculators',cats:'Calculator Categories',ai:'AI Calculation Assistant',history:'Calculation History',about:'About Us',contact:'Contact Us',privacy:'Privacy Policy',terms:'Terms of Use',disclaimer:'Disclaimer'};
  let pageTitle=titleMap[key]||'Smart Calculations';
  if(key==='calc'){const item=byId(a);if(item)pageTitle=item.n+' Calculator';}
