@@ -1,10 +1,10 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Calcusite AI">
-  <defs>
-    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#168cff"/>
-      <stop offset="1" stop-color="#1d5de8"/>
-    </linearGradient>
-  </defs>
-  <rect width="64" height="64" rx="15" fill="url(#g)"/>
-  <path d="M16 18h32M32 18v28M19 46l13-28 13 28M23 37h18" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="4"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Calcusite">
+<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#13c9f4"/><stop offset=".55" stop-color="#1675ed"/><stop offset="1" stop-color="#153d9c"/></linearGradient></defs>
+<rect width="64" height="64" rx="15" fill="url(#g)"/>
+<rect x="12" y="9" width="40" height="46" rx="7" fill="#fff"/>
+<rect x="17" y="14" width="30" height="12" rx="3" fill="#dff7ff"/>
+<path d="M24 17h16l-8 4 8 3H24" fill="none" stroke="#174bba" stroke-width="2.3" stroke-linejoin="round"/>
+<g fill="#174bba"><rect x="17" y="31" width="8" height="7" rx="2"/><rect x="28" y="31" width="8" height="7" rx="2"/><rect x="17" y="41" width="8" height="7" rx="2"/><rect x="28" y="41" width="8" height="7" rx="2"/></g>
+<rect x="39" y="31" width="8" height="17" rx="2" fill="#ff9f1c"/>
+<path d="M41 39h4" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
 </svg>
