@@ -165,18 +165,18 @@ nav{display:none}.hero{background:linear-gradient(120deg,#07124a,#1448d6 70%,#0e
   <script async="async" data-cfasync="false" src="https://bicea.org/21/1e623aa790598447fd14b1a520fb3edf"></script>
   <div id="container-1e623aa790598447fd14b1a520fb3edf"></div>
 </div>
-<div id="adsterra-300x250-slot" aria-label="Advertisement" style="width:calc(100% - 24px);max-width:160px;min-height:300px;margin:20px auto;text-align:center;overflow:hidden">
+<div id="adsterra-300x250-slot" aria-label="Advertisement" style="width:100%;max-width:300px;min-height:250px;margin:20px auto;text-align:center;overflow:hidden">
   <div style="font-size:11px;color:var(--mut);margin-bottom:4px">Advertisement</div>
   <script>
     atOptions = {
-      'key' : '16d1f99d540921eb3c72f982b1fa9906',
+      'key' : 'a3a0c0d54de5c93d59a79c03e61d44b2',
       'format' : 'iframe',
-      'height' : 300,
-      'width' : 160,
+      'height' : 250,
+      'width' : 300,
       'params' : {}
     };
   </script>
-  <script src="https://bicea.org/22/16d1f99d540921eb3c72f982b1fa9906"></script>
+  <script src="https://bicea.org/22/a3a0c0d54de5c93d59a79c03e61d44b2"></script>
 </div>
 <div id="adsterra-smartlink-slot" aria-label="Sponsored link" style="max-width:760px;margin:16px auto;padding:12px 16px;text-align:center;border:1px solid var(--bd);border-radius:12px;background:var(--card);color:var(--tx)">
   <span style="font-size:11px;color:var(--mut);display:block;margin-bottom:4px">Sponsored link</span>
@@ -583,12 +583,14 @@ function route(){
  if(largeAd&&largeAd.parentElement===app) app.after(largeAd);
  const [r,a]=(location.hash.slice(2)||'home').split('/');const k=r||'home',key=pages[k]?k:'home';
  app.innerHTML=pages[key](a);
- // On the home page, place the large rectangle near the top and native ad after the hero.
+ // On the home page, place the native ad after the hero and the banner in the open space before Browse by Category.
  if(key==='home'){
-   if(largeAd&&topAd) topAd.after(largeAd);
-   const hero=app.querySelector('.hero'),stats=app.querySelector('.stats');
+   const hero=app.querySelector('.hero');
    if(nativeAd&&hero) hero.after(nativeAd);
-   if(largeAd&&stats) stats.after(largeAd);
+   if(largeAd){
+     const categoryHeading=[...app.querySelectorAll('h2')].find(h=>h.textContent.includes('Browse by Category'));
+     if(categoryHeading) categoryHeading.before(largeAd);
+   }
  }else{
    if(nativeAd) app.after(nativeAd);
    if(largeAd) app.after(largeAd);
