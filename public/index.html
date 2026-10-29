@@ -583,12 +583,14 @@ function route(){
  if(largeAd&&largeAd.parentElement===app) app.after(largeAd);
  const [r,a]=(location.hash.slice(2)||'home').split('/');const k=r||'home',key=pages[k]?k:'home';
  app.innerHTML=pages[key](a);
- // On the home page, place the large rectangle near the top and native ad after the hero.
+ // On the home page, place the native ad after the hero and the banner in the open space before Browse by Category.
  if(key==='home'){
-   if(largeAd&&topAd) topAd.after(largeAd);
-   const hero=app.querySelector('.hero'),stats=app.querySelector('.stats');
+   const hero=app.querySelector('.hero');
    if(nativeAd&&hero) hero.after(nativeAd);
-   if(largeAd&&stats) stats.after(largeAd);
+   if(largeAd){
+     const categoryHeading=[...app.querySelectorAll('h2')].find(h=>h.textContent.includes('Browse by Category'));
+     if(categoryHeading) categoryHeading.before(largeAd);
+   }
  }else{
    if(nativeAd) app.after(nativeAd);
    if(largeAd) app.after(largeAd);
